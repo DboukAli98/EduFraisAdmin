@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSchoolsRouteImport } from './routes/_authenticated/schools'
+import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -38,7 +40,10 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
+import { Route as AuthenticatedSchoolDetailsSchoolIdRouteImport } from './routes/_authenticated/school-details.$schoolId'
+import { Route as AuthenticatedParentDetailsParentIdRouteImport } from './routes/_authenticated/parent-details.$parentId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedChildDetailsChildIdRouteImport } from './routes/_authenticated/child-details.$childId'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
   id: '/clerk',
@@ -52,6 +57,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSchoolsRoute = AuthenticatedSchoolsRouteImport.update({
+  id: '/schools',
+  path: '/schools',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const errors503Route = errors503RouteImport.update({
@@ -190,10 +205,28 @@ const AuthenticatedSettingsAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedSchoolDetailsSchoolIdRoute =
+  AuthenticatedSchoolDetailsSchoolIdRouteImport.update({
+    id: '/school-details/$schoolId',
+    path: '/school-details/$schoolId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParentDetailsParentIdRoute =
+  AuthenticatedParentDetailsParentIdRouteImport.update({
+    id: '/parent-details/$parentId',
+    path: '/parent-details/$parentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
     path: '/errors/$error',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedChildDetailsChildIdRoute =
+  AuthenticatedChildDetailsChildIdRouteImport.update({
+    id: '/child-details/$childId',
+    path: '/child-details/$childId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -211,7 +244,12 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/payments': typeof AuthenticatedPaymentsRoute
+  '/schools': typeof AuthenticatedSchoolsRoute
+  '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
+  '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -238,8 +276,13 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/payments': typeof AuthenticatedPaymentsRoute
+  '/schools': typeof AuthenticatedSchoolsRoute
   '/': typeof AuthenticatedIndexRoute
+  '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
+  '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -271,8 +314,13 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
+  '/_authenticated/schools': typeof AuthenticatedSchoolsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
+  '/_authenticated/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
@@ -303,7 +351,12 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/payments'
+    | '/schools'
+    | '/child-details/$childId'
     | '/errors/$error'
+    | '/parent-details/$parentId'
+    | '/school-details/$schoolId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -330,8 +383,13 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/payments'
+    | '/schools'
     | '/'
+    | '/child-details/$childId'
     | '/errors/$error'
+    | '/parent-details/$parentId'
+    | '/school-details/$schoolId'
     | '/settings/account'
     | '/settings/appearance'
     | '/settings/display'
@@ -362,8 +420,13 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/payments'
+    | '/_authenticated/schools'
     | '/_authenticated/'
+    | '/_authenticated/child-details/$childId'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/parent-details/$parentId'
+    | '/_authenticated/school-details/$schoolId'
     | '/_authenticated/settings/account'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
@@ -415,6 +478,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/schools': {
+      id: '/_authenticated/schools'
+      path: '/schools'
+      fullPath: '/schools'
+      preLoaderRoute: typeof AuthenticatedSchoolsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payments': {
+      id: '/_authenticated/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -599,11 +676,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
     }
+    '/_authenticated/school-details/$schoolId': {
+      id: '/_authenticated/school-details/$schoolId'
+      path: '/school-details/$schoolId'
+      fullPath: '/school-details/$schoolId'
+      preLoaderRoute: typeof AuthenticatedSchoolDetailsSchoolIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parent-details/$parentId': {
+      id: '/_authenticated/parent-details/$parentId'
+      path: '/parent-details/$parentId'
+      fullPath: '/parent-details/$parentId'
+      preLoaderRoute: typeof AuthenticatedParentDetailsParentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
       fullPath: '/errors/$error'
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/child-details/$childId': {
+      id: '/_authenticated/child-details/$childId'
+      path: '/child-details/$childId'
+      fullPath: '/child-details/$childId'
+      preLoaderRoute: typeof AuthenticatedChildDetailsChildIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -634,8 +732,13 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
+  AuthenticatedSchoolsRoute: typeof AuthenticatedSchoolsRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedChildDetailsChildIdRoute: typeof AuthenticatedChildDetailsChildIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedParentDetailsParentIdRoute: typeof AuthenticatedParentDetailsParentIdRoute
+  AuthenticatedSchoolDetailsSchoolIdRoute: typeof AuthenticatedSchoolDetailsSchoolIdRoute
   AuthenticatedAppsIndexRoute: typeof AuthenticatedAppsIndexRoute
   AuthenticatedChatsIndexRoute: typeof AuthenticatedChatsIndexRoute
   AuthenticatedHelpCenterIndexRoute: typeof AuthenticatedHelpCenterIndexRoute
@@ -645,8 +748,15 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
+  AuthenticatedSchoolsRoute: AuthenticatedSchoolsRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedChildDetailsChildIdRoute: AuthenticatedChildDetailsChildIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedParentDetailsParentIdRoute:
+    AuthenticatedParentDetailsParentIdRoute,
+  AuthenticatedSchoolDetailsSchoolIdRoute:
+    AuthenticatedSchoolDetailsSchoolIdRoute,
   AuthenticatedAppsIndexRoute: AuthenticatedAppsIndexRoute,
   AuthenticatedChatsIndexRoute: AuthenticatedChatsIndexRoute,
   AuthenticatedHelpCenterIndexRoute: AuthenticatedHelpCenterIndexRoute,

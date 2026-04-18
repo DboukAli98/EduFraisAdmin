@@ -1,11 +1,11 @@
 import {
   Building2,
-  ChartColumnBig,
   Command,
+  HandCoins,
   HelpCircle,
   LayoutDashboard,
   Settings,
-  Shield,
+  Users,
 } from 'lucide-react'
 import { type AuthUser } from '@/lib/jwt'
 import { type SidebarData } from '../types'
@@ -34,19 +34,19 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
             icon: LayoutDashboard,
           },
           {
-            title: 'Reporting',
-            url: '/',
-            icon: ChartColumnBig,
-          },
-          {
             title: 'Schools',
-            url: '/',
+            url: '/schools',
             icon: Building2,
           },
           {
-            title: 'Access',
-            url: '/settings',
-            icon: Shield,
+            title: 'Users',
+            url: '/users',
+            icon: Users,
+          },
+          {
+            title: 'Payments',
+            url: '/payments',
+            icon: HandCoins,
           },
         ],
       },

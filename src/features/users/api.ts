@@ -96,6 +96,56 @@ export interface ChildMutationInput {
   schoolId: number
 }
 
+export interface ParentSchoolSummary {
+  schoolId: number
+  schoolName: string
+}
+
+export interface ParentChildRecord {
+  id: number
+  firstName: string
+  lastName: string
+  dateOfBirth: string | null
+  schoolName: string
+  schoolGradeName: string | null
+  parentId: number
+  schoolId: number
+  statusId: number
+  createdOn: string | null
+  modifiedOn: string | null
+}
+
+export interface ParentInstallmentRecord {
+  installmentId: number
+  childCycleSelectionId: number
+  amount: number
+  dueDate: string | null
+  isPaid: boolean
+  statusId: number
+  paidDate: string | null
+  lateFee: number | null
+  childId: number
+  childName: string
+  className: string
+  schoolName: string
+}
+
+export interface ChildGradeRecord {
+  id: number
+  childId: number
+  schoolGradeSectionId: number
+  schoolId: number | null
+  schoolName: string | null
+  schoolGradeName: string | null
+  schoolGradeDescription: string | null
+  schoolGradeFee: number | null
+  statusId: number
+  termStartDate: string | null
+  termEndDate: string | null
+  createdOn: string | null
+  modifiedOn: string | null
+}
+
 interface PaginatedResult<T> {
   items: T[]
   totalCount: number
@@ -110,7 +160,10 @@ function getEnvelopeCount(record: unknown): number {
 }
 
 async function fetchAllPages<T>(
-  fetchPage: (pageNumber: number, pageSize: number) => Promise<PaginatedResult<T>>
+  fetchPage: (
+    pageNumber: number,
+    pageSize: number
+  ) => Promise<PaginatedResult<T>>
 ): Promise<T[]> {
   const items: T[] = []
   let pageNumber = 1
@@ -134,7 +187,10 @@ async function fetchAllPages<T>(
   return items
 }
 
-function mapParentSchools(record: ApiRecord): { schoolIds: number[]; schoolNames: string[] } {
+function mapParentSchools(record: ApiRecord): {
+  schoolIds: number[]
+  schoolNames: string[]
+} {
   const parentSchools = readArray(record, 'ParentSchools', 'parentSchools')
 
   const schoolIds = parentSchools
@@ -175,7 +231,10 @@ function mapParent(record: ApiRecord): ParentRecord {
   }
 }
 
-function mapDirector(record: ApiRecord, school: SchoolSummary): DirectorRecord {
+function mapDirector(
+  record: ApiRecord,
+  school: Pick<SchoolSummary, 'id' | 'name'>
+): DirectorRecord {
   const countryCodeAsNumber = readNumber(record, 'CountryCode', 'countryCode')
 
   return {
@@ -223,6 +282,108 @@ function mapChild(record: ApiRecord): ChildRecord {
   }
 }
 
+function mapParentSchool(record: ApiRecord): ParentSchoolSummary {
+  return {
+    schoolId: readNumber(record, 'SchoolId', 'schoolId') ?? 0,
+    schoolName:
+      readString(record, 'SchoolName', 'schoolName') ?? 'Unnamed school',
+  }
+}
+
+function mapParentChild(record: ApiRecord): ParentChildRecord {
+  return {
+    id: readNumber(record, 'ChildId', 'childId') ?? 0,
+    firstName: readString(record, 'FirstName', 'firstName') ?? '',
+    lastName: readString(record, 'LastName', 'lastName') ?? '',
+    dateOfBirth: readString(record, 'DateOfBirth', 'dateOfBirth') ?? null,
+    schoolName:
+      readString(record, 'SchoolName', 'schoolName') ?? 'Unknown school',
+    schoolGradeName:
+      readString(record, 'SchoolGradeName', 'schoolGradeName') ?? null,
+    parentId:
+      readNumber(record, 'FK_ParentId', 'fK_ParentId', 'fk_ParentId') ?? 0,
+    schoolId:
+      readNumber(record, 'FK_SchoolId', 'fK_SchoolId', 'fk_SchoolId') ?? 0,
+    statusId:
+      readNumber(record, 'FK_StatusId', 'fK_StatusId', 'fk_StatusId') ?? 0,
+    createdOn: readString(record, 'CreatedOn', 'createdOn') ?? null,
+    modifiedOn: readString(record, 'ModifiedOn', 'modifiedOn') ?? null,
+  }
+}
+
+function mapParentInstallment(record: ApiRecord): ParentInstallmentRecord {
+  return {
+    installmentId: readNumber(record, 'InstallmentId', 'installmentId') ?? 0,
+    childCycleSelectionId:
+      readNumber(
+        record,
+        'FK_ChildCycleSelectionId',
+        'fK_ChildCycleSelectionId',
+        'fk_ChildCycleSelectionId'
+      ) ?? 0,
+    amount: readNumber(record, 'Amount', 'amount') ?? 0,
+    dueDate: readString(record, 'DueDate', 'dueDate') ?? null,
+    isPaid: readValue(record, 'IsPaid', 'isPaid') === true,
+    statusId: readNumber(record, 'StatusId', 'statusId') ?? 0,
+    paidDate: readString(record, 'PaidDate', 'paidDate') ?? null,
+    lateFee: readNumber(record, 'LateFee', 'lateFee') ?? null,
+    childId: readNumber(record, 'FK_ChildId', 'fK_ChildId', 'fk_ChildId') ?? 0,
+    childName: readString(record, 'ChildName', 'childName') ?? 'Unknown child',
+    className: readString(record, 'ClassName', 'className') ?? 'No class',
+    schoolName:
+      readString(record, 'SchoolName', 'schoolName') ?? 'Unknown school',
+  }
+}
+
+function mapChildGrade(record: ApiRecord): ChildGradeRecord {
+  const schoolGradeSection = readRecord(
+    record,
+    'SchoolGradeSection',
+    'schoolGradeSection'
+  )
+  const school = readRecord(schoolGradeSection, 'School', 'school')
+
+  return {
+    id: readNumber(record, 'ChildGradeId', 'childGradeId') ?? 0,
+    childId: readNumber(record, 'FK_ChildId', 'fK_ChildId', 'fk_ChildId') ?? 0,
+    schoolGradeSectionId:
+      readNumber(
+        record,
+        'FK_SchoolGradeSectionId',
+        'fK_SchoolGradeSectionId',
+        'fk_SchoolGradeSectionId'
+      ) ?? 0,
+    schoolId:
+      readNumber(
+        schoolGradeSection,
+        'FK_SchoolId',
+        'fK_SchoolId',
+        'fk_SchoolId'
+      ) ?? null,
+    schoolName: readString(school, 'SchoolName', 'schoolName') ?? null,
+    schoolGradeName:
+      readString(schoolGradeSection, 'SchoolGradeName', 'schoolGradeName') ??
+      null,
+    schoolGradeDescription:
+      readString(
+        schoolGradeSection,
+        'SchoolGradeDescription',
+        'schoolGradeDescription'
+      ) ?? null,
+    schoolGradeFee:
+      readNumber(schoolGradeSection, 'SchoolGradeFee', 'schoolGradeFee') ??
+      null,
+    statusId:
+      readNumber(record, 'FK_StatusId', 'fK_StatusId', 'fk_StatusId') ?? 0,
+    termStartDate:
+      readString(schoolGradeSection, 'TermStartDate', 'termStartDate') ?? null,
+    termEndDate:
+      readString(schoolGradeSection, 'TermEndDate', 'termEndDate') ?? null,
+    createdOn: readString(record, 'CreatedOn', 'createdOn') ?? null,
+    modifiedOn: readString(record, 'ModifiedOn', 'modifiedOn') ?? null,
+  }
+}
+
 async function alterModuleStatus(
   moduleName: string,
   ids: number[],
@@ -252,6 +413,71 @@ export async function fetchParents(options?: {
 
     return {
       items: readArray(getEnvelopeData(data)).map(mapParent),
+      totalCount: getEnvelopeCount(data),
+    }
+  })
+}
+
+export async function fetchParentDetails(
+  parentId: number
+): Promise<ParentRecord> {
+  const { data } = await api.get('/api/Parents/GetSingleParentDetails', {
+    params: { ParentId: parentId },
+  })
+
+  const parent = readRecord(getEnvelopeData(data))
+
+  if (!parent) {
+    throw new Error('Parent details were not returned by the API.')
+  }
+
+  return mapParent(parent)
+}
+
+export async function fetchParentSchools(
+  parentId: number
+): Promise<ParentSchoolSummary[]> {
+  const { data } = await api.get('/api/Parents/GetParentSchools', {
+    params: { ParentId: parentId },
+  })
+
+  return readArray(getEnvelopeData(data)).map(mapParentSchool)
+}
+
+export async function fetchParentChildren(
+  parentId: number
+): Promise<ParentChildRecord[]> {
+  return fetchAllPages(async (pageNumber, pageSize) => {
+    const { data } = await api.get('/api/Parents/GetParentChildrens', {
+      params: {
+        ParentId: parentId,
+        PageNumber: pageNumber,
+        PageSize: pageSize,
+        Search: '',
+      },
+    })
+
+    return {
+      items: readArray(getEnvelopeData(data)).map(mapParentChild),
+      totalCount: getEnvelopeCount(data),
+    }
+  })
+}
+
+export async function fetchParentInstallments(
+  parentId: number
+): Promise<ParentInstallmentRecord[]> {
+  return fetchAllPages(async (pageNumber, pageSize) => {
+    const { data } = await api.get('/api/Parents/GetParentInstallments', {
+      params: {
+        ParentId: parentId,
+        PageNumber: pageNumber,
+        PageSize: pageSize,
+      },
+    })
+
+    return {
+      items: readArray(getEnvelopeData(data)).map(mapParentInstallment),
       totalCount: getEnvelopeCount(data),
     }
   })
@@ -299,25 +525,33 @@ export async function fetchDirectors(
   schools: SchoolSummary[]
 ): Promise<DirectorRecord[]> {
   const results = await Promise.allSettled(
-    schools.map(async (school) => {
-      const { data } = await api.get('/api/Director/GetSchoolDirector', {
-        params: { SchoolId: school.id },
-      })
-
-      const director = readRecord(data, 'Director', 'director')
-      return director ? mapDirector(director, school) : null
-    })
+    schools.map((school) => fetchDirectorBySchoolId(school))
   )
 
   return results
-    .filter((result): result is PromiseFulfilledResult<DirectorRecord | null> => {
-      return result.status === 'fulfilled'
-    })
+    .filter(
+      (result): result is PromiseFulfilledResult<DirectorRecord | null> => {
+        return result.status === 'fulfilled'
+      }
+    )
     .map((result) => result.value)
     .filter((director): director is DirectorRecord => Boolean(director))
 }
 
-export async function createDirector(input: DirectorCreateInput): Promise<void> {
+export async function fetchDirectorBySchoolId(
+  school: Pick<SchoolSummary, 'id' | 'name'>
+): Promise<DirectorRecord | null> {
+  const { data } = await api.get('/api/Director/GetSchoolDirector', {
+    params: { SchoolId: school.id },
+  })
+
+  const director = readRecord(data, 'Director', 'director')
+  return director ? mapDirector(director, school) : null
+}
+
+export async function createDirector(
+  input: DirectorCreateInput
+): Promise<void> {
   await api.post('/api/Director/AddDirector', {
     FirstName: input.firstName.trim(),
     LastName: input.lastName.trim(),
@@ -395,6 +629,50 @@ export async function fetchChildDetails(childId: number): Promise<ChildRecord> {
   }
 
   return mapChild(child)
+}
+
+export async function fetchChildGrade(
+  childId: number
+): Promise<ChildGradeRecord | null> {
+  const { data } = await api.get('/api/Children/GetChildrenGrade', {
+    params: { ChildrenId: childId },
+  })
+
+  const grade = readRecord(getEnvelopeData(data))
+  return grade ? mapChildGrade(grade) : null
+}
+
+function getTodayDateValue(): string {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+export async function createChildGrade(
+  childId: number,
+  schoolGradeSectionId: number
+): Promise<void> {
+  await api.post('/api/Children/AddChildrenGradeToSystem', {
+    ChildrenId: childId,
+    SchoolGradeSectionId: schoolGradeSectionId,
+    StartDate: getTodayDateValue(),
+  })
+}
+
+export async function updateChildGradeRecord(
+  childGradeId: number,
+  childId: number,
+  schoolGradeSectionId: number
+): Promise<void> {
+  await api.put('/api/Children/UpdateChildrenGrade', {
+    ChildGradeId: childGradeId,
+    ChildrenId: childId,
+    SchoolGradeSectionId: schoolGradeSectionId,
+    StartDate: getTodayDateValue(),
+  })
 }
 
 export async function createChild(input: ChildMutationInput): Promise<void> {

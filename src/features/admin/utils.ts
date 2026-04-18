@@ -66,7 +66,7 @@ export function getEntityStatusMeta(statusId: number): {
   switch (statusId) {
     case 1:
       return {
-        label: 'Active',
+        label: 'Enabled',
         className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
       }
     case 2:
@@ -101,7 +101,7 @@ export function getEntityStatusMeta(statusId: number): {
       }
     case 11:
       return {
-        label: 'In progress',
+        label: 'InProgress',
         className: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
       }
     case 12:
@@ -113,6 +113,36 @@ export function getEntityStatusMeta(statusId: number): {
       return {
         label: 'Rejected',
         className: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+      }
+    case 14:
+      return {
+        label: 'Resolved',
+        className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+      }
+    case 15:
+      return {
+        label: 'Stall',
+        className: 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
+      }
+    case 101:
+      return {
+        label: 'Pending',
+        className: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+      }
+    case 102:
+      return {
+        label: 'UnderReview',
+        className: 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300',
+      }
+    case 103:
+      return {
+        label: 'Rejected',
+        className: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+      }
+    case 104:
+      return {
+        label: 'Approved',
+        className: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
       }
     default:
       return {

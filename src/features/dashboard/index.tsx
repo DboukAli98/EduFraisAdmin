@@ -56,6 +56,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { getEntityStatusMeta } from '@/features/admin/utils'
 import { toApiUrl } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
 import {
@@ -137,48 +138,15 @@ function formatDate(value: string | null): string {
 }
 
 function getSchoolStatusLabel(statusId: number): string {
-  switch (statusId) {
-    case 1:
-      return 'Active'
-    case 2:
-      return 'Disabled'
-    case 5:
-      return 'Deleted'
-    default:
-      return `Status ${statusId}`
-  }
+  return getEntityStatusMeta(statusId).label
 }
 
 function getSupportStatusLabel(statusId: number): string {
-  switch (statusId) {
-    case 6:
-      return 'Pending'
-    case 9:
-      return 'Cancelled'
-    case 11:
-      return 'In progress'
-    case 14:
-      return 'Resolved'
-    case 15:
-      return 'Stalled'
-    default:
-      return `Status ${statusId}`
-  }
+  return getEntityStatusMeta(statusId).label
 }
 
 function getSupportStatusClass(statusId: number): string {
-  switch (statusId) {
-    case 14:
-      return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
-    case 11:
-      return 'bg-sky-500/15 text-sky-700 dark:text-sky-300'
-    case 15:
-      return 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
-    case 9:
-      return 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
-    default:
-      return 'bg-slate-500/15 text-slate-700 dark:text-slate-300'
-  }
+  return getEntityStatusMeta(statusId).className
 }
 
 function getPriorityClass(priority: string): string {
@@ -789,7 +757,7 @@ export function Dashboard() {
                     Schools in scope
                   </p>
                   <p className='mt-2 text-2xl font-semibold'>{schoolCount}</p>
-                  <p className='text-sm text-white/70'>{enabledSchools} active</p>
+                    <p className='text-sm text-white/70'>{enabledSchools} enabled</p>
                 </div>
                 <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
                   <p className='text-xs uppercase tracking-[0.18em] text-white/65'>
@@ -914,7 +882,7 @@ export function Dashboard() {
                 <LoadingCard title='Students' />
               ) : (
                 <MetricCard
-                  title='Active students'
+                  title='Enabled students'
                   description='Students linked to the selected school'
                   value={renderMetricValue(
                     studentMetricsQuery.data ?? {
@@ -932,7 +900,7 @@ export function Dashboard() {
                 <LoadingCard title='Parents' />
               ) : (
                 <MetricCard
-                  title='Active parents'
+                  title='Enabled parents'
                   description='Parent accounts currently enabled'
                   value={renderMetricValue(
                     parentMetricsQuery.data ?? {
@@ -1172,7 +1140,7 @@ export function Dashboard() {
                   <Card className='border-border/70'>
                     <CardHeader className='pb-2'>
                       <CardTitle className='text-sm font-medium text-muted-foreground'>
-                        Active schools
+                        Enabled schools
                       </CardTitle>
                     </CardHeader>
                     <CardContent>

@@ -37,9 +37,19 @@ export function readValue(record: unknown, ...keys: string[]): unknown {
     return undefined
   }
 
+  const recordKeys = Object.keys(record)
+
   for (const key of keys) {
     if (key in record) {
       return record[key]
+    }
+
+    const matchingKey = recordKeys.find(
+      (recordKey) => recordKey.toLowerCase() === key.toLowerCase()
+    )
+
+    if (matchingKey) {
+      return record[matchingKey]
     }
   }
 
