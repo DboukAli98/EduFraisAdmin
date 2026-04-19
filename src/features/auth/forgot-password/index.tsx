@@ -19,8 +19,8 @@ export function ForgotPassword() {
             Forgot Password
           </CardTitle>
           <CardDescription>
-            Enter your registered email and <br /> we will send you a link to
-            reset your password.
+            Choose email OTP or WhatsApp OTP, then we will send a verification
+            code so you can reset your password.
           </CardDescription>
         </CardHeader>
         <CardContent>

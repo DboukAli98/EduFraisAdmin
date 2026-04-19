@@ -16,11 +16,11 @@ export function Otp() {
       <Card className='max-w-md gap-4'>
         <CardHeader>
           <CardTitle className='text-base tracking-tight'>
-            Two-factor Authentication
+            Reset Password
           </CardTitle>
           <CardDescription>
-            Please enter the authentication code. <br /> We have sent the
-            authentication code to your email.
+            Enter the OTP you received and choose a new password for your
+            account.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -28,12 +28,12 @@ export function Otp() {
         </CardContent>
         <CardFooter>
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            Haven't received it?{' '}
+            Need to restart the reset flow?{' '}
             <Link
-              to='/sign-in'
+              to='/forgot-password'
               className='underline underline-offset-4 hover:text-primary'
             >
-              Resend a new code.
+              Go back
             </Link>
             .
           </p>

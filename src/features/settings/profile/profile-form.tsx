@@ -1,9 +1,18 @@
+import { useEffect } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Link } from '@tanstack/react-router'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { buildFullName, getEntityStatusMeta } from '@/features/admin/utils'
+import {
+  fetchDirectorBySchoolId,
+  updateDirector,
+} from '@/features/users/api'
+import { getApiErrorMessage } from '@/lib/api'
+import { type AuthUser } from '@/lib/jwt'
+import { useAuthStore } from '@/stores/auth-store'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,163 +24,253 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const profileFormSchema = z.object({
-  username: z
-    .string('Please enter your username.')
-    .min(2, 'Username must be at least 2 characters.')
-    .max(30, 'Username must not be longer than 30 characters.'),
-  email: z.email({
-    error: (iss) =>
-      iss.input === undefined
-        ? 'Please select an email to display.'
-        : undefined,
-  }),
-  bio: z.string().max(160).min(4),
-  urls: z
-    .array(
-      z.object({
-        value: z.url('Please enter a valid URL.'),
-      })
-    )
-    .optional(),
+  firstName: z.string().min(1, 'Please enter the first name.'),
+  lastName: z.string().min(1, 'Please enter the last name.'),
+  email: z.email('Please enter a valid email address.'),
+  countryCode: z.string().min(1, 'Please enter the country code.'),
+  phoneNumber: z.string().min(1, 'Please enter the phone number.'),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<ProfileFormValues> = {
-  bio: 'I own a computer.',
-  urls: [
-    { value: 'https://shadcn.com' },
-    { value: 'http://twitter.com/shadcn' },
-  ],
+function updateAuthUserSnapshot(
+  user: AuthUser | null,
+  values: ProfileFormValues
+): AuthUser | null {
+  if (!user) {
+    return user
+  }
+
+  return {
+    ...user,
+    name: buildFullName(values.firstName, values.lastName) || user.name,
+    email: values.email,
+    phoneNumber: values.phoneNumber,
+  }
 }
 
 export function ProfileForm() {
+  const queryClient = useQueryClient()
+  const currentUser = useAuthStore((state) => state.auth.user)
+  const setUser = useAuthStore((state) => state.auth.setUser)
+  const schoolId = currentUser?.schoolIds[0] ?? 0
+  const isDirector = currentUser?.roles.includes('Director') ?? false
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
-    mode: 'onChange',
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      countryCode: '242',
+      phoneNumber: '',
+    },
   })
 
-  const { fields, append } = useFieldArray({
-    name: 'urls',
-    control: form.control,
+  const directorQuery = useQuery({
+    queryKey: ['settings', 'director-profile', schoolId],
+    queryFn: () =>
+      fetchDirectorBySchoolId({
+        id: schoolId,
+        name: `School ${schoolId}`,
+      }),
+    enabled: isDirector && schoolId > 0,
   })
+
+  useEffect(() => {
+    if (!directorQuery.data) {
+      return
+    }
+
+    form.reset({
+      firstName: directorQuery.data.firstName,
+      lastName: directorQuery.data.lastName,
+      email: directorQuery.data.email,
+      countryCode: directorQuery.data.countryCode,
+      phoneNumber: directorQuery.data.phoneNumber,
+    })
+  }, [directorQuery.data, form])
+
+  const saveProfileMutation = useMutation({
+    mutationFn: async (values: ProfileFormValues) => {
+      if (!directorQuery.data) {
+        throw new Error('Director profile could not be loaded.')
+      }
+
+      await updateDirector(directorQuery.data.id, {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        countryCode: values.countryCode,
+        phoneNumber: values.phoneNumber,
+        statusId: directorQuery.data.statusId,
+      })
+
+      return values
+    },
+    onSuccess: (values) => {
+      setUser(updateAuthUserSnapshot(currentUser, values))
+      toast.success('Profile updated successfully.')
+      void queryClient.invalidateQueries({
+        queryKey: ['settings', 'director-profile', schoolId],
+      })
+      void queryClient.invalidateQueries({
+        queryKey: ['users', 'director-by-school', schoolId],
+      })
+    },
+    onError: (error) => {
+      toast.error(
+        getApiErrorMessage(error, 'Unable to update the profile right now.')
+      )
+    },
+  })
+
+  if (!isDirector || schoolId === 0) {
+    return (
+      <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
+        Profile editing is currently wired for director accounts linked to a school.
+      </div>
+    )
+  }
+
+  if (directorQuery.isLoading) {
+    return (
+      <div className='space-y-4'>
+        <Skeleton className='h-24 w-full' />
+        <Skeleton className='h-12 w-full' />
+        <Skeleton className='h-12 w-full' />
+        <Skeleton className='h-12 w-full' />
+      </div>
+    )
+  }
+
+  if (!directorQuery.data) {
+    return (
+      <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
+        The current director profile could not be loaded from the backend.
+      </div>
+    )
+  }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit((data) => showSubmittedData(data))}
-        className='space-y-8'
-      >
-        <FormField
-          control={form.control}
-          name='username'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder='shadcn' {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name. It can be your real name or a
-                pseudonym. You can only change this once every 30 days.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
+    <div className='space-y-8'>
+      <div className='grid gap-4 rounded-xl border bg-muted/20 p-4 sm:grid-cols-2'>
+        <div className='space-y-2'>
+          <p className='text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase'>
+            School scope
+          </p>
+          <p className='font-medium'>{directorQuery.data.schoolName}</p>
+        </div>
+        <div className='space-y-2'>
+          <p className='text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase'>
+            Status
+          </p>
+          <Badge
+            variant='outline'
+            className={getEntityStatusMeta(directorQuery.data.statusId).className}
+          >
+            {getEntityStatusMeta(directorQuery.data.statusId).label}
+          </Badge>
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit((values) =>
+            saveProfileMutation.mutate(values)
           )}
-        />
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a verified email to display' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value='m@example.com'>m@example.com</SelectItem>
-                  <SelectItem value='m@google.com'>m@google.com</SelectItem>
-                  <SelectItem value='m@support.com'>m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                You can manage verified email addresses in your{' '}
-                <Link to='/'>email settings</Link>.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='bio'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder='Tell us a little bit about yourself'
-                  className='resize-none'
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                You can <span>@mention</span> other users and organizations to
-                link to them.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div>
-          {fields.map((field, index) => (
+          className='space-y-8'
+        >
+          <div className='grid gap-4 sm:grid-cols-2'>
             <FormField
               control={form.control}
-              key={field.id}
-              name={`urls.${index}.value`}
+              name='firstName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={cn(index !== 0 && 'sr-only')}>
-                    URLs
-                  </FormLabel>
-                  <FormDescription className={cn(index !== 0 && 'sr-only')}>
-                    Add links to your website, blog, or social media profiles.
-                  </FormDescription>
-                  <FormControl className={cn(index !== 0 && 'mt-1.5')}>
-                    <Input {...field} />
+                  <FormLabel>First name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='First name' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          ))}
-          <Button
-            type='button'
-            variant='outline'
-            size='sm'
-            className='mt-2'
-            onClick={() => append({ value: '' })}
-          >
-            Add URL
+
+            <FormField
+              control={form.control}
+              name='lastName'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last name</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Last name' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <FormField
+            control={form.control}
+            name='email'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type='email' placeholder='name@example.com' {...field} />
+                </FormControl>
+                <FormDescription>
+                  This email is used for account communication and password reset by OTP.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className='grid gap-4 sm:grid-cols-[120px_1fr]'>
+            <FormField
+              control={form.control}
+              name='countryCode'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Country code</FormLabel>
+                  <FormControl>
+                    <Input placeholder='242' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='phoneNumber'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone number</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Phone number' {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This number is also used when resetting the password through WhatsApp OTP.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <Button type='submit' disabled={saveProfileMutation.isPending}>
+            {saveProfileMutation.isPending
+              ? 'Saving profile...'
+              : 'Update profile'}
           </Button>
-        </div>
-        <Button type='submit'>Update profile</Button>
-      </form>
-    </Form>
+        </form>
+      </Form>
+    </div>
   )
 }

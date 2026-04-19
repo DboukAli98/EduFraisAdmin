@@ -59,6 +59,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { getEntityStatusMeta } from '@/features/admin/utils'
 import { toApiUrl } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
+import { DirectorDashboard } from './director-dashboard'
 import {
   fetchAgentCollectionSummary,
   fetchCollectingAgents,
@@ -554,6 +555,12 @@ export function Dashboard() {
   const { auth } = useAuthStore()
   const currentUser = auth.user
   const isDirector = currentUser?.roles.includes('Director') ?? false
+  const isSuperAdmin = currentUser?.roles.includes('SuperAdmin') ?? false
+
+  if (isDirector && !isSuperAdmin) {
+    return <DirectorDashboard />
+  }
+
   const [selectedSchoolId, setSelectedSchoolId] = useState<number | null>(
     currentUser?.schoolIds[0] ?? null
   )

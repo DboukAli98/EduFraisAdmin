@@ -1,18 +1,13 @@
+import { Link } from '@tanstack/react-router'
+import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { showSubmittedData } from '@/lib/show-submitted-data'
-import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+import { changePassword } from '@/features/auth/api'
+import { getApiErrorMessage } from '@/lib/api'
+import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
 import {
   Form,
   FormControl,
@@ -23,150 +18,140 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { DatePicker } from '@/components/date-picker'
 
-const languages = [
-  { label: 'English', value: 'en' },
-  { label: 'French', value: 'fr' },
-  { label: 'German', value: 'de' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt' },
-  { label: 'Russian', value: 'ru' },
-  { label: 'Japanese', value: 'ja' },
-  { label: 'Korean', value: 'ko' },
-  { label: 'Chinese', value: 'zh' },
-] as const
-
-const accountFormSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Please enter your name.')
-    .min(2, 'Name must be at least 2 characters.')
-    .max(30, 'Name must not be longer than 30 characters.'),
-  dob: z.date('Please select your date of birth.'),
-  language: z.string('Please select a language.'),
-})
+const accountFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Please enter your current password.'),
+    newPassword: z
+      .string()
+      .min(6, 'New password must be at least 6 characters.'),
+    confirmPassword: z.string().min(1, 'Please confirm the new password.'),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  })
 
 type AccountFormValues = z.infer<typeof accountFormSchema>
 
-// This can come from your database or API.
-const defaultValues: Partial<AccountFormValues> = {
-  name: '',
-}
-
 export function AccountForm() {
+  const currentUser = useAuthStore((state) => state.auth.user)
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues,
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
   })
 
-  function onSubmit(data: AccountFormValues) {
-    showSubmittedData(data)
+  const changePasswordMutation = useMutation({
+    mutationFn: async (values: AccountFormValues) => {
+      if (!currentUser?.userId) {
+        throw new Error('You need to sign in again before changing your password.')
+      }
+
+      return changePassword({
+        userId: currentUser.userId,
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      })
+    },
+    onSuccess: (message) => {
+      toast.success(message)
+      form.reset()
+    },
+    onError: (error) => {
+      toast.error(
+        getApiErrorMessage(error, 'Unable to update your password right now.')
+      )
+    },
+  })
+
+  if (!currentUser) {
+    return (
+      <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
+        Your session is missing. Sign in again to change your password.
+      </div>
+    )
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+      <form
+        onSubmit={form.handleSubmit((values) =>
+          changePasswordMutation.mutate(values)
+        )}
+        className='space-y-8'
+      >
         <FormField
           control={form.control}
-          name='name'
+          name='currentPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Current password</FormLabel>
               <FormControl>
-                <Input placeholder='Your name' {...field} />
+                <Input type='password' placeholder='Current password' {...field} />
               </FormControl>
               <FormDescription>
-                This is the name that will be displayed on your profile and in
-                emails.
+                Enter the password you currently use to sign in.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
-          name='dob'
+          name='newPassword'
           render={({ field }) => (
-            <FormItem className='flex flex-col'>
-              <FormLabel>Date of birth</FormLabel>
-              <DatePicker selected={field.value} onSelect={field.onChange} />
+            <FormItem>
+              <FormLabel>New password</FormLabel>
+              <FormControl>
+                <Input type='password' placeholder='New password' {...field} />
+              </FormControl>
               <FormDescription>
-                Your date of birth is used to calculate your age.
+                Choose a password with at least 6 characters.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
-          name='language'
+          name='confirmPassword'
           render={({ field }) => (
-            <FormItem className='flex flex-col'>
-              <FormLabel>Language</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant='outline'
-                      role='combobox'
-                      className={cn(
-                        'w-[200px] justify-between',
-                        !field.value && 'text-muted-foreground'
-                      )}
-                    >
-                      {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
-                        : 'Select language'}
-                      <CaretSortIcon className='ms-2 h-4 w-4 shrink-0 opacity-50' />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className='w-[200px] p-0'>
-                  <Command>
-                    <CommandInput placeholder='Search language...' />
-                    <CommandEmpty>No language found.</CommandEmpty>
-                    <CommandGroup>
-                      <CommandList>
-                        {languages.map((language) => (
-                          <CommandItem
-                            value={language.label}
-                            key={language.value}
-                            onSelect={() => {
-                              form.setValue('language', language.value)
-                            }}
-                          >
-                            <CheckIcon
-                              className={cn(
-                                'size-4',
-                                language.value === field.value
-                                  ? 'opacity-100'
-                                  : 'opacity-0'
-                              )}
-                            />
-                            {language.label}
-                          </CommandItem>
-                        ))}
-                      </CommandList>
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+            <FormItem>
+              <FormLabel>Confirm new password</FormLabel>
+              <FormControl>
+                <Input
+                  type='password'
+                  placeholder='Confirm new password'
+                  {...field}
+                />
+              </FormControl>
               <FormDescription>
-                This is the language that will be used in the dashboard.
+                If you no longer know the current password, use the{' '}
+                <Link
+                  to='/forgot-password'
+                  className='underline underline-offset-4 hover:text-primary'
+                >
+                  forgot password
+                </Link>{' '}
+                flow instead.
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type='submit'>Update account</Button>
+
+        <Button type='submit' disabled={changePasswordMutation.isPending}>
+          {changePasswordMutation.isPending
+            ? 'Updating password...'
+            : 'Update password'}
+        </Button>
       </form>
     </Form>
   )

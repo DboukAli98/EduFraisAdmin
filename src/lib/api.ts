@@ -118,6 +118,34 @@ export function readArray(record: unknown, ...keys: string[]): ApiRecord[] {
   return Array.isArray(value) ? value.filter(isApiRecord) : []
 }
 
+export function readApiMessage(
+  record: unknown,
+  fallback = 'Something went wrong.'
+): string {
+  return (
+    readString(record, 'Message', 'message', 'Error', 'error') ?? fallback
+  )
+}
+
+export function getApiErrorMessage(
+  error: unknown,
+  fallback = 'Something went wrong.'
+): string {
+  if (axios.isAxiosError(error)) {
+    const responseMessage = readApiMessage(error.response?.data, '')
+
+    if (responseMessage.length > 0) {
+      return responseMessage
+    }
+  }
+
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message
+  }
+
+  return fallback
+}
+
 export function toApiUrl(path: string): string {
   return `${apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`
 }

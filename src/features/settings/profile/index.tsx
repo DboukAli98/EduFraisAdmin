@@ -5,7 +5,7 @@ export function SettingsProfile() {
   return (
     <ContentSection
       title='Profile'
-      desc='This is how others will see you on the site.'
+      desc='Update the director profile details that power your EduFrais admin account.'
     >
       <ProfileForm />
     </ContentSection>

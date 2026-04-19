@@ -227,7 +227,7 @@ async function fetchAllSchoolFeePaymentsForUser(userId: string): Promise<ApiReco
       params: {
         UserId: userId,
         DateFilter: 'AllTime',
-        StatusId: 8,
+        StatusId: 0,
         PaymentType: 'SCHOOLFEE',
         PageNumber: pageNumber,
         PageSize: pageSize,
@@ -249,7 +249,7 @@ async function fetchAllMerchandisePaymentsForUser(
       params: {
         UserId: userId,
         DateFilter: 'AllTime',
-        StatusId: 8,
+        StatusId: 0,
         PaymentType: 'MERCHANDISEFEE',
         PageNumber: pageNumber,
         PageSize: pageSize,

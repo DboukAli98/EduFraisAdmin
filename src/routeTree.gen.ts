@@ -12,8 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ClerkRouteRouteImport } from './routes/clerk/route'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSchoolsRouteImport } from './routes/_authenticated/schools'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
+import { Route as AuthenticatedMySchoolRouteImport } from './routes/_authenticated/my-school'
+import { Route as AuthenticatedCollectingAgentsRouteImport } from './routes/_authenticated/collecting-agents'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -59,6 +62,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSchoolsRoute = AuthenticatedSchoolsRouteImport.update({
   id: '/schools',
   path: '/schools',
@@ -69,6 +77,17 @@ const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMySchoolRoute = AuthenticatedMySchoolRouteImport.update({
+  id: '/my-school',
+  path: '/my-school',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCollectingAgentsRoute =
+  AuthenticatedCollectingAgentsRouteImport.update({
+    id: '/collecting-agents',
+    path: '/collecting-agents',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const errors503Route = errors503RouteImport.update({
   id: '/(errors)/503',
   path: '/503',
@@ -244,8 +263,11 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
+  '/my-school': typeof AuthenticatedMySchoolRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/schools': typeof AuthenticatedSchoolsRoute
+  '/support': typeof AuthenticatedSupportRoute
   '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
@@ -276,8 +298,11 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
+  '/my-school': typeof AuthenticatedMySchoolRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/schools': typeof AuthenticatedSchoolsRoute
+  '/support': typeof AuthenticatedSupportRoute
   '/': typeof AuthenticatedIndexRoute
   '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
@@ -314,8 +339,11 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
+  '/_authenticated/my-school': typeof AuthenticatedMySchoolRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/schools': typeof AuthenticatedSchoolsRoute
+  '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
@@ -351,8 +379,11 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/collecting-agents'
+    | '/my-school'
     | '/payments'
     | '/schools'
+    | '/support'
     | '/child-details/$childId'
     | '/errors/$error'
     | '/parent-details/$parentId'
@@ -383,8 +414,11 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/collecting-agents'
+    | '/my-school'
     | '/payments'
     | '/schools'
+    | '/support'
     | '/'
     | '/child-details/$childId'
     | '/errors/$error'
@@ -420,8 +454,11 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/collecting-agents'
+    | '/_authenticated/my-school'
     | '/_authenticated/payments'
     | '/_authenticated/schools'
+    | '/_authenticated/support'
     | '/_authenticated/'
     | '/_authenticated/child-details/$childId'
     | '/_authenticated/errors/$error'
@@ -480,6 +517,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/support': {
+      id: '/_authenticated/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/schools': {
       id: '/_authenticated/schools'
       path: '/schools'
@@ -492,6 +536,20 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/payments'
       preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-school': {
+      id: '/_authenticated/my-school'
+      path: '/my-school'
+      fullPath: '/my-school'
+      preLoaderRoute: typeof AuthenticatedMySchoolRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/collecting-agents': {
+      id: '/_authenticated/collecting-agents'
+      path: '/collecting-agents'
+      fullPath: '/collecting-agents'
+      preLoaderRoute: typeof AuthenticatedCollectingAgentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/(errors)/503': {
@@ -732,8 +790,11 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedCollectingAgentsRoute: typeof AuthenticatedCollectingAgentsRoute
+  AuthenticatedMySchoolRoute: typeof AuthenticatedMySchoolRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedSchoolsRoute: typeof AuthenticatedSchoolsRoute
+  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedChildDetailsChildIdRoute: typeof AuthenticatedChildDetailsChildIdRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
@@ -748,8 +809,11 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedCollectingAgentsRoute: AuthenticatedCollectingAgentsRoute,
+  AuthenticatedMySchoolRoute: AuthenticatedMySchoolRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedSchoolsRoute: AuthenticatedSchoolsRoute,
+  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedChildDetailsChildIdRoute: AuthenticatedChildDetailsChildIdRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,

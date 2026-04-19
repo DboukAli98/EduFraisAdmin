@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
@@ -73,6 +73,7 @@ import {
   type SchoolSection,
   type SchoolSectionMutationInput,
 } from '@/features/schools/api'
+import { PaymentCyclesPanel } from '@/features/schools/payment-cycles-panel'
 import {
   fetchChildren,
   fetchDirectorBySchoolId,
@@ -171,6 +172,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
     createEmptySectionForm
   )
   const [pendingAction, setPendingAction] = useState<SectionAction>(null)
+  const [isLogoBroken, setIsLogoBroken] = useState(false)
 
   const schoolQuery = useQuery({
     queryKey: ['schools', 'details', schoolId],
@@ -324,6 +326,10 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
   const collectingAgents = collectingAgentsQuery.data?.items ?? []
   const director = directorQuery.data ?? null
 
+  useEffect(() => {
+    setIsLogoBroken(false)
+  }, [school?.logo])
+
   return (
     <>
       <PageShell
@@ -415,11 +421,12 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 </CardHeader>
                 <CardContent className='grid gap-6 lg:grid-cols-[auto_1fr]'>
                   <div className='flex justify-center lg:justify-start'>
-                    {school.logo ? (
+                    {school.logo && !isLogoBroken ? (
                       <img
                         src={toApiUrl(`/uploads/schools/${school.logo}`)}
                         alt={school.name}
                         className='h-28 w-28 rounded-2xl border object-cover'
+                        onError={() => setIsLogoBroken(true)}
                       />
                     ) : (
                       <div className='flex h-28 w-28 items-center justify-center rounded-2xl border bg-primary/10 text-primary'>
@@ -702,6 +709,12 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 )}
               </CardContent>
             </Card>
+
+            <PaymentCyclesPanel
+              schoolId={schoolId}
+              sections={sections}
+              canManage={canManageSections}
+            />
 
             <section className='grid gap-4 xl:grid-cols-2'>
               <Card className='border-border/70'>

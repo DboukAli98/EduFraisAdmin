@@ -44,6 +44,8 @@ import {
   lookupPaymentStatus,
 } from './api'
 
+const knownPaymentStatusIds = [8, 11, 9, 10]
+
 function SummaryCard({
   title,
   value,
@@ -76,6 +78,7 @@ export function Payments() {
   const [selectedSchoolId, setSelectedSchoolId] = useState<number | null>(
     currentUser?.schoolIds[0] ?? null
   )
+  const [selectedStatusId, setSelectedStatusId] = useState(0)
   const [lookupReference, setLookupReference] = useState('')
 
   const schoolsQuery = useQuery({
@@ -122,72 +125,126 @@ export function Payments() {
 
   const schoolFees = schoolFeesQuery.data?.items ?? []
   const merchandisePayments = merchandiseQuery.data?.items ?? []
+  const statusFilterOptions = [
+    0,
+    ...Array.from(
+      new Set(
+        [...knownPaymentStatusIds, ...schoolFees, ...merchandisePayments]
+          .map((value) => (typeof value === 'number' ? value : value.statusId))
+          .filter((statusId) => statusId > 0)
+      )
+    ),
+  ]
+  const selectedStatusLabel =
+    selectedStatusId === 0
+      ? 'All statuses'
+      : getEntityStatusMeta(selectedStatusId).label
+  const filteredSchoolFees =
+    selectedStatusId === 0
+      ? schoolFees
+      : schoolFees.filter((payment) => payment.statusId === selectedStatusId)
+  const filteredMerchandisePayments =
+    selectedStatusId === 0
+      ? merchandisePayments
+      : merchandisePayments.filter(
+          (payment) => payment.statusId === selectedStatusId
+        )
 
-  const totalSchoolFees = schoolFees.reduce(
+  const processedSchoolFees = schoolFees.filter((payment) => payment.statusId === 8)
+  const processedMerchandisePayments = merchandisePayments.filter(
+    (payment) => payment.statusId === 8
+  )
+
+  const totalSchoolFees = processedSchoolFees.reduce(
     (sum, payment) => sum + payment.amountPaid,
     0
   )
-  const totalMerchandise = merchandisePayments.reduce(
+  const totalMerchandise = processedMerchandisePayments.reduce(
     (sum, payment) => sum + payment.amountPaid,
     0
   )
-  const totalTransactions = schoolFees.length + merchandisePayments.length
+  const totalTransactions =
+    filteredSchoolFees.length + filteredMerchandisePayments.length
   const agentProcessedTransactions =
-    schoolFees.filter((payment) => payment.processedByAgent).length +
-    merchandisePayments.filter((payment) => payment.processedByAgent).length
+    filteredSchoolFees.filter((payment) => payment.processedByAgent).length +
+    filteredMerchandisePayments.filter((payment) => payment.processedByAgent)
+      .length
 
   return (
     <PageShell
       title='Payments'
-      description='Monitor processed school fees, merchandise payments, and individual transaction status from one place.'
-      actions={<Badge variant='outline'>Processed history + status lookup</Badge>}
+      description='Monitor school fee and merchandise payment history with a shared status filter and direct transaction lookup.'
+      actions={<Badge variant='outline'>{selectedStatusLabel} filter active</Badge>}
     >
-      <section className='grid gap-4 rounded-2xl border bg-card p-4 md:grid-cols-[1.2fr_0.8fr]'>
-        <div>
+      <section className='grid gap-4 rounded-2xl border bg-card p-4 lg:grid-cols-[1.1fr_0.9fr_0.9fr]'>
+        <div className='space-y-1'>
           <p className='text-sm font-medium'>School scope</p>
           <p className='text-sm text-muted-foreground'>
             Payment history is aggregated school-wide by collecting each parent&apos;s
             transaction history behind the scenes.
           </p>
         </div>
-        <Select
-          value={selectedSchoolId ? String(selectedSchoolId) : undefined}
-          onValueChange={(value) => setSelectedSchoolId(Number(value))}
-          disabled={isDirector || accessibleSchools.length === 0}
-        >
-          <SelectTrigger className='w-full'>
-            <SelectValue placeholder='Select a school' />
-          </SelectTrigger>
-          <SelectContent>
-            {accessibleSchools.map((school) => (
-              <SelectItem key={school.id} value={String(school.id)}>
-                {school.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className='space-y-2'>
+          <p className='text-sm font-medium'>School</p>
+          <Select
+            value={selectedSchoolId ? String(selectedSchoolId) : undefined}
+            onValueChange={(value) => setSelectedSchoolId(Number(value))}
+            disabled={isDirector || accessibleSchools.length === 0}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Select a school' />
+            </SelectTrigger>
+            <SelectContent>
+              {accessibleSchools.map((school) => (
+                <SelectItem key={school.id} value={String(school.id)}>
+                  {school.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='space-y-2'>
+          <p className='text-sm font-medium'>Status filter</p>
+          <Select
+            value={String(selectedStatusId)}
+            onValueChange={(value) => setSelectedStatusId(Number(value))}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Select a payment status' />
+            </SelectTrigger>
+            <SelectContent>
+              {statusFilterOptions.map((statusId) => (
+                <SelectItem key={statusId} value={String(statusId)}>
+                  {statusId === 0
+                    ? 'All statuses'
+                    : getEntityStatusMeta(statusId).label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </section>
 
       <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
         <SummaryCard
-          title='School fee revenue'
+          title='Processed school fees'
           value={formatCurrency(totalSchoolFees)}
-          description='Processed installment payments in the selected school.'
+          description='Collected installment payments with status Processed.'
         />
         <SummaryCard
-          title='Merchandise revenue'
+          title='Processed merchandise'
           value={formatCurrency(totalMerchandise)}
-          description='Processed merchandise payments tied to parent accounts.'
+          description='Collected merchandise payments with status Processed.'
         />
         <SummaryCard
-          title='Transactions'
+          title='Visible transactions'
           value={formatNumber(totalTransactions)}
-          description='Combined school fee and merchandise history rows.'
+          description={`Combined school fee and merchandise history for ${selectedStatusLabel.toLowerCase()}.`}
         />
         <SummaryCard
-          title='Agent processed'
+          title='Agent handled'
           value={formatNumber(agentProcessedTransactions)}
-          description='Transactions handled by collecting agents.'
+          description={`Transactions handled by collecting agents for ${selectedStatusLabel.toLowerCase()}.`}
         />
       </section>
 
@@ -318,10 +375,13 @@ export function Payments() {
                 <div>
                   <CardTitle>School fee history</CardTitle>
                   <CardDescription>
-                    Processed installment payments for {selectedSchool.name}.
+                    Installment payment history for {selectedSchool.name} filtered by{' '}
+                    {selectedStatusLabel}.
                   </CardDescription>
                 </div>
-                <Badge variant='outline'>{schoolFees.length} transactions</Badge>
+                <Badge variant='outline'>
+                  {filteredSchoolFees.length} transactions
+                </Badge>
               </CardHeader>
               <CardContent>
                 {schoolFeesQuery.isLoading ? (
@@ -330,10 +390,18 @@ export function Payments() {
                     <Skeleton className='h-12 w-full' />
                     <Skeleton className='h-12 w-full' />
                   </div>
-                ) : schoolFees.length === 0 ? (
+                ) : filteredSchoolFees.length === 0 ? (
                   <EmptyState
-                    title='No school fee payments found'
-                    description='No processed installment payments were returned for the selected school.'
+                    title={
+                      schoolFees.length === 0
+                        ? 'No school fee payments found'
+                        : 'No school fee payments match this status'
+                    }
+                    description={
+                      schoolFees.length === 0
+                        ? 'No school fee payment history was returned for the selected school.'
+                        : `No school fee payment history with status ${selectedStatusLabel} was returned for the selected school.`
+                    }
                   />
                 ) : (
                   <div className='rounded-lg border'>
@@ -350,7 +418,7 @@ export function Payments() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {schoolFees.map((payment) => {
+                        {filteredSchoolFees.map((payment) => {
                           const statusMeta = getEntityStatusMeta(payment.statusId)
 
                           return (
@@ -414,11 +482,12 @@ export function Payments() {
                 <div>
                   <CardTitle>Merchandise history</CardTitle>
                   <CardDescription>
-                    Processed merchandise transactions linked to {selectedSchool.name}.
+                    Merchandise payment history linked to {selectedSchool.name} filtered by{' '}
+                    {selectedStatusLabel}.
                   </CardDescription>
                 </div>
                 <Badge variant='outline'>
-                  {merchandisePayments.length} transactions
+                  {filteredMerchandisePayments.length} transactions
                 </Badge>
               </CardHeader>
               <CardContent>
@@ -428,10 +497,18 @@ export function Payments() {
                     <Skeleton className='h-12 w-full' />
                     <Skeleton className='h-12 w-full' />
                   </div>
-                ) : merchandisePayments.length === 0 ? (
+                ) : filteredMerchandisePayments.length === 0 ? (
                   <EmptyState
-                    title='No merchandise payments found'
-                    description='No processed merchandise payments were returned for the selected school.'
+                    title={
+                      merchandisePayments.length === 0
+                        ? 'No merchandise payments found'
+                        : 'No merchandise payments match this status'
+                    }
+                    description={
+                      merchandisePayments.length === 0
+                        ? 'No merchandise payment history was returned for the selected school.'
+                        : `No merchandise payment history with status ${selectedStatusLabel} was returned for the selected school.`
+                    }
                   />
                 ) : (
                   <div className='rounded-lg border'>
@@ -448,7 +525,7 @@ export function Payments() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {merchandisePayments.map((payment) => {
+                        {filteredMerchandisePayments.map((payment) => {
                           const statusMeta = getEntityStatusMeta(payment.statusId)
 
                           return (

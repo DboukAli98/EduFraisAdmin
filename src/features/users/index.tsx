@@ -567,8 +567,12 @@ export function Users() {
   return (
     <>
       <PageShell
-        title='User Management'
-        description='Manage parents, directors, and children with live EduFrais API workflows.'
+        title={isDirector ? 'Family Management' : 'User Management'}
+        description={
+          isDirector
+            ? 'Manage parents and children in your school with director-scoped EduFrais workflows.'
+            : 'Manage parents, directors, and children with live EduFrais API workflows.'
+        }
         actions={
           <Badge variant='outline'>
             {isSuperAdmin ? 'Super Admin scope' : 'Director scope'}
@@ -608,13 +612,19 @@ export function Users() {
             description='Enabled parent accounts in the selected school.'
           />
           <SummaryCard
-            title='Directors in scope'
+            title={isDirector ? 'Children in school' : 'Directors in scope'}
             value={String(
-              selectedSchoolId
-                ? directorsForSelectedSchool.length
-                : activeDirectors.length
+              isDirector
+                ? selectedSchoolChildren.length
+                : selectedSchoolId
+                  ? directorsForSelectedSchool.length
+                  : activeDirectors.length
             )}
-            description='Director assignments returned from the backend.'
+            description={
+              isDirector
+                ? 'Children currently linked to the selected school.'
+                : 'Director assignments returned from the backend.'
+            }
           />
           <SummaryCard
             title='Pending child approvals'
@@ -633,7 +643,9 @@ export function Users() {
             <div className='overflow-x-auto pb-2'>
               <TabsList>
                 <TabsTrigger value='parents'>Parents</TabsTrigger>
-                <TabsTrigger value='directors'>Directors</TabsTrigger>
+                {isSuperAdmin ? (
+                  <TabsTrigger value='directors'>Directors</TabsTrigger>
+                ) : null}
                 <TabsTrigger value='children'>Children</TabsTrigger>
               </TabsList>
             </div>

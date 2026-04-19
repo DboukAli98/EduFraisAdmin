@@ -54,7 +54,7 @@ export function Settings() {
             Settings
           </h1>
           <p className='text-muted-foreground'>
-            Manage your account settings and set e-mail preferences.
+            Manage your profile, password, and in-app notifications.
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />

@@ -60,6 +60,40 @@ export interface SchoolSectionMutationInput {
   termEndDate: string
 }
 
+export type PaymentCycleType =
+  | 'Full'
+  | 'Monthly'
+  | 'Weekly'
+  | 'Quarterly'
+  | 'Custom'
+
+export type PaymentIntervalUnit = 'Day' | 'Week' | 'Month' | 'Year'
+
+export interface PaymentCycleRecord {
+  id: number
+  schoolGradeSectionId: number
+  paymentCycleName: string
+  paymentCycleDescription: string | null
+  paymentCycleType: PaymentCycleType
+  planStartDate: string | null
+  intervalCount: number | null
+  intervalUnit: PaymentIntervalUnit | null
+  installmentAmounts: string | null
+  createdOn: string | null
+  modifiedOn: string | null
+}
+
+export interface PaymentCycleMutationInput {
+  schoolGradeSectionId: number
+  paymentCycleName: string
+  paymentCycleDescription: string
+  paymentCycleType: PaymentCycleType
+  planStartDate: string
+  intervalCount: string
+  intervalUnit: PaymentIntervalUnit | ''
+  installmentAmounts: string
+}
+
 function mapSchool(record: ApiRecord): SchoolSummary {
   return {
     id: readNumber(record, 'SchoolId', 'schoolId') ?? 0,
@@ -97,6 +131,42 @@ function mapSchoolSection(record: ApiRecord): SchoolSection {
       readNumber(record, 'FK_StatusId', 'fK_StatusId', 'fk_StatusId') ?? 0,
     termStartDate: readString(record, 'TermStartDate', 'termStartDate') ?? null,
     termEndDate: readString(record, 'TermEndDate', 'termEndDate') ?? null,
+    createdOn: readString(record, 'CreatedOn', 'createdOn') ?? null,
+    modifiedOn: readString(record, 'ModifiedOn', 'modifiedOn') ?? null,
+  }
+}
+
+function mapPaymentCycle(record: ApiRecord): PaymentCycleRecord {
+  return {
+    id: readNumber(record, 'PaymentCycleId', 'paymentCycleId') ?? 0,
+    schoolGradeSectionId:
+      readNumber(
+        record,
+        'FK_SchoolGradeSectionId',
+        'fK_SchoolGradeSectionId',
+        'fk_SchoolGradeSectionId'
+      ) ?? 0,
+    paymentCycleName:
+      readString(record, 'PaymentCycleName', 'paymentCycleName') ??
+      'Unnamed cycle',
+    paymentCycleDescription:
+      readString(
+        record,
+        'PaymentCycleDescription',
+        'paymentCycleDescription'
+      ) ?? null,
+    paymentCycleType:
+      (readString(record, 'PaymentCycleType', 'paymentCycleType') as PaymentCycleType) ??
+      'Monthly',
+    planStartDate:
+      readString(record, 'PlanStartDate', 'planStartDate') ?? null,
+    intervalCount:
+      readNumber(record, 'IntervalCount', 'intervalCount') ?? null,
+    intervalUnit:
+      (readString(record, 'IntervalUnit', 'intervalUnit') as PaymentIntervalUnit) ??
+      null,
+    installmentAmounts:
+      readString(record, 'InstallmentAmounts', 'installmentAmounts') ?? null,
     createdOn: readString(record, 'CreatedOn', 'createdOn') ?? null,
     modifiedOn: readString(record, 'ModifiedOn', 'modifiedOn') ?? null,
   }
@@ -218,6 +288,52 @@ export async function alterSchoolSectionStatus(
     ModuleName: 'schoolgradesection',
     ActionType: actionType,
     ModuleItemsIds: sectionIds.join(','),
+  })
+}
+
+export async function fetchPaymentCycles(
+  schoolGradeSectionId: number
+): Promise<PaginatedResult<PaymentCycleRecord>> {
+  const { data } = await api.get('/api/School/GetPaymentCycles', {
+    params: {
+      SchoolGradeSectionId: schoolGradeSectionId,
+      PageNumber: 1,
+      PageSize: 200,
+      Search: '',
+    },
+  })
+
+  return {
+    items: readArray(getEnvelopeData(data)).map(mapPaymentCycle),
+    totalCount: getEnvelopeCount(data),
+  }
+}
+
+export async function createPaymentCycle(
+  input: PaymentCycleMutationInput
+): Promise<void> {
+  await api.post('/api/School/AddPaymentCycle', {
+    FK_SchoolGradeSectionId: input.schoolGradeSectionId,
+    PaymentCycleName: input.paymentCycleName.trim(),
+    PaymentCycleDescription: input.paymentCycleDescription.trim() || null,
+    PaymentCycleType: input.paymentCycleType,
+    PlanStartDate: input.planStartDate || null,
+    IntervalCount: input.intervalCount ? Number(input.intervalCount) : null,
+    IntervalUnit: input.intervalUnit || null,
+    InstallmentAmounts: input.installmentAmounts.trim() || null,
+  })
+}
+
+export async function updatePaymentCycle(
+  paymentCycleId: number,
+  input: PaymentCycleMutationInput
+): Promise<void> {
+  await api.put('/api/School/UpdatePaymentCycle', {
+    PaymentCycleId: paymentCycleId,
+    PaymentCycleName: input.paymentCycleName.trim(),
+    PaymentCycleDescription: input.paymentCycleDescription.trim(),
+    PaymentCycleType: input.paymentCycleType,
+    SchoolGradeSectionId: input.schoolGradeSectionId,
   })
 }
 
