@@ -1,13 +1,11 @@
 import { useState, type HTMLAttributes } from 'react'
-import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { initPasswordReset } from '@/features/auth/api'
-import { writePasswordResetContext } from '@/features/auth/password-reset'
 import { getApiErrorMessage } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -28,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { initPasswordReset } from '@/features/auth/api'
+import { writePasswordResetContext } from '@/features/auth/password-reset'
 
 const forgotPasswordSchema = z
   .object({
@@ -79,7 +79,8 @@ const forgotPasswordSchema = z
     }
   })
 
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>
+type ForgotPasswordFormInput = z.input<typeof forgotPasswordSchema>
+type ForgotPasswordFormValues = z.output<typeof forgotPasswordSchema>
 
 export function ForgotPasswordForm({
   className,
@@ -88,7 +89,7 @@ export function ForgotPasswordForm({
   const navigate = useNavigate()
   const [channel, setChannel] = useState<'email' | 'whatsapp'>('email')
 
-  const form = useForm<ForgotPasswordFormValues>({
+  const form = useForm<ForgotPasswordFormInput, any, ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       channel: 'email',
@@ -115,7 +116,9 @@ export function ForgotPasswordForm({
         countryCode:
           values.channel === 'whatsapp' ? values.countryCode.trim() : undefined,
         mobileNumber:
-          values.channel === 'whatsapp' ? values.mobileNumber.trim() : undefined,
+          values.channel === 'whatsapp'
+            ? values.mobileNumber.trim()
+            : undefined,
       })
     },
     onSuccess: () => {
@@ -132,7 +135,9 @@ export function ForgotPasswordForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((values) => resetInitMutation.mutate(values))}
+        onSubmit={form.handleSubmit((values) =>
+          resetInitMutation.mutate(values)
+        )}
         className={cn('grid gap-4', className)}
         {...props}
       >
@@ -161,7 +166,8 @@ export function ForgotPasswordForm({
                 </SelectContent>
               </Select>
               <FormDescription>
-                Choose whether the reset code should be delivered by email or WhatsApp.
+                Choose whether the reset code should be delivered by email or
+                WhatsApp.
               </FormDescription>
               <FormMessage />
             </FormItem>

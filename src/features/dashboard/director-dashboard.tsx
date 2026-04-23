@@ -1,8 +1,6 @@
-import { Link } from '@tanstack/react-router'
 import { useQueries, useQuery } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import {
-  AlertCircle,
-  Building2,
   GraduationCap,
   HandCoins,
   LifeBuoy,
@@ -12,6 +10,17 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth-store'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/features/admin/components/empty-state'
 import { PageShell } from '@/features/admin/components/page-shell'
 import {
@@ -31,17 +40,6 @@ import {
   type SupportSource,
 } from '@/features/dashboard/api'
 import { fetchSchoolDetails, fetchSchoolSections } from '@/features/schools/api'
-import { useAuthStore } from '@/stores/auth-store'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
 
 const supportSources: SupportSource[] = [
   'PARENT_TO_DIRECTOR',
@@ -207,35 +205,43 @@ export function DirectorDashboard() {
                           {school.name}
                         </h2>
                         <p className='mt-2 max-w-2xl text-sm text-white/70'>
-                          Monitor families, fees, class structure, field agents, and
-                          support operations for your school.
+                          Monitor families, fees, class structure, field agents,
+                          and support operations for your school.
                         </p>
                       </div>
                       <div className='grid gap-3 sm:grid-cols-3'>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
-                          <p className='text-xs uppercase tracking-[0.18em] text-white/65'>
+                          <p className='text-xs tracking-[0.18em] text-white/65 uppercase'>
                             Status
                           </p>
                           <p className='mt-2 text-2xl font-semibold'>
                             {getEntityStatusMeta(school.statusId).label}
                           </p>
-                          <p className='text-sm text-white/70'>Current school state</p>
+                          <p className='text-sm text-white/70'>
+                            Current school state
+                          </p>
                         </div>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
-                          <p className='text-xs uppercase tracking-[0.18em] text-white/65'>
+                          <p className='text-xs tracking-[0.18em] text-white/65 uppercase'>
                             Classes
                           </p>
-                          <p className='mt-2 text-2xl font-semibold'>{sections.length}</p>
-                          <p className='text-sm text-white/70'>Configured grade sections</p>
+                          <p className='mt-2 text-2xl font-semibold'>
+                            {sections.length}
+                          </p>
+                          <p className='text-sm text-white/70'>
+                            Configured grade sections
+                          </p>
                         </div>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
-                          <p className='text-xs uppercase tracking-[0.18em] text-white/65'>
+                          <p className='text-xs tracking-[0.18em] text-white/65 uppercase'>
                             Support queue
                           </p>
                           <p className='mt-2 text-2xl font-semibold'>
                             {supportRequests.length}
                           </p>
-                          <p className='text-sm text-white/70'>Recent support items</p>
+                          <p className='text-sm text-white/70'>
+                            Recent support items
+                          </p>
                         </div>
                       </div>
                     </>
@@ -327,7 +333,9 @@ export function DirectorDashboard() {
                     Recent children waiting for director review.
                   </CardDescription>
                 </div>
-                <Badge variant='outline'>{pendingChildren.length} pending</Badge>
+                <Badge variant='outline'>
+                  {pendingChildren.length} pending
+                </Badge>
               </CardHeader>
               <CardContent>
                 {pendingChildrenQuery.isLoading ? (
@@ -359,7 +367,9 @@ export function DirectorDashboard() {
                           </div>
                           <Badge
                             variant='outline'
-                            className={getEntityStatusMeta(child.statusId).className}
+                            className={
+                              getEntityStatusMeta(child.statusId).className
+                            }
                           >
                             {getEntityStatusMeta(child.statusId).label}
                           </Badge>
@@ -410,12 +420,16 @@ export function DirectorDashboard() {
                           <div>
                             <p className='font-medium'>{request.title}</p>
                             <p className='text-muted-foreground'>
-                              {request.parentName || request.agentName || request.source}
+                              {request.parentName ||
+                                request.agentName ||
+                                request.source}
                             </p>
                           </div>
                           <Badge
                             variant='outline'
-                            className={getEntityStatusMeta(request.statusId).className}
+                            className={
+                              getEntityStatusMeta(request.statusId).className
+                            }
                           >
                             {getEntityStatusMeta(request.statusId).label}
                           </Badge>
@@ -449,7 +463,9 @@ export function DirectorDashboard() {
                       <p className='text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase'>
                         School
                       </p>
-                      <p className='mt-2 text-lg font-semibold'>{school.name}</p>
+                      <p className='mt-2 text-lg font-semibold'>
+                        {school.name}
+                      </p>
                       <p className='text-muted-foreground'>{school.address}</p>
                     </div>
                     <div className='grid gap-3 sm:grid-cols-2'>
@@ -522,7 +538,9 @@ export function DirectorDashboard() {
                           </div>
                           <Badge
                             variant='outline'
-                            className={getEntityStatusMeta(agent.statusId).className}
+                            className={
+                              getEntityStatusMeta(agent.statusId).className
+                            }
                           >
                             {getEntityStatusMeta(agent.statusId).label}
                           </Badge>

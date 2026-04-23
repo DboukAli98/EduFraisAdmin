@@ -1,20 +1,11 @@
 import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { buildFullName, formatDateTime } from '@/features/admin/utils'
-import { fetchCollectingAgents } from '@/features/collecting-agents/api'
-import {
-  dispatchNotifications,
-  fetchNotifications,
-  markAllNotificationsAsRead,
-  sendNotification,
-} from '@/features/settings/api'
-import { fetchParents } from '@/features/users/api'
-import { getApiErrorMessage } from '@/lib/api'
 import { useAuthStore } from '@/stores/auth-store'
+import { getApiErrorMessage } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -47,6 +38,15 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
+import { buildFullName, formatDateTime } from '@/features/admin/utils'
+import { fetchCollectingAgents } from '@/features/collecting-agents/api'
+import {
+  dispatchNotifications,
+  fetchNotifications,
+  markAllNotificationsAsRead,
+  sendNotification,
+} from '@/features/settings/api'
+import { fetchParents } from '@/features/users/api'
 
 const notificationTypes = [
   'General',
@@ -62,12 +62,14 @@ const audienceOptions = [
   {
     value: 'all_school_users',
     label: 'All school users',
-    description: 'Notify every enabled parent and collecting agent in the school.',
+    description:
+      'Notify every enabled parent and collecting agent in the school.',
   },
   {
     value: 'parents',
     label: 'Parents only',
-    description: 'Target enabled parent accounts for reminders or announcements.',
+    description:
+      'Target enabled parent accounts for reminders or announcements.',
   },
   {
     value: 'collecting_agents',
@@ -77,7 +79,8 @@ const audienceOptions = [
   {
     value: 'custom',
     label: 'Custom list',
-    description: 'Pick the exact parent and agent accounts that should receive it.',
+    description:
+      'Pick the exact parent and agent accounts that should receive it.',
   },
 ] as const
 
@@ -157,7 +160,10 @@ const outreachNotificationsFormSchema = z
 type PersonalNotificationsFormValues = z.infer<
   typeof personalNotificationsFormSchema
 >
-type OutreachNotificationsFormValues = z.infer<
+type OutreachNotificationsFormInput = z.input<
+  typeof outreachNotificationsFormSchema
+>
+type OutreachNotificationsFormValues = z.output<
   typeof outreachNotificationsFormSchema
 >
 type OutreachAudience = OutreachNotificationsFormValues['audience']
@@ -199,10 +205,9 @@ function buildRecipientDetails(input: {
     ? `+${input.countryCode.trim()} ${input.phoneNumber.trim()}`
     : ''
 
-  const details = [
-    input.email.trim(),
-    formattedPhone,
-  ].filter((value) => value.length > 0)
+  const details = [input.email.trim(), formattedPhone].filter(
+    (value) => value.length > 0
+  )
 
   return details.join(' / ') || 'No contact details'
 }
@@ -232,7 +237,11 @@ export function NotificationsForm() {
     },
   })
 
-  const outreachForm = useForm<OutreachNotificationsFormValues>({
+  const outreachForm = useForm<
+    OutreachNotificationsFormInput,
+    any,
+    OutreachNotificationsFormValues
+  >({
     resolver: zodResolver(outreachNotificationsFormSchema),
     defaultValues: {
       audience: 'all_school_users',
@@ -266,7 +275,9 @@ export function NotificationsForm() {
   const sendMutation = useMutation({
     mutationFn: async (values: PersonalNotificationsFormValues) => {
       if (!userId) {
-        throw new Error('You need to sign in again before sending notifications.')
+        throw new Error(
+          'You need to sign in again before sending notifications.'
+        )
       }
 
       return sendNotification({
@@ -340,7 +351,7 @@ export function NotificationsForm() {
 
   const outreachAudience = outreachForm.watch('audience')
   const deliveryMode = outreachForm.watch('deliveryMode')
-  const selectedRecipientIds = outreachForm.watch('recipientIds')
+  const selectedRecipientIds = outreachForm.watch('recipientIds') ?? []
 
   const filteredRecipientOptions = useMemo(() => {
     const searchValue = recipientSearch.trim().toLowerCase()
@@ -358,7 +369,9 @@ export function NotificationsForm() {
   const targetRecipients = useMemo(() => {
     switch (outreachAudience) {
       case 'parents':
-        return recipientOptions.filter((recipient) => recipient.audience === 'Parent')
+        return recipientOptions.filter(
+          (recipient) => recipient.audience === 'Parent'
+        )
       case 'collecting_agents':
         return recipientOptions.filter(
           (recipient) => recipient.audience === 'Collecting agent'
@@ -381,9 +394,13 @@ export function NotificationsForm() {
         )
       }
 
-      const targetUserIds = targetRecipients.map((recipient) => recipient.userId)
+      const targetUserIds = targetRecipients.map(
+        (recipient) => recipient.userId
+      )
       if (targetUserIds.length === 0) {
-        throw new Error('Select at least one active recipient before continuing.')
+        throw new Error(
+          'Select at least one active recipient before continuing.'
+        )
       }
 
       const scheduledFor =
@@ -429,7 +446,9 @@ export function NotificationsForm() {
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
       if (!userId) {
-        throw new Error('You need to sign in again before updating notifications.')
+        throw new Error(
+          'You need to sign in again before updating notifications.'
+        )
       }
 
       return markAllNotificationsAsRead(userId)
@@ -544,7 +563,8 @@ export function NotificationsForm() {
                       {targetRecipients.length}
                     </div>
                     <p className='text-sm text-muted-foreground'>
-                      {getAudienceLabel(outreachAudience)} selected for this send.
+                      {getAudienceLabel(outreachAudience)} selected for this
+                      send.
                     </p>
                   </CardContent>
                 </Card>
@@ -695,8 +715,9 @@ export function NotificationsForm() {
                                       />
                                     </FormControl>
                                     <FormDescription>
-                                      The schedule uses your current browser time
-                                      and is sent to the backend as an ISO date.
+                                      The schedule uses your current browser
+                                      time and is sent to the backend as an ISO
+                                      date.
                                     </FormDescription>
                                     <FormMessage />
                                   </FormItem>
@@ -713,7 +734,8 @@ export function NotificationsForm() {
                                 {getAudienceLabel(outreachAudience)}
                               </Badge>
                               <Badge variant='outline'>
-                                {deliveryMode === 'scheduled' && scheduledPreviewIso
+                                {deliveryMode === 'scheduled' &&
+                                scheduledPreviewIso
                                   ? `Scheduled ${formatDateTime(scheduledPreviewIso)}`
                                   : 'Immediate send'}
                               </Badge>
@@ -752,8 +774,9 @@ export function NotificationsForm() {
                                     />
                                   </FormControl>
                                   <FormDescription>
-                                    Useful for fee reminders, collection follow-up,
-                                    transport alerts, or school marketing campaigns.
+                                    Useful for fee reminders, collection
+                                    follow-up, transport alerts, or school
+                                    marketing campaigns.
                                   </FormDescription>
                                   <FormMessage />
                                 </FormItem>
@@ -769,7 +792,8 @@ export function NotificationsForm() {
                                 <p className='font-medium'>Custom recipients</p>
                                 <p className='text-sm text-muted-foreground'>
                                   Pick the exact parent and collecting-agent
-                                  accounts that should receive this notification.
+                                  accounts that should receive this
+                                  notification.
                                 </p>
                               </div>
                               <div className='flex flex-wrap gap-2'>
@@ -795,7 +819,9 @@ export function NotificationsForm() {
                                       }
                                     )
                                   }}
-                                  disabled={filteredRecipientOptions.length === 0}
+                                  disabled={
+                                    filteredRecipientOptions.length === 0
+                                  }
                                 >
                                   Select visible
                                 </Button>
@@ -817,7 +843,9 @@ export function NotificationsForm() {
                             </div>
 
                             <div className='grid gap-2'>
-                              <Label htmlFor='recipient-search'>Search users</Label>
+                              <Label htmlFor='recipient-search'>
+                                Search users
+                              </Label>
                               <Input
                                 id='recipient-search'
                                 placeholder='Search by name, role, email, or phone'
@@ -837,9 +865,10 @@ export function NotificationsForm() {
                                   </div>
                                 ) : (
                                   filteredRecipientOptions.map((recipient) => {
-                                    const isChecked = selectedRecipientIds.includes(
-                                      recipient.userId
-                                    )
+                                    const isChecked =
+                                      selectedRecipientIds.includes(
+                                        recipient.userId
+                                      )
 
                                     return (
                                       <label
@@ -893,7 +922,10 @@ export function NotificationsForm() {
 
                             {outreachForm.formState.errors.recipientIds ? (
                               <p className='text-sm font-medium text-destructive'>
-                                {outreachForm.formState.errors.recipientIds.message}
+                                {
+                                  outreachForm.formState.errors.recipientIds
+                                    .message
+                                }
                               </p>
                             ) : null}
                           </div>
@@ -948,7 +980,9 @@ export function NotificationsForm() {
             <Button
               variant='outline'
               size='sm'
-              disabled={markAllAsReadMutation.isPending || notifications.length === 0}
+              disabled={
+                markAllAsReadMutation.isPending || notifications.length === 0
+              }
               onClick={() => markAllAsReadMutation.mutate()}
             >
               {markAllAsReadMutation.isPending
@@ -980,7 +1014,10 @@ export function NotificationsForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Type</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue />
@@ -1079,7 +1116,9 @@ export function NotificationsForm() {
                     </div>
                     <div className='flex flex-wrap gap-2'>
                       <Badge variant='outline'>{notification.type}</Badge>
-                      <Badge variant={notification.isRead ? 'outline' : 'default'}>
+                      <Badge
+                        variant={notification.isRead ? 'outline' : 'default'}
+                      >
                         {notification.isRead ? 'Read' : 'Unread'}
                       </Badge>
                     </div>
