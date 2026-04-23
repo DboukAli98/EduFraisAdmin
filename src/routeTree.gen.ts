@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSchoolsRouteImport } from './routes/_authenticated/schools'
+import { Route as AuthenticatedSchoolMerchandiseRouteImport } from './routes/_authenticated/school-merchandise'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedMySchoolRouteImport } from './routes/_authenticated/my-school'
 import { Route as AuthenticatedCollectingAgentsRouteImport } from './routes/_authenticated/collecting-agents'
@@ -76,6 +77,12 @@ const AuthenticatedSchoolsRoute = AuthenticatedSchoolsRouteImport.update({
   path: '/schools',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSchoolMerchandiseRoute =
+  AuthenticatedSchoolMerchandiseRouteImport.update({
+    id: '/school-merchandise',
+    path: '/school-merchandise',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
@@ -295,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
   '/my-school': typeof AuthenticatedMySchoolRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/school-merchandise': typeof AuthenticatedSchoolMerchandiseRoute
   '/schools': typeof AuthenticatedSchoolsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
@@ -333,6 +341,7 @@ export interface FileRoutesByTo {
   '/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
   '/my-school': typeof AuthenticatedMySchoolRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/school-merchandise': typeof AuthenticatedSchoolMerchandiseRoute
   '/schools': typeof AuthenticatedSchoolsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/': typeof AuthenticatedIndexRoute
@@ -378,6 +387,7 @@ export interface FileRoutesById {
   '/_authenticated/collecting-agents': typeof AuthenticatedCollectingAgentsRoute
   '/_authenticated/my-school': typeof AuthenticatedMySchoolRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
+  '/_authenticated/school-merchandise': typeof AuthenticatedSchoolMerchandiseRoute
   '/_authenticated/schools': typeof AuthenticatedSchoolsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -422,6 +432,7 @@ export interface FileRouteTypes {
     | '/collecting-agents'
     | '/my-school'
     | '/payments'
+    | '/school-merchandise'
     | '/schools'
     | '/support'
     | '/child-details/$childId'
@@ -460,6 +471,7 @@ export interface FileRouteTypes {
     | '/collecting-agents'
     | '/my-school'
     | '/payments'
+    | '/school-merchandise'
     | '/schools'
     | '/support'
     | '/'
@@ -504,6 +516,7 @@ export interface FileRouteTypes {
     | '/_authenticated/collecting-agents'
     | '/_authenticated/my-school'
     | '/_authenticated/payments'
+    | '/_authenticated/school-merchandise'
     | '/_authenticated/schools'
     | '/_authenticated/support'
     | '/_authenticated/'
@@ -579,6 +592,13 @@ declare module '@tanstack/react-router' {
       path: '/schools'
       fullPath: '/schools'
       preLoaderRoute: typeof AuthenticatedSchoolsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/school-merchandise': {
+      id: '/_authenticated/school-merchandise'
+      path: '/school-merchandise'
+      fullPath: '/school-merchandise'
+      preLoaderRoute: typeof AuthenticatedSchoolMerchandiseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/payments': {
@@ -893,6 +913,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCollectingAgentsRoute: typeof AuthenticatedCollectingAgentsRoute
   AuthenticatedMySchoolRoute: typeof AuthenticatedMySchoolRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
+  AuthenticatedSchoolMerchandiseRoute: typeof AuthenticatedSchoolMerchandiseRoute
   AuthenticatedSchoolsRoute: typeof AuthenticatedSchoolsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -914,6 +935,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCollectingAgentsRoute: AuthenticatedCollectingAgentsRoute,
   AuthenticatedMySchoolRoute: AuthenticatedMySchoolRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
+  AuthenticatedSchoolMerchandiseRoute: AuthenticatedSchoolMerchandiseRoute,
   AuthenticatedSchoolsRoute: AuthenticatedSchoolsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,

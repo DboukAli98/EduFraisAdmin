@@ -9,6 +9,7 @@ import {
   School2,
   Settings,
   ShieldCheck,
+  ShoppingBag,
   SlidersHorizontal,
   Users,
 } from 'lucide-react'
@@ -46,6 +47,11 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
               title: 'My School',
               url: '/my-school',
               icon: School2,
+            },
+            {
+              title: 'Merchandise',
+              url: '/school-merchandise',
+              icon: ShoppingBag,
             },
             {
               title: 'Parents & Children',
