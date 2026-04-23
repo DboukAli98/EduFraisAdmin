@@ -1,10 +1,12 @@
 import {
+  Award,
   Building2,
   Command,
   CreditCard,
   HandCoins,
   HelpCircle,
   LayoutDashboard,
+  ListChecks,
   Percent,
   School2,
   Settings,
@@ -62,6 +64,42 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
               title: 'Payments',
               url: '/payments',
               icon: HandCoins,
+            },
+            {
+              title: 'Loyalty',
+              icon: Award,
+              items: [
+                {
+                  title: 'Overview',
+                  url: '/loyalty',
+                  icon: LayoutDashboard,
+                },
+                {
+                  title: 'Program',
+                  url: '/loyalty/program',
+                  icon: Settings,
+                },
+                {
+                  title: 'Rules',
+                  url: '/loyalty/rules',
+                  icon: ListChecks,
+                },
+                {
+                  title: 'Rewards',
+                  url: '/loyalty/rewards',
+                  icon: ShoppingBag,
+                },
+                {
+                  title: 'Members',
+                  url: '/loyalty/members',
+                  icon: Users,
+                },
+                {
+                  title: 'Redemptions',
+                  url: '/loyalty/redemptions',
+                  icon: CreditCard,
+                },
+              ],
             },
             {
               title: 'Collecting Agents',

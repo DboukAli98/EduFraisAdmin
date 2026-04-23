@@ -1,0 +1,6 @@
+export { LoyaltyOverviewPage } from './overview'
+export { LoyaltyProgramManagementPage } from './program'
+export { LoyaltyRedemptionsManagementPage } from './redemptions'
+export { LoyaltyRewardsManagementPage } from './rewards'
+export { LoyaltyRulesManagementPage } from './rules'
+export { LoyaltyMembersManagementPage } from './members'

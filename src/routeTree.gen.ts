@@ -31,10 +31,12 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedLoyaltyRouteRouteImport } from './routes/_authenticated/loyalty/route'
 import { Route as AuthenticatedCommissionAdminRouteRouteImport } from './routes/_authenticated/commission-admin/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedLoyaltyIndexRouteImport } from './routes/_authenticated/loyalty/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
 import { Route as AuthenticatedCommissionAdminIndexRouteImport } from './routes/_authenticated/commission-admin/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
@@ -48,6 +50,11 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_authenticated/settings/account'
 import { Route as AuthenticatedSchoolDetailsSchoolIdRouteImport } from './routes/_authenticated/school-details.$schoolId'
 import { Route as AuthenticatedParentDetailsParentIdRouteImport } from './routes/_authenticated/parent-details.$parentId'
+import { Route as AuthenticatedLoyaltyRulesRouteImport } from './routes/_authenticated/loyalty/rules'
+import { Route as AuthenticatedLoyaltyRewardsRouteImport } from './routes/_authenticated/loyalty/rewards'
+import { Route as AuthenticatedLoyaltyRedemptionsRouteImport } from './routes/_authenticated/loyalty/redemptions'
+import { Route as AuthenticatedLoyaltyProgramRouteImport } from './routes/_authenticated/loyalty/program'
+import { Route as AuthenticatedLoyaltyMembersRouteImport } from './routes/_authenticated/loyalty/members'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedCommissionAdminProvidersRouteImport } from './routes/_authenticated/commission-admin/providers'
 import { Route as AuthenticatedCommissionAdminPlatformFeeRouteImport } from './routes/_authenticated/commission-admin/platform-fee'
@@ -163,6 +170,12 @@ const AuthenticatedSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLoyaltyRouteRoute =
+  AuthenticatedLoyaltyRouteRouteImport.update({
+    id: '/loyalty',
+    path: '/loyalty',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCommissionAdminRouteRoute =
   AuthenticatedCommissionAdminRouteRouteImport.update({
     id: '/commission-admin',
@@ -184,6 +197,12 @@ const AuthenticatedSettingsIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
+  } as any)
+const AuthenticatedLoyaltyIndexRoute =
+  AuthenticatedLoyaltyIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
   } as any)
 const AuthenticatedHelpCenterIndexRoute =
   AuthenticatedHelpCenterIndexRouteImport.update({
@@ -259,6 +278,36 @@ const AuthenticatedParentDetailsParentIdRoute =
     path: '/parent-details/$parentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLoyaltyRulesRoute =
+  AuthenticatedLoyaltyRulesRouteImport.update({
+    id: '/rules',
+    path: '/rules',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
+  } as any)
+const AuthenticatedLoyaltyRewardsRoute =
+  AuthenticatedLoyaltyRewardsRouteImport.update({
+    id: '/rewards',
+    path: '/rewards',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
+  } as any)
+const AuthenticatedLoyaltyRedemptionsRoute =
+  AuthenticatedLoyaltyRedemptionsRouteImport.update({
+    id: '/redemptions',
+    path: '/redemptions',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
+  } as any)
+const AuthenticatedLoyaltyProgramRoute =
+  AuthenticatedLoyaltyProgramRouteImport.update({
+    id: '/program',
+    path: '/program',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
+  } as any)
+const AuthenticatedLoyaltyMembersRoute =
+  AuthenticatedLoyaltyMembersRouteImport.update({
+    id: '/members',
+    path: '/members',
+    getParentRoute: () => AuthenticatedLoyaltyRouteRoute,
+  } as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -288,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/commission-admin': typeof AuthenticatedCommissionAdminRouteRouteWithChildren
+  '/loyalty': typeof AuthenticatedLoyaltyRouteRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
@@ -309,6 +359,11 @@ export interface FileRoutesByFullPath {
   '/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
   '/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/loyalty/members': typeof AuthenticatedLoyaltyMembersRoute
+  '/loyalty/program': typeof AuthenticatedLoyaltyProgramRoute
+  '/loyalty/redemptions': typeof AuthenticatedLoyaltyRedemptionsRoute
+  '/loyalty/rewards': typeof AuthenticatedLoyaltyRewardsRoute
+  '/loyalty/rules': typeof AuthenticatedLoyaltyRulesRoute
   '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -322,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/chats/': typeof AuthenticatedChatsIndexRoute
   '/commission-admin/': typeof AuthenticatedCommissionAdminIndexRoute
   '/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/loyalty/': typeof AuthenticatedLoyaltyIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/users/': typeof AuthenticatedUsersIndexRoute
@@ -349,6 +405,11 @@ export interface FileRoutesByTo {
   '/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
   '/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/loyalty/members': typeof AuthenticatedLoyaltyMembersRoute
+  '/loyalty/program': typeof AuthenticatedLoyaltyProgramRoute
+  '/loyalty/redemptions': typeof AuthenticatedLoyaltyRedemptionsRoute
+  '/loyalty/rewards': typeof AuthenticatedLoyaltyRewardsRoute
+  '/loyalty/rules': typeof AuthenticatedLoyaltyRulesRoute
   '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -362,6 +423,7 @@ export interface FileRoutesByTo {
   '/chats': typeof AuthenticatedChatsIndexRoute
   '/commission-admin': typeof AuthenticatedCommissionAdminIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
+  '/loyalty': typeof AuthenticatedLoyaltyIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/users': typeof AuthenticatedUsersIndexRoute
@@ -371,6 +433,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/clerk': typeof ClerkRouteRouteWithChildren
   '/_authenticated/commission-admin': typeof AuthenticatedCommissionAdminRouteRouteWithChildren
+  '/_authenticated/loyalty': typeof AuthenticatedLoyaltyRouteRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
   '/clerk/_authenticated': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -395,6 +458,11 @@ export interface FileRoutesById {
   '/_authenticated/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
   '/_authenticated/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
+  '/_authenticated/loyalty/members': typeof AuthenticatedLoyaltyMembersRoute
+  '/_authenticated/loyalty/program': typeof AuthenticatedLoyaltyProgramRoute
+  '/_authenticated/loyalty/redemptions': typeof AuthenticatedLoyaltyRedemptionsRoute
+  '/_authenticated/loyalty/rewards': typeof AuthenticatedLoyaltyRewardsRoute
+  '/_authenticated/loyalty/rules': typeof AuthenticatedLoyaltyRulesRoute
   '/_authenticated/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/_authenticated/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
   '/_authenticated/settings/account': typeof AuthenticatedSettingsAccountRoute
@@ -408,6 +476,7 @@ export interface FileRoutesById {
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
   '/_authenticated/commission-admin/': typeof AuthenticatedCommissionAdminIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
+  '/_authenticated/loyalty/': typeof AuthenticatedLoyaltyIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/users/': typeof AuthenticatedUsersIndexRoute
@@ -418,6 +487,7 @@ export interface FileRouteTypes {
     | '/'
     | '/clerk'
     | '/commission-admin'
+    | '/loyalty'
     | '/settings'
     | '/forgot-password'
     | '/otp'
@@ -439,6 +509,11 @@ export interface FileRouteTypes {
     | '/commission-admin/platform-fee'
     | '/commission-admin/providers'
     | '/errors/$error'
+    | '/loyalty/members'
+    | '/loyalty/program'
+    | '/loyalty/redemptions'
+    | '/loyalty/rewards'
+    | '/loyalty/rules'
     | '/parent-details/$parentId'
     | '/school-details/$schoolId'
     | '/settings/account'
@@ -452,6 +527,7 @@ export interface FileRouteTypes {
     | '/chats/'
     | '/commission-admin/'
     | '/help-center/'
+    | '/loyalty/'
     | '/settings/'
     | '/tasks/'
     | '/users/'
@@ -479,6 +555,11 @@ export interface FileRouteTypes {
     | '/commission-admin/platform-fee'
     | '/commission-admin/providers'
     | '/errors/$error'
+    | '/loyalty/members'
+    | '/loyalty/program'
+    | '/loyalty/redemptions'
+    | '/loyalty/rewards'
+    | '/loyalty/rules'
     | '/parent-details/$parentId'
     | '/school-details/$schoolId'
     | '/settings/account'
@@ -492,6 +573,7 @@ export interface FileRouteTypes {
     | '/chats'
     | '/commission-admin'
     | '/help-center'
+    | '/loyalty'
     | '/settings'
     | '/tasks'
     | '/users'
@@ -500,6 +582,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/clerk'
     | '/_authenticated/commission-admin'
+    | '/_authenticated/loyalty'
     | '/_authenticated/settings'
     | '/clerk/(auth)'
     | '/clerk/_authenticated'
@@ -524,6 +607,11 @@ export interface FileRouteTypes {
     | '/_authenticated/commission-admin/platform-fee'
     | '/_authenticated/commission-admin/providers'
     | '/_authenticated/errors/$error'
+    | '/_authenticated/loyalty/members'
+    | '/_authenticated/loyalty/program'
+    | '/_authenticated/loyalty/redemptions'
+    | '/_authenticated/loyalty/rewards'
+    | '/_authenticated/loyalty/rules'
     | '/_authenticated/parent-details/$parentId'
     | '/_authenticated/school-details/$schoolId'
     | '/_authenticated/settings/account'
@@ -537,6 +625,7 @@ export interface FileRouteTypes {
     | '/_authenticated/chats/'
     | '/_authenticated/commission-admin/'
     | '/_authenticated/help-center/'
+    | '/_authenticated/loyalty/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
     | '/_authenticated/users/'
@@ -713,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/loyalty': {
+      id: '/_authenticated/loyalty'
+      path: '/loyalty'
+      fullPath: '/loyalty'
+      preLoaderRoute: typeof AuthenticatedLoyaltyRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/commission-admin': {
       id: '/_authenticated/commission-admin'
       path: '/commission-admin'
@@ -740,6 +836,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/loyalty/': {
+      id: '/_authenticated/loyalty/'
+      path: '/'
+      fullPath: '/loyalty/'
+      preLoaderRoute: typeof AuthenticatedLoyaltyIndexRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
     }
     '/_authenticated/help-center/': {
       id: '/_authenticated/help-center/'
@@ -832,6 +935,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParentDetailsParentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/loyalty/rules': {
+      id: '/_authenticated/loyalty/rules'
+      path: '/rules'
+      fullPath: '/loyalty/rules'
+      preLoaderRoute: typeof AuthenticatedLoyaltyRulesRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
+    }
+    '/_authenticated/loyalty/rewards': {
+      id: '/_authenticated/loyalty/rewards'
+      path: '/rewards'
+      fullPath: '/loyalty/rewards'
+      preLoaderRoute: typeof AuthenticatedLoyaltyRewardsRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
+    }
+    '/_authenticated/loyalty/redemptions': {
+      id: '/_authenticated/loyalty/redemptions'
+      path: '/redemptions'
+      fullPath: '/loyalty/redemptions'
+      preLoaderRoute: typeof AuthenticatedLoyaltyRedemptionsRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
+    }
+    '/_authenticated/loyalty/program': {
+      id: '/_authenticated/loyalty/program'
+      path: '/program'
+      fullPath: '/loyalty/program'
+      preLoaderRoute: typeof AuthenticatedLoyaltyProgramRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
+    }
+    '/_authenticated/loyalty/members': {
+      id: '/_authenticated/loyalty/members'
+      path: '/members'
+      fullPath: '/loyalty/members'
+      preLoaderRoute: typeof AuthenticatedLoyaltyMembersRouteImport
+      parentRoute: typeof AuthenticatedLoyaltyRouteRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -884,6 +1022,30 @@ const AuthenticatedCommissionAdminRouteRouteWithChildren =
     AuthenticatedCommissionAdminRouteRouteChildren,
   )
 
+interface AuthenticatedLoyaltyRouteRouteChildren {
+  AuthenticatedLoyaltyMembersRoute: typeof AuthenticatedLoyaltyMembersRoute
+  AuthenticatedLoyaltyProgramRoute: typeof AuthenticatedLoyaltyProgramRoute
+  AuthenticatedLoyaltyRedemptionsRoute: typeof AuthenticatedLoyaltyRedemptionsRoute
+  AuthenticatedLoyaltyRewardsRoute: typeof AuthenticatedLoyaltyRewardsRoute
+  AuthenticatedLoyaltyRulesRoute: typeof AuthenticatedLoyaltyRulesRoute
+  AuthenticatedLoyaltyIndexRoute: typeof AuthenticatedLoyaltyIndexRoute
+}
+
+const AuthenticatedLoyaltyRouteRouteChildren: AuthenticatedLoyaltyRouteRouteChildren =
+  {
+    AuthenticatedLoyaltyMembersRoute: AuthenticatedLoyaltyMembersRoute,
+    AuthenticatedLoyaltyProgramRoute: AuthenticatedLoyaltyProgramRoute,
+    AuthenticatedLoyaltyRedemptionsRoute: AuthenticatedLoyaltyRedemptionsRoute,
+    AuthenticatedLoyaltyRewardsRoute: AuthenticatedLoyaltyRewardsRoute,
+    AuthenticatedLoyaltyRulesRoute: AuthenticatedLoyaltyRulesRoute,
+    AuthenticatedLoyaltyIndexRoute: AuthenticatedLoyaltyIndexRoute,
+  }
+
+const AuthenticatedLoyaltyRouteRouteWithChildren =
+  AuthenticatedLoyaltyRouteRoute._addFileChildren(
+    AuthenticatedLoyaltyRouteRouteChildren,
+  )
+
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
@@ -909,6 +1071,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCommissionAdminRouteRoute: typeof AuthenticatedCommissionAdminRouteRouteWithChildren
+  AuthenticatedLoyaltyRouteRoute: typeof AuthenticatedLoyaltyRouteRouteWithChildren
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedCollectingAgentsRoute: typeof AuthenticatedCollectingAgentsRoute
   AuthenticatedMySchoolRoute: typeof AuthenticatedMySchoolRoute
@@ -931,6 +1094,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCommissionAdminRouteRoute:
     AuthenticatedCommissionAdminRouteRouteWithChildren,
+  AuthenticatedLoyaltyRouteRoute: AuthenticatedLoyaltyRouteRouteWithChildren,
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedCollectingAgentsRoute: AuthenticatedCollectingAgentsRoute,
   AuthenticatedMySchoolRoute: AuthenticatedMySchoolRoute,
