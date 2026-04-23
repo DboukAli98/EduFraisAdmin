@@ -1,4 +1,4 @@
-import * as React from 'react'
+﻿import * as React from 'react'
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -34,7 +34,7 @@ function Calendar({
       captionLayout={captionLayout}
       formatters={{
         formatMonthDropdown: (date) =>
-          date.toLocaleString('default', { month: 'short' }),
+          date.toLocaleString('fr-FR', { month: 'short' }),
         ...formatters,
       }}
       classNames={{
@@ -208,3 +208,4 @@ function CalendarDayButton({
 }
 
 export { Calendar, CalendarDayButton }
+

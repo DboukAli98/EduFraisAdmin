@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Percent, Save } from 'lucide-react'
@@ -63,12 +63,15 @@ export function PlatformFeeManagement() {
         note,
       }),
     onSuccess: () => {
-      toast.success('Platform fee updated')
+      toast.success('Frais plateforme mis a jour')
       void queryClient.invalidateQueries({ queryKey: ['commission-settings'] })
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the platform fee right now.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour les frais plateforme pour le moment.'
+        )
       )
     },
   })
@@ -76,12 +79,12 @@ export function PlatformFeeManagement() {
   if (!isSuperAdmin) {
     return (
       <PageShell
-        title='Platform Fee'
-        description='Update EduFrais platform commission percentage.'
+        title='Frais plateforme'
+        description='Mettez a jour le pourcentage de commission de la plateforme EduFrais.'
       >
         <EmptyState
-          title='SuperAdmin access required'
-          description='Platform fee management is restricted to SuperAdmin accounts.'
+          title='Acces SuperAdmin requis'
+          description='La gestion des frais plateforme est reservee aux comptes SuperAdmin.'
         />
       </PageShell>
     )
@@ -91,13 +94,13 @@ export function PlatformFeeManagement() {
 
   return (
     <PageShell
-      title='Platform Fee'
-      description='Set the active EduFrais platform commission rate. Previous rates stay available for backend history.'
+      title='Frais plateforme'
+      description='Definissez le taux actif de commission EduFrais. Les anciens taux restent disponibles dans l historique du backend.'
       actions={
         <Button asChild variant='outline'>
           <Link to='/commission-admin'>
             <ArrowLeft className='h-4 w-4' />
-            Overview
+            Vue d ensemble
           </Link>
         </Button>
       }
@@ -107,10 +110,10 @@ export function PlatformFeeManagement() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Percent className='h-5 w-5' />
-              Current active fee
+              Taux actif actuel
             </CardTitle>
             <CardDescription>
-              This is the platform fee currently returned by
+              Voici le frais plateforme actuellement retourne par
               <code> GetCommissionSettings</code>.
             </CardDescription>
           </CardHeader>
@@ -123,8 +126,8 @@ export function PlatformFeeManagement() {
               </div>
             ) : !platformFee ? (
               <EmptyState
-                title='No platform fee configured'
-                description='Use the form to create the first active platform fee setting.'
+                title='Aucun frais plateforme configure'
+                description='Utilisez le formulaire pour creer le premier parametre actif de frais plateforme.'
               />
             ) : (
               <div className='space-y-4'>
@@ -134,15 +137,15 @@ export function PlatformFeeManagement() {
                       {formatPercentage(platformFee.feePercentage)}
                     </div>
                     <p className='text-sm text-muted-foreground'>
-                      Created {formatDateTime(platformFee.createdOn)}
+                      Cree le {formatDateTime(platformFee.createdOn)}
                     </p>
                   </div>
                   <Badge variant={platformFee.isActive ? 'default' : 'outline'}>
-                    {platformFee.isActive ? 'Active' : 'Inactive'}
+                    {platformFee.isActive ? 'Actif' : 'Inactif'}
                   </Badge>
                 </div>
                 <div className='rounded-xl border bg-muted/20 p-4 text-sm'>
-                  {platformFee.note || 'No note was recorded for this rate.'}
+                  {platformFee.note || 'Aucune note n a ete enregistree pour ce taux.'}
                 </div>
               </div>
             )}
@@ -151,16 +154,16 @@ export function PlatformFeeManagement() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Update platform fee</CardTitle>
+            <CardTitle>Mettre a jour les frais plateforme</CardTitle>
             <CardDescription>
-              The API creates a new active fee row and deactivates the previous
-              one. Percentages are stored as percent values, so <code>1</code>
-              means 1%.
+              L API cree une nouvelle ligne active et desactive la precedente.
+              Les pourcentages sont stockes comme des valeurs en pourcentage,
+              donc <code>1</code> signifie 1%.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-5'>
             <div className='grid gap-2'>
-              <Label htmlFor='platform-fee'>Fee percentage</Label>
+              <Label htmlFor='platform-fee'>Pourcentage des frais</Label>
               <Input
                 id='platform-fee'
                 inputMode='decimal'
@@ -170,11 +173,11 @@ export function PlatformFeeManagement() {
               />
               {!isValidPercentage(feePercentage) && feePercentage.length > 0 ? (
                 <p className='text-sm font-medium text-destructive'>
-                  Enter a percentage between 0 and 100.
+                  Entrez un pourcentage entre 0 et 100.
                 </p>
               ) : (
                 <p className='text-sm text-muted-foreground'>
-                  Supports up to two decimal places. Example: 1.25 = 1.25%.
+                  Prend en charge jusqu a deux decimales. Exemple : 1.25 = 1.25%.
                 </p>
               )}
             </div>
@@ -184,7 +187,7 @@ export function PlatformFeeManagement() {
               <Textarea
                 id='platform-note'
                 rows={5}
-                placeholder='Reason for this rate change'
+                placeholder='Motif de ce changement de taux'
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
               />
@@ -192,7 +195,9 @@ export function PlatformFeeManagement() {
 
             <Button disabled={!canSave} onClick={() => updateMutation.mutate()}>
               <Save className='h-4 w-4' />
-              {updateMutation.isPending ? 'Saving...' : 'Update platform fee'}
+              {updateMutation.isPending
+                ? 'Enregistrement...'
+                : 'Mettre a jour les frais plateforme'}
             </Button>
           </CardContent>
         </Card>
@@ -200,3 +205,4 @@ export function PlatformFeeManagement() {
     </PageShell>
   )
 }
+

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Save, ShieldCheck, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -42,7 +42,7 @@ import { toDateInputValue, useDirectorLoyaltyScope } from './utils'
 
 type StatusAction = LoyaltyLifecycleAction | null
 
-function createEmptyProgramForm(): LoyaltyProgramMutationInput {
+function createEmptyProgrammeForm(): LoyaltyProgramMutationInput {
   return {
     programName: '',
     programDescription: '',
@@ -62,7 +62,7 @@ export function LoyaltyProgramManagementPage() {
   const queryClient = useQueryClient()
   const { isDirector, schoolId, hasAssignedSchool } = useDirectorLoyaltyScope()
   const [form, setForm] = useState<LoyaltyProgramMutationInput>(
-    createEmptyProgramForm()
+    createEmptyProgrammeForm()
   )
   const [pendingAction, setPendingAction] = useState<StatusAction>(null)
 
@@ -76,7 +76,7 @@ export function LoyaltyProgramManagementPage() {
 
   useEffect(() => {
     if (!program) {
-      setForm(createEmptyProgramForm())
+      setForm(createEmptyProgrammeForm())
       return
     }
 
@@ -105,12 +105,19 @@ export function LoyaltyProgramManagementPage() {
       await createLoyaltyProgram(schoolId, form)
     },
     onSuccess: () => {
-      toast.success(program ? 'Loyalty program updated.' : 'Loyalty program created.')
+      toast.success(
+        program
+          ? 'Programme de fidelite mis a jour.'
+          : 'Programme de fidelite cree.'
+      )
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to save the loyalty program right now.')
+        getApiErrorMessage(
+          error,
+          'Impossible d enregistrer le programme de fidelite pour le moment.'
+        )
       )
     },
   })
@@ -130,7 +137,10 @@ export function LoyaltyProgramManagementPage() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the program status right now.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour le statut du programme pour le moment.'
+        )
       )
     },
   })
@@ -138,12 +148,12 @@ export function LoyaltyProgramManagementPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty Program'
-        description='Configure how the school loyalty program works.'
+        title='Programme fidelite'
+        description='Configurez le fonctionnement du programme de fidelite de l ecole.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -152,12 +162,12 @@ export function LoyaltyProgramManagementPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty Program'
-        description='Configure how the school loyalty program works.'
+        title='Programme fidelite'
+        description='Configurez le fonctionnement du programme de fidelite de l ecole.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -168,8 +178,8 @@ export function LoyaltyProgramManagementPage() {
   return (
     <>
       <PageShell
-        title='Loyalty Program'
-        description='Create the school loyalty program, decide who can participate, and define the base redemption policy.'
+        title='Programme fidelite'
+        description='Creez le programme de fidelite de l ecole, choisissez les participants et definissez la politique de redemption de base.'
         actions={
           program ? (
             <div className='flex flex-wrap gap-2'>
@@ -185,7 +195,7 @@ export function LoyaltyProgramManagementPage() {
                   onClick={() => setPendingAction('enable')}
                 >
                   <ShieldCheck className='h-4 w-4' />
-                  Enable
+                  Activer
                 </Button>
               ) : null}
               {program.statusId !== 2 ? (
@@ -193,7 +203,7 @@ export function LoyaltyProgramManagementPage() {
                   variant='outline'
                   onClick={() => setPendingAction('disable')}
                 >
-                  Disable
+                  Desactiver
                 </Button>
               ) : null}
               {program.statusId !== 5 ? (
@@ -202,7 +212,7 @@ export function LoyaltyProgramManagementPage() {
                   onClick={() => setPendingAction('deleted')}
                 >
                   <Trash2 className='h-4 w-4' />
-                  Delete
+                  Supprimer
                 </Button>
               ) : null}
             </div>
@@ -212,9 +222,9 @@ export function LoyaltyProgramManagementPage() {
         <section className='grid gap-4 xl:grid-cols-[0.85fr_1.15fr]'>
           <Card className='border-border/70'>
             <CardHeader>
-              <CardTitle>Current program state</CardTitle>
+              <CardTitle>Etat actuel du programme</CardTitle>
               <CardDescription>
-                Snapshot of the active school program currently returned by the loyalty API.
+                Apercu du programme actif de l ecole retourne par l API fidelite.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -226,37 +236,37 @@ export function LoyaltyProgramManagementPage() {
                 </div>
               ) : !program ? (
                 <EmptyState
-                  title='No loyalty program created'
-                  description='Use the form to create the first rewards program for this school.'
+                  title='Aucun programme de fidelite cree'
+                  description='Utilisez le formulaire pour creer le premier programme de recompenses de cette ecole.'
                 />
               ) : (
                 <div className='space-y-4'>
                   <div>
                     <div className='text-3xl font-semibold'>{program.programName}</div>
                     <p className='mt-1 text-sm text-muted-foreground'>
-                      {program.programDescription || 'No program description yet.'}
+                      {program.programDescription || 'Aucune description du programme pour le moment.'}
                     </p>
                   </div>
                   <div className='rounded-xl border bg-muted/20 p-4 text-sm'>
-                    <p>Points label: {program.pointsLabel}</p>
-                    <p>Welcome bonus: {program.welcomeBonusPoints}</p>
-                    <p>Minimum redeem points: {program.minimumRedeemPoints}</p>
+                    <p>Libelle des points : {program.pointsLabel}</p>
+                    <p>Bonus de bienvenue : {program.welcomeBonusPoints}</p>
+                    <p>Minimum de redemption : {program.minimumRedeemPoints}</p>
                     <p>
-                      Auto-approve redemptions:{' '}
-                      {program.autoApproveRedemptions ? 'Yes' : 'No'}
+                      Approbation automatique des redemptions :{' '}
+                      {program.autoApproveRedemptions ? 'Oui' : 'Non'}
                     </p>
                     <p>
-                      Parent participation:{' '}
-                      {program.allowParentParticipation ? 'Enabled' : 'Disabled'}
+                      Participation des parents :{' '}
+                      {program.allowParentParticipation ? 'Activee' : 'Desactivee'}
                     </p>
                     <p>
-                      Agent participation:{' '}
-                      {program.allowAgentParticipation ? 'Enabled' : 'Disabled'}
+                      Participation des agents :{' '}
+                      {program.allowAgentParticipation ? 'Activee' : 'Desactivee'}
                     </p>
                   </div>
                   <div className='text-sm text-muted-foreground'>
-                    Created {formatDateTime(program.createdOn)} and last updated{' '}
-                    {formatDateTime(program.modifiedOn)}.
+                    Cree le {formatDateTime(program.createdOn)} et mis a jour pour la
+                    derniere fois le {formatDateTime(program.modifiedOn)}.
                   </div>
                 </div>
               )}
@@ -265,15 +275,19 @@ export function LoyaltyProgramManagementPage() {
 
           <Card className='border-border/70'>
             <CardHeader>
-              <CardTitle>{program ? 'Update loyalty program' : 'Create loyalty program'}</CardTitle>
+              <CardTitle>
+                {program
+                  ? 'Mettre a jour le programme de fidelite'
+                  : 'Creer le programme de fidelite'}
+              </CardTitle>
               <CardDescription>
-                This defines the school-wide loyalty settings that rules, rewards, members, and redemptions inherit from.
+                Ceci definit les parametres de fidelite de l ecole que les regles, recompenses, membres et redemptions utilisent.
               </CardDescription>
             </CardHeader>
             <CardContent className='space-y-5'>
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2 sm:col-span-2'>
-                  <Label htmlFor='program-name'>Program name</Label>
+                  <Label htmlFor='program-name'>Nom du programme</Label>
                   <Input
                     id='program-name'
                     value={form.programName}
@@ -283,7 +297,7 @@ export function LoyaltyProgramManagementPage() {
                         programName: event.target.value,
                       }))
                     }
-                    placeholder='EduFrais Rewards'
+                    placeholder='EduFrais Recompenses'
                   />
                 </div>
 
@@ -299,12 +313,12 @@ export function LoyaltyProgramManagementPage() {
                         programDescription: event.target.value,
                       }))
                     }
-                    placeholder='Explain how this loyalty program should feel for parents and agents.'
+                    placeholder='Expliquez comment ce programme de fidelite doit fonctionner pour les parents et les agents.'
                   />
                 </div>
 
                 <div className='grid gap-2'>
-                  <Label htmlFor='points-label'>Points label</Label>
+                  <Label htmlFor='points-label'>Libelle des points</Label>
                   <Input
                     id='points-label'
                     value={form.pointsLabel}
@@ -318,7 +332,7 @@ export function LoyaltyProgramManagementPage() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='welcome-bonus'>Welcome bonus points</Label>
+                  <Label htmlFor='welcome-bonus'>Points de bonus de bienvenue</Label>
                   <Input
                     id='welcome-bonus'
                     inputMode='numeric'
@@ -333,7 +347,7 @@ export function LoyaltyProgramManagementPage() {
                 </div>
 
                 <div className='grid gap-2'>
-                  <Label htmlFor='minimum-redeem'>Minimum redeem points</Label>
+                  <Label htmlFor='minimum-redeem'>Points minimum de redemption</Label>
                   <Input
                     id='minimum-redeem'
                     inputMode='numeric'
@@ -347,7 +361,7 @@ export function LoyaltyProgramManagementPage() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='starts-on'>Start date</Label>
+                  <Label htmlFor='starts-on'>Date de debut</Label>
                   <Input
                     id='starts-on'
                     type='date'
@@ -362,7 +376,7 @@ export function LoyaltyProgramManagementPage() {
                 </div>
 
                 <div className='grid gap-2'>
-                  <Label htmlFor='ends-on'>End date</Label>
+                  <Label htmlFor='ends-on'>Date de fin</Label>
                   <Input
                     id='ends-on'
                     type='date'
@@ -377,7 +391,7 @@ export function LoyaltyProgramManagementPage() {
                 </div>
 
                 <div className='grid gap-2 sm:col-span-2'>
-                  <Label htmlFor='terms'>Terms and conditions</Label>
+                  <Label htmlFor='terms'>Conditions generales</Label>
                   <Textarea
                     id='terms'
                     rows={5}
@@ -388,7 +402,7 @@ export function LoyaltyProgramManagementPage() {
                         termsAndConditions: event.target.value,
                       }))
                     }
-                    placeholder='Optional redemption conditions, expiry notes, or school policy language.'
+                    placeholder='Conditions de redemption, notes d expiration ou politique de l ecole, si necessaire.'
                   />
                 </div>
               </div>
@@ -396,9 +410,9 @@ export function LoyaltyProgramManagementPage() {
               <div className='grid gap-3'>
                 <div className='flex items-center justify-between rounded-xl border p-4'>
                   <div>
-                    <p className='font-medium'>Auto-approve redemptions</p>
+                    <p className='font-medium'>Approbation automatique des redemptions</p>
                     <p className='text-sm text-muted-foreground'>
-                      If disabled, redemptions stay pending until the director reviews them.
+                      Si desactive, les redemptions restent en attente jusqu a la revue du directeur.
                     </p>
                   </div>
                   <Switch
@@ -414,9 +428,9 @@ export function LoyaltyProgramManagementPage() {
 
                 <div className='flex items-center justify-between rounded-xl border p-4'>
                   <div>
-                    <p className='font-medium'>Allow parent participation</p>
+                    <p className='font-medium'>Autoriser la participation des parents</p>
                     <p className='text-sm text-muted-foreground'>
-                      Parents can be enrolled and earn points through school activity.
+                      Les parents peuvent etre inscrits et gagner des points grace a l activite scolaire.
                     </p>
                   </div>
                   <Switch
@@ -432,9 +446,9 @@ export function LoyaltyProgramManagementPage() {
 
                 <div className='flex items-center justify-between rounded-xl border p-4'>
                   <div>
-                    <p className='font-medium'>Allow collecting agent participation</p>
+                    <p className='font-medium'>Autoriser la participation des agents collecteurs</p>
                     <p className='text-sm text-muted-foreground'>
-                      Agents can join the loyalty program and track their own points.
+                      Les agents peuvent rejoindre le programme de fidelite et suivre leurs propres points.
                     </p>
                   </div>
                   <Switch
@@ -452,10 +466,10 @@ export function LoyaltyProgramManagementPage() {
               <Button disabled={!canSave} onClick={() => saveMutation.mutate()}>
                 <Save className='h-4 w-4' />
                 {saveMutation.isPending
-                  ? 'Saving...'
+                  ? 'Enregistrement...'
                   : program
-                    ? 'Update program'
-                    : 'Create program'}
+                    ? 'Mettre a jour le programme'
+                    : 'Creer le programme'}
               </Button>
             </CardContent>
           </Card>
@@ -474,26 +488,26 @@ export function LoyaltyProgramManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction === 'deleted'
-                ? 'Delete loyalty program?'
+                ? 'Supprimer le programme de fidelite ?'
                 : pendingAction === 'disable'
-                  ? 'Disable loyalty program?'
-                  : 'Enable loyalty program?'}
+                  ? 'Desactiver le programme de fidelite ?'
+                  : 'Activer le programme de fidelite ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction === 'deleted'
-                ? 'The program will be marked as deleted and hidden from active use.'
+                ? 'Le programme sera marque comme supprime et retire de l usage actif.'
                 : pendingAction === 'disable'
-                  ? 'The program will remain in history but new activity should stop.'
-                  : 'The program will become the active school loyalty program again.'}
+                  ? 'Le programme restera dans l historique mais les nouvelles activites devront s arreter.'
+                  : 'Le programme redeviendra le programme de fidelite actif de l ecole.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => statusMutation.mutate()}
               disabled={statusMutation.isPending}
             >
-              {statusMutation.isPending ? 'Updating...' : 'Confirm'}
+              {statusMutation.isPending ? 'Mise a jour...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -501,3 +515,5 @@ export function LoyaltyProgramManagementPage() {
     </>
   )
 }
+
+

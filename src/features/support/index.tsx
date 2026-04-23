@@ -105,11 +105,11 @@ function DetailRow({ label, value }: { label: string; value: ReactNode }) {
 function formatSourceLabel(source: SupportSource): string {
   switch (source) {
     case 'PARENT_TO_DIRECTOR':
-      return 'Parent -> Director'
+      return 'Parent -> Directeur'
     case 'PARENT_TO_AGENT':
       return 'Parent -> Agent'
     case 'AGENT_TO_DIRECTOR':
-      return 'Agent -> Director'
+      return 'Agent -> Directeur'
   }
 }
 
@@ -186,7 +186,7 @@ export function SupportWorkspace() {
       })
     },
     onSuccess: () => {
-      toast.success('Support request status updated successfully.')
+      toast.success('Statut de la demande de support mis a jour avec succes.')
       setIsStatusDialogOpen(false)
       setStatusForm(createEmptyStatusForm())
       void queryClient.invalidateQueries({
@@ -211,12 +211,12 @@ export function SupportWorkspace() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Support Requests'
-        description='Director-operated support oversight workspace.'
+        title='Demandes de support'
+        description='Espace de suivi du support gere par le directeur.'
       >
         <EmptyState
-          title='Director workspace only'
-          description='This support queue is tailored for directors handling family and collecting-agent requests within their own school.'
+          title='Espace reserve au directeur'
+          description='Cette file de support est concue pour les directeurs qui gerent les demandes des familles et des agents collecteurs dans leur propre ecole.'
         />
       </PageShell>
     )
@@ -225,12 +225,12 @@ export function SupportWorkspace() {
   if (!schoolId) {
     return (
       <PageShell
-        title='Support Requests'
-        description='Director-operated support oversight workspace.'
+        title='Demandes de support'
+        description='Espace de suivi du support gere par le directeur.'
       >
         <EmptyState
-          title='No school assigned'
-          description='The current director account is not linked to a school, so support requests cannot be loaded yet.'
+          title='Aucune ecole affectee'
+          description='Le compte directeur actuel n est lie a aucune ecole, les demandes de support ne peuvent donc pas encore etre chargees.'
         />
       </PageShell>
     )
@@ -239,8 +239,8 @@ export function SupportWorkspace() {
   return (
     <>
       <PageShell
-        title='Support Requests'
-        description='Review parent and collecting-agent issues, follow the status timeline, and move requests through resolution.'
+        title='Demandes de support'
+        description='Examinez les problemes des parents et des agents collecteurs, suivez l evolution des statuts et faites avancer les demandes jusqu a leur resolution.'
         actions={
           <Button
             variant='outline'
@@ -254,39 +254,39 @@ export function SupportWorkspace() {
               setIsStatusDialogOpen(true)
             }}
           >
-            Update status
+            Mettre a jour le statut
           </Button>
         }
       >
         <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
           <SummaryCard
-            title='Parent -> Director'
+            title='Parent -> Directeur'
             value={String(sourceCounts.find((item) => item.source === 'PARENT_TO_DIRECTOR')?.totalCount ?? 0)}
-            description='Requests raised directly to the director.'
+            description='Demandes adressees directement au directeur.'
           />
           <SummaryCard
             title='Parent -> Agent'
             value={String(sourceCounts.find((item) => item.source === 'PARENT_TO_AGENT')?.totalCount ?? 0)}
-            description='Requests directed to collecting agents for oversight.'
+            description='Demandes orientees vers les agents collecteurs pour suivi.'
           />
           <SummaryCard
-            title='Agent -> Director'
+            title='Agent -> Directeur'
             value={String(sourceCounts.find((item) => item.source === 'AGENT_TO_DIRECTOR')?.totalCount ?? 0)}
-            description='Escalations raised by collecting agents.'
+            description='Escalades creees par les agents collecteurs.'
           />
           <SummaryCard
-            title='Selected source'
+            title='Source selectionnee'
             value={String(requests.length)}
-            description='Requests currently loaded in the active view.'
+            description='Demandes actuellement chargees dans la vue active.'
           />
         </section>
 
         <section className='rounded-2xl border bg-card p-4'>
           <div className='grid gap-4 md:grid-cols-[1fr_auto] md:items-end'>
             <div>
-              <p className='text-sm font-medium'>Request source</p>
+              <p className='text-sm font-medium'>Source de la demande</p>
               <p className='text-sm text-muted-foreground'>
-                Switch between parent-director, parent-agent, and agent-director support flows.
+                Basculez entre les flux parent-directeur, parent-agent et agent-directeur.
               </p>
             </div>
             <Select value={source} onValueChange={(value) => setSource(value as SupportSource)}>
@@ -309,10 +309,10 @@ export function SupportWorkspace() {
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <MessageSquareWarning className='h-4 w-4 text-primary' />
-                Requests
+                Demandes
               </CardTitle>
               <CardDescription>
-                All support requests returned for {formatSourceLabel(source)}.
+                Toutes les demandes de support renvoyees pour {formatSourceLabel(source)}.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -324,18 +324,18 @@ export function SupportWorkspace() {
                 </div>
               ) : requests.length === 0 ? (
                 <EmptyState
-                  title='No support requests'
-                  description='There are no support items for the selected source right now.'
+                  title='Aucune demande de support'
+                  description='Aucun element de support pour la source selectionnee pour le moment.'
                 />
               ) : (
                 <div className='rounded-lg border'>
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Request</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Priority</TableHead>
-                        <TableHead>Created</TableHead>
+                        <TableRow>
+                        <TableHead>Demande</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Priorite</TableHead>
+                        <TableHead>Creation</TableHead>
                         <TableHead className='text-right'>Details</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -371,7 +371,7 @@ export function SupportWorkspace() {
                               size='sm'
                               onClick={() => setSelectedRequestId(request.id)}
                             >
-                              Open
+                              Ouvrir
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -388,10 +388,10 @@ export function SupportWorkspace() {
               <div>
                 <CardTitle className='flex items-center gap-2'>
                   <LifeBuoy className='h-4 w-4 text-primary' />
-                  Request details
+                  Details de la demande
                 </CardTitle>
                 <CardDescription>
-                  Inspect the selected request, view its timeline, and push it to the next supported status.
+                  Consultez la demande selectionnee, son historique et faites-la avancer vers le prochain statut pris en charge.
                 </CardDescription>
               </div>
               {selectedRequest ? (
@@ -401,8 +401,8 @@ export function SupportWorkspace() {
             <CardContent>
               {!selectedRequest ? (
                 <EmptyState
-                  title='No request selected'
-                  description='Choose a request from the table to inspect its details and timeline.'
+                  title='Aucune demande selectionnee'
+                  description='Choisissez une demande dans le tableau pour consulter ses details et son historique.'
                 />
               ) : detailsQuery.isLoading ? (
                 <div className='space-y-3'>
@@ -412,15 +412,15 @@ export function SupportWorkspace() {
                 </div>
               ) : detailsQuery.isError || !detailsQuery.data ? (
                 <EmptyState
-                  title='Unable to load details'
-                  description='The selected support request did not return a detailed record from the backend.'
+                  title='Impossible de charger les details'
+                  description='La demande de support selectionnee n a pas renvoye de fiche detaillee depuis le backend.'
                 />
               ) : (
                 <div className='space-y-6'>
                   <div className='space-y-4'>
-                    <DetailRow label='Title' value={detailsQuery.data.title} />
+                    <DetailRow label='Titre' value={detailsQuery.data.title} />
                     <DetailRow
-                      label='Status'
+                      label='Statut'
                       value={
                         <Badge
                           variant='outline'
@@ -436,36 +436,36 @@ export function SupportWorkspace() {
                         <div className='space-y-1'>
                           <div className='flex items-center gap-2'>
                             <Users className='h-3.5 w-3.5 text-muted-foreground' />
-                            <span>{selectedRequest.parentName || 'No parent linked'}</span>
+                            <span>{selectedRequest.parentName || 'Aucun parent lie'}</span>
                           </div>
                           <div className='flex items-center gap-2'>
                             <ShieldAlert className='h-3.5 w-3.5 text-muted-foreground' />
-                            <span>{selectedRequest.agentName || 'No agent linked'}</span>
+                            <span>{selectedRequest.agentName || 'Aucun agent lie'}</span>
                           </div>
                         </div>
                       }
                     />
                     <DetailRow
                       label='Description'
-                      value={detailsQuery.data.description || 'No description'}
+                      value={detailsQuery.data.description || 'Aucune description'}
                     />
                     <DetailRow
-                      label='Resolution notes'
-                      value={detailsQuery.data.resultNotes || 'No resolution notes yet'}
+                      label='Notes de resolution'
+                      value={detailsQuery.data.resultNotes || 'Aucune note de resolution pour le moment'}
                     />
                     <DetailRow
-                      label='Meta'
+                      label='Metadonnees'
                       value={
                         <div className='space-y-1'>
-                          <div>Type: {detailsQuery.data.supportRequestType}</div>
-                          <div>Priority: {detailsQuery.data.priority}</div>
-                          <div>Created: {formatDateTime(detailsQuery.data.createdOn)}</div>
+                          <div>Type : {detailsQuery.data.supportRequestType}</div>
+                          <div>Priorite : {detailsQuery.data.priority}</div>
+                          <div>Cree le : {formatDateTime(detailsQuery.data.createdOn)}</div>
                           <div>
-                            Expected resolution:{' '}
+                            Resolution attendue :{' '}
                             {formatDateTime(detailsQuery.data.expectedResolutionDate)}
                           </div>
                           <div>
-                            Resolved: {formatDateTime(detailsQuery.data.resolvedDate)}
+                            Resolue le : {formatDateTime(detailsQuery.data.resolvedDate)}
                           </div>
                         </div>
                       }
@@ -475,17 +475,17 @@ export function SupportWorkspace() {
                   <div className='space-y-3'>
                     <div className='flex items-center justify-between gap-3'>
                       <div>
-                        <h4 className='font-medium'>Status timeline</h4>
+                        <h4 className='font-medium'>Historique des statuts</h4>
                         <p className='text-sm text-muted-foreground'>
-                          Logged status changes from the backend history.
+                          Changements de statut enregistres dans l historique backend.
                         </p>
                       </div>
                     </div>
 
                     {detailsQuery.data.statusLogs.length === 0 ? (
                       <EmptyState
-                        title='No status logs'
-                        description='This request does not have any status-log entries yet.'
+                        title='Aucun historique de statut'
+                        description='Cette demande ne contient encore aucune entree d historique de statut.'
                       />
                     ) : (
                       <div className='space-y-3'>
@@ -529,15 +529,15 @@ export function SupportWorkspace() {
       >
         <DialogContent className='sm:max-w-xl'>
           <DialogHeader>
-            <DialogTitle>Update support request status</DialogTitle>
+            <DialogTitle>Mettre a jour le statut de la demande</DialogTitle>
             <DialogDescription>
-              Use the supported backend statuses for director workflows: pending, in progress, stall, resolved, or cancelled.
+              Utilisez les statuts backend pris en charge pour le flux directeur : en attente, en cours, bloque, resolu ou annule.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='support-status'>New status</Label>
+              <Label htmlFor='support-status'>Nouveau statut</Label>
               <Select
                 value={String(statusForm.newStatusId)}
                 onValueChange={(value) =>
@@ -561,7 +561,7 @@ export function SupportWorkspace() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='support-message'>Status message</Label>
+              <Label htmlFor='support-message'>Message de statut</Label>
               <Textarea
                 id='support-message'
                 rows={4}
@@ -576,7 +576,7 @@ export function SupportWorkspace() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='support-result-notes'>Resolution notes</Label>
+              <Label htmlFor='support-result-notes'>Notes de resolution</Label>
               <Textarea
                 id='support-result-notes'
                 rows={4}
@@ -596,10 +596,10 @@ export function SupportWorkspace() {
               variant='outline'
               onClick={() => setIsStatusDialogOpen(false)}
             >
-              Cancel
+              Annuler
             </Button>
             <Button onClick={() => updateStatusMutation.mutate()} disabled={updateStatusMutation.isPending}>
-              {updateStatusMutation.isPending ? 'Saving...' : 'Update status'}
+              {updateStatusMutation.isPending ? 'Enregistrement...' : 'Mettre a jour le statut'}
             </Button>
           </DialogFooter>
         </DialogContent>

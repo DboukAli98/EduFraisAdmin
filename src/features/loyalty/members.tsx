@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BookOpenText, Coins, Plus, Search, SlidersHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
@@ -60,6 +60,9 @@ import {
 } from './api'
 import {
   formatPoints,
+  getLoyaltyEntryTypeLabel,
+  getLoyaltyMemberTypeLabel,
+  getLoyaltyReferenceTypeLabel,
   loyaltyMemberTypeOptions,
   useDirectorLoyaltyScope,
 } from './utils'
@@ -104,7 +107,7 @@ export function LoyaltyMembersManagementPage() {
   const queryClient = useQueryClient()
   const { isDirector, schoolId, hasAssignedSchool } = useDirectorLoyaltyScope()
   const [search, setSearch] = useState('')
-  const [memberTypeFilter, setMemberTypeFilter] = useState<
+  const [memberTypeFiltre, setMemberTypeFiltre] = useState<
     LoyaltyMemberType | 'all'
   >('all')
   const [isEnrollDialogOpen, setIsEnrollDialogOpen] = useState(false)
@@ -214,12 +217,14 @@ export function LoyaltyMembersManagementPage() {
       })
     },
     onSuccess: () => {
-      toast.success('Member enrolled in the loyalty program.')
+      toast.success('Membre inscrit au programme de fidelite.')
       setIsEnrollDialogOpen(false)
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Unable to enroll this member.'))
+      toast.error(
+        getApiErrorMessage(error, 'Impossible d inscrire ce membre.')
+      )
     },
   })
 
@@ -232,7 +237,7 @@ export function LoyaltyMembersManagementPage() {
       await adjustLoyaltyMemberPoints(memberForAdjustment.id, adjustmentForm)
     },
     onSuccess: () => {
-      toast.success('Points adjustment saved.')
+      toast.success('Ajustement de points enregistre.')
       const ledgerMemberId = memberForAdjustment?.id
       setMemberForAdjustment(null)
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
@@ -244,7 +249,10 @@ export function LoyaltyMembersManagementPage() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to save the points adjustment.')
+        getApiErrorMessage(
+          error,
+          'Impossible d enregistrer l ajustement de points.'
+        )
       )
     },
   })
@@ -252,12 +260,12 @@ export function LoyaltyMembersManagementPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty Members'
-        description='Enroll parents and collecting agents, track balances, and review each member ledger.'
+        title='Membres fidelite'
+        description='Inscrivez des parents et des agents collecteurs, suivez les soldes et consultez l historique de chaque membre.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -266,12 +274,12 @@ export function LoyaltyMembersManagementPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty Members'
-        description='Enroll parents and collecting agents, track balances, and review each member ledger.'
+        title='Membres fidelite'
+        description='Inscrivez des parents et des agents collecteurs, suivez les soldes et consultez l historique de chaque membre.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -280,8 +288,8 @@ export function LoyaltyMembersManagementPage() {
   if (programQuery.isLoading) {
     return (
       <PageShell
-        title='Loyalty Members'
-        description='Enroll parents and collecting agents, track balances, and review each member ledger.'
+        title='Membres fidelite'
+        description='Inscrivez des parents et des agents collecteurs, suivez les soldes et consultez l historique de chaque membre.'
       >
         <Card className='border-border/70'>
           <CardContent className='space-y-3 p-6'>
@@ -297,21 +305,21 @@ export function LoyaltyMembersManagementPage() {
   if (!program) {
     return (
       <PageShell
-        title='Loyalty Members'
-        description='Enroll parents and collecting agents, track balances, and review each member ledger.'
+        title='Membres fidelite'
+        description='Inscrivez des parents et des agents collecteurs, suivez les soldes et consultez l historique de chaque membre.'
       >
         <EmptyState
-          title='Create the program first'
-          description='Members can only be enrolled after the school loyalty program is created.'
+          title='Creez d abord le programme'
+          description='Les membres ne peuvent etre inscrits qu apres la creation du programme de fidelite de l ecole.'
         />
       </PageShell>
     )
   }
 
-  const allMembers = membersQuery.data ?? []
+  const allMembres = membersQuery.data ?? []
   const normalizedSearch = search.trim().toLowerCase()
-  const filteredMembers = allMembers.filter((member) => {
-    if (memberTypeFilter !== 'all' && member.memberType !== memberTypeFilter) {
+  const filteredMembres = allMembres.filter((member) => {
+    if (memberTypeFiltre !== 'all' && member.memberType !== memberTypeFiltre) {
       return false
     }
 
@@ -325,22 +333,22 @@ export function LoyaltyMembersManagementPage() {
       (member.phoneNumber ?? '').toLowerCase().includes(normalizedSearch)
     )
   })
-  const parentMembers = allMembers.filter((member) => member.memberType === 'Parent')
-  const agentMembers = allMembers.filter(
+  const parentMembres = allMembres.filter((member) => member.memberType === 'Parent')
+  const agentMembres = allMembres.filter(
     (member) => member.memberType === 'CollectingAgent'
   )
-  const outstandingPoints = allMembers.reduce(
+  const outstandingPoints = allMembres.reduce(
     (sum, member) => sum + member.currentPointsBalance,
     0
   )
 
   const enrolledParentIds = new Set(
-    allMembers
+    allMembres
       .filter((member) => member.memberType === 'Parent' && member.statusId !== 5)
       .map((member) => member.memberEntityId)
   )
   const enrolledAgentIds = new Set(
-    allMembers
+    allMembres
       .filter(
         (member) => member.memberType === 'CollectingAgent' && member.statusId !== 5
       )
@@ -382,15 +390,15 @@ export function LoyaltyMembersManagementPage() {
   return (
     <>
       <PageShell
-        title='Loyalty Members'
-        description='Bring parents and collecting agents into the loyalty program, monitor balances, and make manual point adjustments when needed.'
+        title='Membres fidelite'
+        description='Integrez parents et agents collecteurs au programme de fidelite, suivez les soldes et appliquez des ajustements manuels si besoin.'
         actions={
           <Button
             onClick={() => setIsEnrollDialogOpen(true)}
             disabled={!canOpenEnrollment}
           >
             <Plus className='h-4 w-4' />
-            Enroll member
+            Inscrire un membre
           </Button>
         }
       >
@@ -398,52 +406,52 @@ export function LoyaltyMembersManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Total members
+                Total des membres
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold'>{formatPoints(allMembers.length)}</div>
+              <div className='text-2xl font-semibold'>{formatPoints(allMembres.length)}</div>
               <p className='text-sm text-muted-foreground'>
-                Members currently enrolled in {program.programName}.
+                Membres actuellement inscrits dans {program.programName}.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Parent members
+                Membres parents
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold'>{formatPoints(parentMembers.length)}</div>
+              <div className='text-2xl font-semibold'>{formatPoints(parentMembres.length)}</div>
               <p className='text-sm text-muted-foreground'>
-                Parent loyalty accounts connected to the school.
+                Comptes fidelite parent lies a l ecole.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Agent members
+                Membres agents
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold'>{formatPoints(agentMembers.length)}</div>
+              <div className='text-2xl font-semibold'>{formatPoints(agentMembres.length)}</div>
               <p className='text-sm text-muted-foreground'>
-                Collecting agents participating in this program.
+                Agents collecteurs participant a ce programme.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Outstanding points
+                Points en circulation
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-semibold'>{formatPoints(outstandingPoints)}</div>
               <p className='text-sm text-muted-foreground'>
-                Current balance across every enrolled member.
+                Solde actuel de tous les membres inscrits.
               </p>
             </CardContent>
           </Card>
@@ -453,7 +461,7 @@ export function LoyaltyMembersManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Search members
+                Rechercher des membres
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -463,7 +471,7 @@ export function LoyaltyMembersManagementPage() {
                   className='pl-9'
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder='Search by member name, email, or phone number'
+                  placeholder='Rechercher par nom, e-mail ou numero de telephone'
                 />
               </div>
             </CardContent>
@@ -471,21 +479,21 @@ export function LoyaltyMembersManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Filter
+                Filtre
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Select
-                value={memberTypeFilter}
+                value={memberTypeFiltre}
                 onValueChange={(value) =>
-                  setMemberTypeFilter(value as LoyaltyMemberType | 'all')
+                  setMemberTypeFiltre(value as LoyaltyMemberType | 'all')
                 }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>All member types</SelectItem>
+                  <SelectItem value='all'>Tous les types de membres</SelectItem>
                   {loyaltyMemberTypeOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -499,9 +507,9 @@ export function LoyaltyMembersManagementPage() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Enrolled loyalty members</CardTitle>
+            <CardTitle>Membres fidelite inscrits</CardTitle>
             <CardDescription>
-              Review balances, activity, and member lifecycle status before approving redemptions or applying manual adjustments.
+              Verifiez les soldes, l activite et le statut de chaque membre avant d approuver les redemptions ou d appliquer des ajustements manuels.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -511,35 +519,35 @@ export function LoyaltyMembersManagementPage() {
                 <Skeleton className='h-12 w-full' />
                 <Skeleton className='h-12 w-full' />
               </div>
-            ) : filteredMembers.length === 0 ? (
+            ) : filteredMembres.length === 0 ? (
               <EmptyState
-                title='No loyalty members found'
-                description='Enroll parents or collecting agents to begin tracking balances and redemptions.'
+                title='Aucun membre fidelite trouve'
+                description='Inscrivez des parents ou des agents collecteurs pour commencer a suivre les soldes et les redemptions.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Member</TableHead>
+                      <TableHead>Membre</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Current balance</TableHead>
-                      <TableHead>Lifetime earned</TableHead>
-                      <TableHead>Last activity</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Solde actuel</TableHead>
+                      <TableHead>Total cumule gagne</TableHead>
+                      <TableHead>Derniere activite</TableHead>
+                      <TableHead>Statut</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredMembers.map((member) => (
+                    {filteredMembres.map((member) => (
                       <TableRow key={member.id}>
                         <TableCell>
-                          <div className='font-medium'>{member.fullName}</div>
-                          <div className='text-xs text-muted-foreground'>
-                            {member.email || member.phoneNumber || 'No contact details'}
-                          </div>
-                        </TableCell>
-                        <TableCell>{member.memberType}</TableCell>
+                            <div className='font-medium'>{member.fullName}</div>
+                            <div className='text-xs text-muted-foreground'>
+                              {member.email || member.phoneNumber || 'Aucune coordonnee'}
+                            </div>
+                          </TableCell>
+                        <TableCell>{getLoyaltyMemberTypeLabel(member.memberType)}</TableCell>
                         <TableCell>{formatPoints(member.currentPointsBalance)}</TableCell>
                         <TableCell>{formatPoints(member.lifetimePointsEarned)}</TableCell>
                         <TableCell>{formatDateTime(member.lastActivityOn)}</TableCell>
@@ -559,7 +567,7 @@ export function LoyaltyMembersManagementPage() {
                               onClick={() => setMemberForLedger(member)}
                             >
                               <BookOpenText className='h-4 w-4' />
-                              Ledger
+                              Historique
                             </Button>
                             <Button
                               variant='outline'
@@ -567,7 +575,7 @@ export function LoyaltyMembersManagementPage() {
                               onClick={() => setMemberForAdjustment(member)}
                             >
                               <Coins className='h-4 w-4' />
-                              Adjust points
+                              Ajuster les points
                             </Button>
                           </div>
                         </TableCell>
@@ -584,22 +592,22 @@ export function LoyaltyMembersManagementPage() {
       <Dialog open={isEnrollDialogOpen} onOpenChange={setIsEnrollDialogOpen}>
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
-            <DialogTitle>Enroll loyalty member</DialogTitle>
+            <DialogTitle>Inscrire un membre fidelite</DialogTitle>
             <DialogDescription>
-              Add a parent or collecting agent to the school loyalty program so points can be tracked against their account.
+              Ajoutez un parent ou un agent collecteur au programme de fidelite afin de suivre les points sur son compte.
             </DialogDescription>
           </DialogHeader>
 
           {!canOpenEnrollment ? (
-            <EmptyState
-              title='Participation is disabled'
-              description='Enable parent or agent participation in the loyalty program settings before enrolling members.'
-            />
+              <EmptyState
+                title='Participation desactivee'
+                description='Activez la participation des parents ou des agents dans les parametres du programme avant d inscrire des membres.'
+              />
           ) : (
             <div className='grid gap-4'>
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label>Member type</Label>
+                  <Label>Type de membre</Label>
                   <Select
                     value={enrollmentForm.memberType}
                     onValueChange={(value) =>
@@ -617,8 +625,8 @@ export function LoyaltyMembersManagementPage() {
                         <SelectItem value='Parent'>Parents</SelectItem>
                       ) : null}
                       {program.allowAgentParticipation ? (
-                        <SelectItem value='CollectingAgent'>
-                          Collecting agents
+                          <SelectItem value='CollectingAgent'>
+                          Agents collecteurs
                         </SelectItem>
                       ) : null}
                     </SelectContent>
@@ -626,7 +634,7 @@ export function LoyaltyMembersManagementPage() {
                 </div>
 
                 <div className='grid gap-2'>
-                  <Label>Member</Label>
+                  <Label>Membre</Label>
                   <Select
                     value={enrollmentForm.memberEntityId || 'none'}
                     onValueChange={(value) =>
@@ -637,10 +645,10 @@ export function LoyaltyMembersManagementPage() {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder='Select a member to enroll' />
+                      <SelectValue placeholder='Selectionnez un membre a inscrire' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='none'>Select a member</SelectItem>
+                      <SelectItem value='none'>Selectionnez un membre</SelectItem>
                       {enrollmentOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -652,14 +660,14 @@ export function LoyaltyMembersManagementPage() {
               </div>
 
               {enrollmentOptions.length === 0 ? (
-                <div className='rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground'>
-                  Everyone in this member type is already enrolled, or there are no records available yet.
+                  <div className='rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground'>
+                  Tous les profils de ce type sont deja inscrits, ou aucun enregistrement n est encore disponible.
                 </div>
               ) : (
                 <div className='rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground'>
                   {enrollmentOptions.find(
                     (option) => option.value === enrollmentForm.memberEntityId
-                  )?.meta || 'Choose a member to review the contact information.'}
+                  )?.meta || 'Choisissez un membre pour consulter ses coordonnees.'}
                 </div>
               )}
             </div>
@@ -671,11 +679,11 @@ export function LoyaltyMembersManagementPage() {
               onClick={() => setIsEnrollDialogOpen(false)}
               disabled={enrollMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button disabled={!canEnroll} onClick={() => enrollMutation.mutate()}>
               <Plus className='h-4 w-4' />
-              {enrollMutation.isPending ? 'Enrolling...' : 'Enroll member'}
+              {enrollMutation.isPending ? 'Inscription...' : 'Inscrire un membre'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -691,17 +699,17 @@ export function LoyaltyMembersManagementPage() {
       >
         <DialogContent className='sm:max-w-xl'>
           <DialogHeader>
-            <DialogTitle>Adjust points</DialogTitle>
+            <DialogTitle>Ajuster les points</DialogTitle>
             <DialogDescription>
-              Add or remove points from{' '}
+              Ajoutez ou retirez des points a{' '}
               <span className='font-medium'>{memberForAdjustment?.fullName}</span>.
-              Use a negative number to deduct points.
+              Utilisez un nombre negatif pour deduire des points.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='points-delta'>Points delta</Label>
+              <Label htmlFor='points-delta'>Variation des points</Label>
               <Input
                 id='points-delta'
                 inputMode='numeric'
@@ -712,11 +720,11 @@ export function LoyaltyMembersManagementPage() {
                     pointsDelta: event.target.value,
                   }))
                 }
-                placeholder='Example: 50 or -20'
+                placeholder='Exemple : 50 ou -20'
               />
             </div>
             <div className='grid gap-2'>
-              <Label htmlFor='adjustment-reason'>Reason</Label>
+              <Label htmlFor='adjustment-reason'>Motif</Label>
               <Textarea
                 id='adjustment-reason'
                 rows={4}
@@ -727,7 +735,7 @@ export function LoyaltyMembersManagementPage() {
                     reason: event.target.value,
                   }))
                 }
-                placeholder='Explain why this manual adjustment is being applied.'
+                placeholder='Expliquez pourquoi cet ajustement manuel est applique.'
               />
             </div>
           </div>
@@ -738,11 +746,11 @@ export function LoyaltyMembersManagementPage() {
               onClick={() => setMemberForAdjustment(null)}
               disabled={adjustMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button disabled={!canAdjust} onClick={() => adjustMutation.mutate()}>
               <SlidersHorizontal className='h-4 w-4' />
-              {adjustMutation.isPending ? 'Saving...' : 'Save adjustment'}
+              {adjustMutation.isPending ? 'Enregistrement...' : 'Enregistrer l ajustement'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -758,9 +766,9 @@ export function LoyaltyMembersManagementPage() {
       >
         <DialogContent className='sm:max-w-5xl'>
           <DialogHeader>
-            <DialogTitle>Loyalty ledger</DialogTitle>
+            <DialogTitle>Historique fidelite</DialogTitle>
             <DialogDescription>
-              Detailed point history for{' '}
+              Historique detaille des points pour{' '}
               <span className='font-medium'>{memberForLedger?.fullName}</span>.
             </DialogDescription>
           </DialogHeader>
@@ -773,20 +781,20 @@ export function LoyaltyMembersManagementPage() {
             </div>
           ) : ledgerEntries.length === 0 ? (
             <EmptyState
-              title='No ledger entries yet'
-              description='This member has not earned, redeemed, or adjusted any points so far.'
+              title='Aucune ecriture historique'
+              description='Ce membre n a encore gagne, utilise ou ajuste aucun point.'
             />
           ) : (
             <div className='rounded-lg border'>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Entry</TableHead>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Delta</TableHead>
-                    <TableHead>Balance</TableHead>
-                    <TableHead>Description</TableHead>
+                      <TableHead>Cree le</TableHead>
+                      <TableHead>Entree</TableHead>
+                      <TableHead>Reference</TableHead>
+                      <TableHead>Delta</TableHead>
+                      <TableHead>Solde</TableHead>
+                      <TableHead>Description</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -794,21 +802,23 @@ export function LoyaltyMembersManagementPage() {
                     <TableRow key={entry.id}>
                       <TableCell>{formatDateTime(entry.createdOn)}</TableCell>
                       <TableCell>
-                        <div className='font-medium'>{entry.entryType}</div>
+                        <div className='font-medium'>
+                          {getLoyaltyEntryTypeLabel(entry.entryType)}
+                        </div>
                         <div className='text-xs text-muted-foreground'>
-                          {entry.createdByUserId || 'System generated'}
+                          {entry.createdByUserId || 'Genere par le systeme'}
                         </div>
                       </TableCell>
-                      <TableCell>{entry.referenceType}</TableCell>
+                      <TableCell>{getLoyaltyReferenceTypeLabel(entry.referenceType)}</TableCell>
                       <TableCell className={getLedgerTone(entry.pointsDelta)}>
                         {entry.pointsDelta > 0 ? '+' : ''}
                         {formatPoints(entry.pointsDelta)}
                       </TableCell>
                       <TableCell>
-                        {formatPoints(entry.balanceBefore)} to{' '}
+                        {formatPoints(entry.balanceBefore)} a{' '}
                         {formatPoints(entry.balanceAfter)}
                       </TableCell>
-                      <TableCell>{entry.description || 'No description'}</TableCell>
+                      <TableCell>{entry.description || 'Aucune description'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -820,3 +830,5 @@ export function LoyaltyMembersManagementPage() {
     </>
   )
 }
+
+

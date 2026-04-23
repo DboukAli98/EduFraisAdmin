@@ -10,12 +10,12 @@ function MySchoolRouteComponent() {
   if (!schoolId) {
     return (
       <PageShell
-        title='My School'
-        description='Manage your assigned school, classes, and payment cycles.'
+        title='Mon ecole'
+        description='Gerez votre ecole assignee, ses classes et ses cycles de paiement.'
       >
         <EmptyState
-          title='No school is assigned'
-          description='This account is not linked to a school yet.'
+          title='Aucune ecole assignee'
+          description='Ce compte n est pas encore lie a une ecole.'
         />
       </PageShell>
     )

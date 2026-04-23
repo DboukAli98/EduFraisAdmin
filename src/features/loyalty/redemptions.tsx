@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, PackageCheck, Search, X } from 'lucide-react'
 import { toast } from 'sonner'
@@ -54,6 +54,8 @@ import {
 import {
   formatPoints,
   getRedemptionStatusMeta,
+  getLoyaltyMemberTypeLabel,
+  getLoyaltyRewardTypeLabel,
   loyaltyMemberTypeOptions,
   loyaltyRedemptionStatusOptions,
   useDirectorLoyaltyScope,
@@ -84,10 +86,10 @@ export function LoyaltyRedemptionsManagementPage() {
   const queryClient = useQueryClient()
   const { isDirector, schoolId, hasAssignedSchool } = useDirectorLoyaltyScope()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<
+  const [statusFiltre, setStatusFiltre] = useState<
     (typeof loyaltyRedemptionStatusOptions)[number]['value']
   >('all')
-  const [memberTypeFilter, setMemberTypeFilter] = useState<
+  const [memberTypeFiltre, setMemberTypeFiltre] = useState<
     LoyaltyMemberType | 'all'
   >('all')
   const [pendingAction, setPendingAction] = useState<PendingRedemptionAction>(null)
@@ -153,13 +155,16 @@ export function LoyaltyRedemptionsManagementPage() {
       })
     },
     onSuccess: () => {
-      toast.success('Redemption updated.')
+      toast.success('Redemption mise a jour.')
       setPendingAction(null)
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update this redemption.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour cette redemption.'
+        )
       )
     },
   })
@@ -167,12 +172,12 @@ export function LoyaltyRedemptionsManagementPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty Redemptions'
-        description='Review reward claims, approve or reject requests, and track fulfillment.'
+        title='Redemptions fidelite'
+        description='Examinez les demandes de recompense, approuvez ou rejetez-les, puis suivez leur execution.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -181,12 +186,12 @@ export function LoyaltyRedemptionsManagementPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty Redemptions'
-        description='Review reward claims, approve or reject requests, and track fulfillment.'
+        title='Redemptions fidelite'
+        description='Examinez les demandes de recompense, approuvez ou rejetez-les, puis suivez leur execution.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -195,8 +200,8 @@ export function LoyaltyRedemptionsManagementPage() {
   if (programQuery.isLoading) {
     return (
       <PageShell
-        title='Loyalty Redemptions'
-        description='Review reward claims, approve or reject requests, and track fulfillment.'
+        title='Redemptions fidelite'
+        description='Examinez les demandes de recompense, approuvez ou rejetez-les, puis suivez leur execution.'
       >
         <Card className='border-border/70'>
           <CardContent className='space-y-3 p-6'>
@@ -212,12 +217,12 @@ export function LoyaltyRedemptionsManagementPage() {
   if (!program) {
     return (
       <PageShell
-        title='Loyalty Redemptions'
-        description='Review reward claims, approve or reject requests, and track fulfillment.'
+        title='Redemptions fidelite'
+        description='Examinez les demandes de recompense, approuvez ou rejetez-les, puis suivez leur execution.'
       >
         <EmptyState
-          title='Create the program first'
-          description='Redemption workflows become available after the school loyalty program is created.'
+          title='Creez d abord le programme'
+          description='Les workflows de redemption deviennent disponibles apres la creation du programme de fidelite de l ecole.'
         />
       </PageShell>
     )
@@ -226,11 +231,11 @@ export function LoyaltyRedemptionsManagementPage() {
   const allRedemptions = redemptionsQuery.data ?? []
   const normalizedSearch = search.trim().toLowerCase()
   const filteredRedemptions = allRedemptions.filter((redemption) => {
-    if (statusFilter !== 'all' && redemption.status !== statusFilter) {
+    if (statusFiltre !== 'all' && redemption.status !== statusFiltre) {
       return false
     }
 
-    if (memberTypeFilter !== 'all' && redemption.memberType !== memberTypeFilter) {
+    if (memberTypeFiltre !== 'all' && redemption.memberType !== memberTypeFiltre) {
       return false
     }
 
@@ -262,46 +267,46 @@ export function LoyaltyRedemptionsManagementPage() {
   return (
     <>
       <PageShell
-        title='Loyalty Redemptions'
-        description='Handle reward requests from parents and collecting agents, then move approved claims through fulfillment.'
+        title='Redemptions fidelite'
+        description='Traitez les demandes de recompense des parents et des agents collecteurs, puis faites avancer les demandes approuvees jusqu a leur execution.'
       >
         <section className='grid gap-4 md:grid-cols-3'>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Pending review
+                En attente de revue
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-semibold'>{formatPoints(pendingCount)}</div>
               <p className='text-sm text-muted-foreground'>
-                Reward requests currently waiting for a decision.
+                Demandes de recompense actuellement en attente d une decision.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Approved
+                Approuvees
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-semibold'>{formatPoints(approvedCount)}</div>
               <p className='text-sm text-muted-foreground'>
-                Requests that are approved and ready for fulfillment.
+                Demandes approuvees et pretes pour l execution.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Fulfilled
+                Finalisees
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-semibold'>{formatPoints(fulfilledCount)}</div>
               <p className='text-sm text-muted-foreground'>
-                Reward claims that have already been completed.
+                Demandes de recompense deja executees.
               </p>
             </CardContent>
           </Card>
@@ -311,7 +316,7 @@ export function LoyaltyRedemptionsManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Search redemptions
+                Rechercher des redemptions
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -321,7 +326,7 @@ export function LoyaltyRedemptionsManagementPage() {
                   className='pl-9'
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder='Search by member name, reward, or notes'
+                  placeholder='Rechercher par nom du membre, recompense ou notes'
                 />
               </div>
             </CardContent>
@@ -329,14 +334,14 @@ export function LoyaltyRedemptionsManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Status
+                Statut
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Select
-                value={statusFilter}
+                value={statusFiltre}
                 onValueChange={(value) =>
-                  setStatusFilter(
+                  setStatusFiltre(
                     value as (typeof loyaltyRedemptionStatusOptions)[number]['value']
                   )
                 }
@@ -357,21 +362,21 @@ export function LoyaltyRedemptionsManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Member type
+                Type de membre
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Select
-                value={memberTypeFilter}
+                value={memberTypeFiltre}
                 onValueChange={(value) =>
-                  setMemberTypeFilter(value as LoyaltyMemberType | 'all')
+                  setMemberTypeFiltre(value as LoyaltyMemberType | 'all')
                 }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='all'>All member types</SelectItem>
+                  <SelectItem value='all'>Tous les types de membres</SelectItem>
                   {loyaltyMemberTypeOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -385,9 +390,9 @@ export function LoyaltyRedemptionsManagementPage() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Reward redemption queue</CardTitle>
+            <CardTitle>File des redemptions</CardTitle>
             <CardDescription>
-              See who requested each reward, how many points were spent, and where the request currently sits in the approval flow.
+              Voyez qui a demande chaque recompense, combien de points ont ete utilises et ou se situe la demande dans le flux d approbation.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -399,20 +404,20 @@ export function LoyaltyRedemptionsManagementPage() {
               </div>
             ) : filteredRedemptions.length === 0 ? (
               <EmptyState
-                title='No redemptions found'
-                description='Redemptions will appear here once members start using their points.'
+                title='Aucune redemption trouvee'
+                description='Les redemptions apparaitront ici des que les membres commenceront a utiliser leurs points.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Member</TableHead>
-                      <TableHead>Reward</TableHead>
+                      <TableHead>Membre</TableHead>
+                      <TableHead>Recompense</TableHead>
                       <TableHead>Points</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Requested</TableHead>
-                      <TableHead>Reviewed / fulfilled</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Demandee le</TableHead>
+                      <TableHead>Revue / finalisation</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -422,13 +427,13 @@ export function LoyaltyRedemptionsManagementPage() {
                         <TableCell>
                           <div className='font-medium'>{redemption.memberFullName}</div>
                           <div className='text-xs text-muted-foreground'>
-                            {redemption.memberType}
+                            {getLoyaltyMemberTypeLabel(redemption.memberType)}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className='font-medium'>{redemption.rewardName}</div>
                           <div className='text-xs text-muted-foreground'>
-                            {redemption.rewardType}
+                            {getLoyaltyRewardTypeLabel(redemption.rewardType)}
                             {redemption.quantity > 1
                               ? ` x ${formatPoints(redemption.quantity)}`
                               : ''}
@@ -446,7 +451,7 @@ export function LoyaltyRedemptionsManagementPage() {
                         <TableCell>
                           <div>{formatDateTime(redemption.createdOn)}</div>
                           <div className='text-xs text-muted-foreground'>
-                            {redemption.requestNotes || 'No request notes'}
+                            {redemption.requestNotes || 'Aucune note de demande'}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -454,7 +459,7 @@ export function LoyaltyRedemptionsManagementPage() {
                           <div className='text-xs text-muted-foreground'>
                             {redemption.fulfillmentReference ||
                               redemption.reviewNotes ||
-                              'No review notes'}
+                              'Aucune note de revue'}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -472,7 +477,7 @@ export function LoyaltyRedemptionsManagementPage() {
                                   }
                                 >
                                   <Check className='h-4 w-4' />
-                                  Approve
+                                  Approuver
                                 </Button>
                                 <Button
                                   variant='destructive'
@@ -485,7 +490,7 @@ export function LoyaltyRedemptionsManagementPage() {
                                   }
                                 >
                                   <X className='h-4 w-4' />
-                                  Reject
+                                  Rejeter
                                 </Button>
                               </>
                             ) : null}
@@ -500,8 +505,8 @@ export function LoyaltyRedemptionsManagementPage() {
                                   })
                                 }
                               >
-                                <PackageCheck className='h-4 w-4' />
-                                Fulfill
+                                  <PackageCheck className='h-4 w-4' />
+                                  Finaliser
                               </Button>
                             ) : null}
                           </div>
@@ -528,35 +533,35 @@ export function LoyaltyRedemptionsManagementPage() {
           <DialogHeader>
             <DialogTitle>
               {pendingAction?.action === 'approve'
-                ? 'Approve redemption'
+                ? 'Approuver la redemption'
                 : pendingAction?.action === 'reject'
-                  ? 'Reject redemption'
-                  : 'Fulfill redemption'}
+                  ? 'Rejeter la redemption'
+                  : 'Finaliser la redemption'}
             </DialogTitle>
             <DialogDescription>
               {pendingAction?.action === 'approve'
-                ? 'Confirm the reward can move to the next step.'
+                ? 'Confirmez que la recompense peut passer a l etape suivante.'
                 : pendingAction?.action === 'reject'
-                  ? 'Provide a reason so the member understands why the request was declined.'
-                  : 'Record how this reward was fulfilled so the team has a clear audit trail.'}
+                  ? 'Fournissez un motif afin que le membre comprenne pourquoi la demande a ete refusee.'
+                  : 'Enregistrez comment cette recompense a ete remise afin que l equipe dispose d une trace claire.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='rounded-xl border bg-muted/20 p-4 text-sm'>
               <p className='font-medium'>
-                {pendingAction?.redemption.memberFullName} requested{' '}
+                {pendingAction?.redemption.memberFullName} a demande{' '}
                 {pendingAction?.redemption.rewardName}
               </p>
               <p className='mt-1 text-muted-foreground'>
-                {pendingAction?.redemption.quantity} item(s) for{' '}
+                {pendingAction?.redemption.quantity} article(s) pour{' '}
                 {formatPoints(pendingAction?.redemption.pointsSpent ?? 0)} points.
               </p>
             </div>
 
             {pendingAction?.action === 'fulfill' ? (
               <div className='grid gap-2'>
-                <Label htmlFor='fulfillment-reference'>Fulfillment reference</Label>
+                <Label htmlFor='fulfillment-reference'>Reference de remise</Label>
                 <Input
                   id='fulfillment-reference'
                   value={actionForm.fulfillmentReference}
@@ -566,7 +571,7 @@ export function LoyaltyRedemptionsManagementPage() {
                       fulfillmentReference: event.target.value,
                     }))
                   }
-                  placeholder='Pickup code, receipt number, delivery note, or other reference'
+                  placeholder='Code de retrait, numero de recu, bon de livraison ou autre reference'
                 />
               </div>
             ) : null}
@@ -574,8 +579,8 @@ export function LoyaltyRedemptionsManagementPage() {
             <div className='grid gap-2'>
               <Label htmlFor='review-notes'>
                 {pendingAction?.action === 'reject'
-                  ? 'Rejection reason'
-                  : 'Review notes'}
+                    ? 'Motif du rejet'
+                    : 'Notes de revue'}
               </Label>
               <Textarea
                 id='review-notes'
@@ -589,8 +594,8 @@ export function LoyaltyRedemptionsManagementPage() {
                 }
                 placeholder={
                   pendingAction?.action === 'reject'
-                    ? 'Explain why this redemption cannot be approved.'
-                    : 'Optional internal or member-facing note.'
+                    ? 'Expliquez pourquoi cette redemption ne peut pas etre approuvee.'
+                    : 'Note interne ou visible pour le membre, si necessaire.'
                 }
               />
             </div>
@@ -602,16 +607,16 @@ export function LoyaltyRedemptionsManagementPage() {
               onClick={() => setPendingAction(null)}
               disabled={actionMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button disabled={!canSubmitAction} onClick={() => actionMutation.mutate()}>
               {actionMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : pendingAction?.action === 'approve'
-                  ? 'Approve redemption'
-                  : pendingAction?.action === 'reject'
-                    ? 'Reject redemption'
-                    : 'Mark as fulfilled'}
+                  ? 'Approuver la redemption'
+                : pendingAction?.action === 'reject'
+                    ? 'Rejeter la redemption'
+                    : 'Marquer comme finalisee'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -619,3 +624,5 @@ export function LoyaltyRedemptionsManagementPage() {
     </>
   )
 }
+
+

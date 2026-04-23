@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Power, Save, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -73,6 +73,7 @@ import {
 } from './api'
 import {
   formatPoints,
+  getLoyaltyRewardTypeLabel,
   loyaltyRewardTypeOptions,
   toDateInputValue,
   useDirectorLoyaltyScope,
@@ -112,14 +113,14 @@ function buildRewardSubtitle(
 ): string {
   if (reward.rewardType === 'Merchandise' && reward.schoolMerchandiseId) {
     const merchandise = merchandiseById.get(reward.schoolMerchandiseId)
-    return merchandise?.name || reward.schoolMerchandiseName || 'Linked merchandise'
+    return merchandise?.name || reward.schoolMerchandiseName || 'Article lie'
   }
 
   if (reward.rewardType === 'SchoolFeeCredit' && reward.monetaryValue != null) {
-    return `Fee credit value ${formatCurrency(reward.monetaryValue)}`
+    return `Valeur du credit de frais ${formatCurrency(reward.monetaryValue)}`
   }
 
-  return reward.rewardDescription || 'Custom reward'
+  return reward.rewardDescription || 'Recompense personnalisee'
 }
 
 export function LoyaltyRewardsManagementPage() {
@@ -174,12 +175,17 @@ export function LoyaltyRewardsManagementPage() {
       await createLoyaltyReward(program.id, form)
     },
     onSuccess: () => {
-      toast.success(editingReward ? 'Reward updated.' : 'Reward created.')
+      toast.success(editingReward ? 'Recompense mise a jour.' : 'Recompense creee.')
       setIsDialogOpen(false)
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Unable to save the loyalty reward.'))
+      toast.error(
+        getApiErrorMessage(
+          error,
+          'Impossible d enregistrer la recompense de fidelite.'
+        )
+      )
     },
   })
 
@@ -198,7 +204,10 @@ export function LoyaltyRewardsManagementPage() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the reward status.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour le statut de la recompense.'
+        )
       )
     },
   })
@@ -206,12 +215,12 @@ export function LoyaltyRewardsManagementPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty Rewards'
-        description='Build the catalog of benefits, discounts, and merchandise rewards members can redeem.'
+        title='Recompenses fidelite'
+        description='Construisez le catalogue d avantages, de remises et de recompenses marchandise que les membres peuvent utiliser.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -220,12 +229,12 @@ export function LoyaltyRewardsManagementPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty Rewards'
-        description='Build the catalog of benefits, discounts, and merchandise rewards members can redeem.'
+        title='Recompenses fidelite'
+        description='Construisez le catalogue d avantages, de remises et de recompenses marchandise que les membres peuvent utiliser.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -234,8 +243,8 @@ export function LoyaltyRewardsManagementPage() {
   if (programQuery.isLoading) {
     return (
       <PageShell
-        title='Loyalty Rewards'
-        description='Build the catalog of benefits, discounts, and merchandise rewards members can redeem.'
+        title='Recompenses fidelite'
+        description='Construisez le catalogue d avantages, de remises et de recompenses marchandise que les membres peuvent utiliser.'
       >
         <Card className='border-border/70'>
           <CardContent className='space-y-3 p-6'>
@@ -251,24 +260,24 @@ export function LoyaltyRewardsManagementPage() {
   if (!program) {
     return (
       <PageShell
-        title='Loyalty Rewards'
-        description='Build the catalog of benefits, discounts, and merchandise rewards members can redeem.'
+        title='Recompenses fidelite'
+        description='Construisez le catalogue d avantages, de remises et de recompenses marchandise que les membres peuvent utiliser.'
       >
         <EmptyState
-          title='Create the program first'
-          description='Rewards can only be configured after the school loyalty program is created.'
+          title='Creez d abord le programme'
+          description='Les recompenses ne peuvent etre configurees qu apres la creation du programme de fidelite de l ecole.'
         />
       </PageShell>
     )
   }
 
-  const allRewards = rewardsQuery.data ?? []
+  const allRecompenses = rewardsQuery.data ?? []
   const normalizedSearch = search.trim().toLowerCase()
   const merchandiseItems = merchandiseQuery.data?.items ?? []
   const merchandiseById = new Map(
     merchandiseItems.map((item) => [item.id, item] as const)
   )
-  const filteredRewards = allRewards.filter((reward) => {
+  const filteredRecompenses = allRecompenses.filter((reward) => {
     if (!normalizedSearch) {
       return true
     }
@@ -280,10 +289,10 @@ export function LoyaltyRewardsManagementPage() {
       (reward.schoolMerchandiseName ?? '').toLowerCase().includes(normalizedSearch)
     )
   })
-  const rewardsRequiringApproval = allRewards.filter(
+  const rewardsRequiringApproval = allRecompenses.filter(
     (reward) => reward.requiresDirectorApproval
   ).length
-  const linkedMerchandiseRewards = allRewards.filter(
+  const linkedMerchandiseRecompenses = allRecompenses.filter(
     (reward) => reward.schoolMerchandiseId != null
   ).length
   const canSave =
@@ -294,8 +303,8 @@ export function LoyaltyRewardsManagementPage() {
   return (
     <>
       <PageShell
-        title='Loyalty Rewards'
-        description='Offer school merchandise, fee credits, or custom benefits that parents and agents can redeem with their points.'
+        title='Recompenses fidelite'
+        description='Proposez des articles scolaires, des credits de frais ou des avantages personnalises que les parents et les agents peuvent obtenir avec leurs points.'
         actions={
           <Button
             onClick={() => {
@@ -305,7 +314,7 @@ export function LoyaltyRewardsManagementPage() {
             }}
           >
             <Plus className='h-4 w-4' />
-            Add reward
+            Ajouter une recompense
           </Button>
         }
       >
@@ -313,20 +322,20 @@ export function LoyaltyRewardsManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Total rewards
+                Total des recompenses
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold'>{formatPoints(allRewards.length)}</div>
+              <div className='text-2xl font-semibold'>{formatPoints(allRecompenses.length)}</div>
               <p className='text-sm text-muted-foreground'>
-                Reward options available to this school program.
+                Options de recompense disponibles pour ce programme scolaire.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Needs director approval
+                Necessite l approbation du directeur
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -334,14 +343,14 @@ export function LoyaltyRewardsManagementPage() {
                 {formatPoints(rewardsRequiringApproval)}
               </div>
               <p className='text-sm text-muted-foreground'>
-                Rewards that stay pending until you review the request.
+                Recompenses qui restent en attente jusqu a votre revue.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Search rewards
+                Rechercher des recompenses
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -351,11 +360,11 @@ export function LoyaltyRewardsManagementPage() {
                   className='pl-9'
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder='Search by reward name, type, or merchandise'
+                  placeholder='Rechercher par nom, type ou marchandise'
                 />
               </div>
               <p className='mt-3 text-sm text-muted-foreground'>
-                {formatPoints(linkedMerchandiseRewards)} rewards are tied to school merchandise.
+                {formatPoints(linkedMerchandiseRecompenses)} recompenses sont liees a des articles de l ecole.
               </p>
             </CardContent>
           </Card>
@@ -363,9 +372,9 @@ export function LoyaltyRewardsManagementPage() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Configured rewards catalog</CardTitle>
+            <CardTitle>Catalogue des recompenses configurees</CardTitle>
             <CardDescription>
-              Design the benefits members can redeem, how much each reward costs, and whether it needs approval.
+              Definissez les avantages que les membres peuvent obtenir, leur cout et la necessite d approbation.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -375,26 +384,26 @@ export function LoyaltyRewardsManagementPage() {
                 <Skeleton className='h-12 w-full' />
                 <Skeleton className='h-12 w-full' />
               </div>
-            ) : filteredRewards.length === 0 ? (
+            ) : filteredRecompenses.length === 0 ? (
               <EmptyState
-                title='No loyalty rewards found'
-                description='Create the first reward to give members something meaningful to redeem.'
+                title='Aucune recompense fidelite trouvee'
+                description='Creez la premiere recompense pour offrir aux membres quelque chose d utile a utiliser.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Reward</TableHead>
+                      <TableHead>Recompense</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Points cost</TableHead>
+                      <TableHead>Cout en points</TableHead>
                       <TableHead>Stock</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Statut</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredRewards.map((reward) => (
+                    {filteredRecompenses.map((reward) => (
                       <TableRow key={reward.id}>
                         <TableCell>
                           <div className='font-medium'>{reward.rewardName}</div>
@@ -402,12 +411,12 @@ export function LoyaltyRewardsManagementPage() {
                             {buildRewardSubtitle(reward, merchandiseById)}
                           </div>
                         </TableCell>
-                        <TableCell>{reward.rewardType}</TableCell>
+                        <TableCell>{getLoyaltyRewardTypeLabel(reward.rewardType)}</TableCell>
                         <TableCell>{formatPoints(reward.pointsCost)}</TableCell>
                         <TableCell>
                           {reward.stockQuantity != null
                             ? formatPoints(reward.stockQuantity)
-                            : 'Unlimited'}
+                            : 'Illimite'}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -429,7 +438,7 @@ export function LoyaltyRewardsManagementPage() {
                               }}
                             >
                               <Pencil className='h-4 w-4' />
-                              Edit
+                              Modifier
                             </Button>
                             {reward.statusId !== 1 ? (
                               <Button
@@ -440,7 +449,7 @@ export function LoyaltyRewardsManagementPage() {
                                 }
                               >
                                 <Power className='h-4 w-4' />
-                                Enable
+                                Activer
                               </Button>
                             ) : (
                               <Button
@@ -451,7 +460,7 @@ export function LoyaltyRewardsManagementPage() {
                                 }
                               >
                                 <Power className='h-4 w-4' />
-                                Disable
+                                Desactiver
                               </Button>
                             )}
                             <Button
@@ -462,7 +471,7 @@ export function LoyaltyRewardsManagementPage() {
                               }
                             >
                               <Trash2 className='h-4 w-4' />
-                              Delete
+                              Supprimer
                             </Button>
                           </div>
                         </TableCell>
@@ -480,16 +489,18 @@ export function LoyaltyRewardsManagementPage() {
         <DialogContent className='sm:max-w-3xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingReward ? 'Edit loyalty reward' : 'Add loyalty reward'}
+              {editingReward
+                ? 'Modifier la recompense de fidelite'
+                : 'Ajouter une recompense de fidelite'}
             </DialogTitle>
             <DialogDescription>
-              Create a reward members can redeem with points, and decide whether it maps to a merchandise item, a fee credit, or a custom school benefit.
+              Creez une recompense que les membres peuvent obtenir avec des points et decidez si elle correspond a un article, un credit de frais ou un avantage personnalise.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='reward-name'>Reward name</Label>
+              <Label htmlFor='reward-name'>Nom de la recompense</Label>
               <Input
                 id='reward-name'
                 value={form.rewardName}
@@ -519,7 +530,7 @@ export function LoyaltyRewardsManagementPage() {
 
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='grid gap-2'>
-                <Label>Reward type</Label>
+                <Label>Type de recompense</Label>
                 <Select
                   value={form.rewardType}
                   onValueChange={(value) =>
@@ -544,7 +555,7 @@ export function LoyaltyRewardsManagementPage() {
                 </Select>
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='points-cost'>Points cost</Label>
+                <Label htmlFor='points-cost'>Cout en points</Label>
                 <Input
                   id='points-cost'
                   inputMode='numeric'
@@ -558,7 +569,7 @@ export function LoyaltyRewardsManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='monetary-value'>Monetary value</Label>
+                <Label htmlFor='monetary-value'>Valeur monetaire</Label>
                 <Input
                   id='monetary-value'
                   inputMode='decimal'
@@ -569,14 +580,14 @@ export function LoyaltyRewardsManagementPage() {
                       monetaryValue: event.target.value,
                     }))
                   }
-                  placeholder='Optional'
+                  placeholder='Optionnel'
                 />
               </div>
             </div>
 
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='grid gap-2 sm:col-span-2'>
-                <Label>Linked merchandise</Label>
+                <Label>Article lie</Label>
                 <Select
                   value={form.schoolMerchandiseId || 'none'}
                   onValueChange={(value) =>
@@ -587,10 +598,10 @@ export function LoyaltyRewardsManagementPage() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder='No linked merchandise' />
+                      <SelectValue placeholder='Aucune marchandise liee' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='none'>No linked merchandise</SelectItem>
+                    <SelectItem value='none'>Aucune marchandise liee</SelectItem>
                     {merchandiseItems.map((item) => (
                       <SelectItem key={item.id} value={String(item.id)}>
                         {item.name}
@@ -600,7 +611,7 @@ export function LoyaltyRewardsManagementPage() {
                 </Select>
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='stock-quantity'>Stock quantity</Label>
+                <Label htmlFor='stock-quantity'>Quantite en stock</Label>
                 <Input
                   id='stock-quantity'
                   inputMode='numeric'
@@ -611,14 +622,14 @@ export function LoyaltyRewardsManagementPage() {
                       stockQuantity: event.target.value,
                     }))
                   }
-                  placeholder='Leave empty for unlimited'
+                  placeholder='Laisser vide pour illimite'
                 />
               </div>
             </div>
 
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='grid gap-2'>
-                <Label htmlFor='max-redeem'>Max redeem/member</Label>
+                <Label htmlFor='max-redeem'>Maximum de redemptions / membre</Label>
                 <Input
                   id='max-redeem'
                   inputMode='numeric'
@@ -629,11 +640,11 @@ export function LoyaltyRewardsManagementPage() {
                       maxRedeemPerMember: event.target.value,
                     }))
                   }
-                  placeholder='Optional'
+                  placeholder='Optionnel'
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='reward-valid-from'>Valid from</Label>
+                <Label htmlFor='reward-valid-from'>Valide a partir de</Label>
                 <Input
                   id='reward-valid-from'
                   type='date'
@@ -647,7 +658,7 @@ export function LoyaltyRewardsManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='reward-valid-to'>Valid to</Label>
+                <Label htmlFor='reward-valid-to'>Valide jusqu au</Label>
                 <Input
                   id='reward-valid-to'
                   type='date'
@@ -664,10 +675,10 @@ export function LoyaltyRewardsManagementPage() {
 
             <div className='flex items-center justify-between rounded-xl border p-4'>
               <div>
-                <p className='font-medium'>Requires director approval</p>
-                <p className='text-sm text-muted-foreground'>
-                  If enabled, redemptions for this reward remain pending until you review them.
-                </p>
+                  <p className='font-medium'>Necessite approbation directeur</p>
+                  <p className='text-sm text-muted-foreground'>
+                    Si active, les redemptions de cette recompense restent en attente jusqu a votre revue.
+                  </p>
               </div>
               <Switch
                 checked={form.requiresDirectorApproval}
@@ -681,7 +692,7 @@ export function LoyaltyRewardsManagementPage() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='fulfillment-instructions'>Fulfillment instructions</Label>
+              <Label htmlFor='fulfillment-instructions'>Instructions de remise</Label>
               <Textarea
                 id='fulfillment-instructions'
                 rows={4}
@@ -692,13 +703,14 @@ export function LoyaltyRewardsManagementPage() {
                     fulfillmentInstructions: event.target.value,
                   }))
                 }
-                placeholder='Optional pickup, delivery, or approval instructions for the school team.'
+                placeholder='Instructions de retrait, de livraison ou d approbation pour l equipe de l ecole.'
               />
             </div>
 
             {editingReward ? (
               <div className='rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground'>
-                Created {formatDateTime(editingReward.createdOn)} and last updated{' '}
+                Date de creation : {formatDateTime(editingReward.createdOn)}.
+                Derniere mise a jour :{' '}
                 {formatDateTime(editingReward.modifiedOn)}.
               </div>
             ) : null}
@@ -710,15 +722,15 @@ export function LoyaltyRewardsManagementPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={saveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button disabled={!canSave} onClick={() => saveMutation.mutate()}>
               <Save className='h-4 w-4' />
               {saveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingReward
-                  ? 'Update reward'
-                  : 'Create reward'}
+                  ? 'Mettre a jour la recompense'
+                  : 'Creer la recompense'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -736,26 +748,26 @@ export function LoyaltyRewardsManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.action === 'deleted'
-                ? 'Delete this reward?'
+                ? 'Supprimer cette recompense ?'
                 : pendingAction?.action === 'disable'
-                  ? 'Disable this reward?'
-                  : 'Enable this reward?'}
+                  ? 'Desactiver cette recompense ?'
+                  : 'Activer cette recompense ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction?.action === 'deleted'
-                ? 'The reward will stay in history but it will be removed from active redemptions.'
+                ? 'La recompense restera dans l historique mais sera retiree des redemptions actives.'
                 : pendingAction?.action === 'disable'
-                  ? 'Members will no longer be able to redeem this reward until it is enabled again.'
-                  : 'The reward will become available in the loyalty catalog again.'}
+                  ? 'Les membres ne pourront plus utiliser cette recompense jusqu a sa reactivation.'
+                  : 'La recompense redeviendra disponible dans le catalogue de fidelite.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionMutation.mutate()}
               disabled={actionMutation.isPending}
             >
-              {actionMutation.isPending ? 'Updating...' : 'Confirm'}
+              {actionMutation.isPending ? 'Mise a jour...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -763,3 +775,5 @@ export function LoyaltyRewardsManagementPage() {
     </>
   )
 }
+
+

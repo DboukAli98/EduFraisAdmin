@@ -39,15 +39,15 @@ const otpFormSchema = z
   .object({
     otp: z
       .string()
-      .min(6, 'Please enter the 6-digit code.')
-      .max(6, 'Please enter the 6-digit code.'),
+      .min(6, 'Veuillez saisir le code a 6 chiffres.')
+      .max(6, 'Veuillez saisir le code a 6 chiffres.'),
     newPassword: z
       .string()
-      .min(6, 'New password must be at least 6 characters.'),
-    confirmPassword: z.string().min(1, 'Please confirm the new password.'),
+      .min(6, 'Le nouveau mot de passe doit contenir au moins 6 caracteres.'),
+    confirmPassword: z.string().min(1, 'Veuillez confirmer le nouveau mot de passe.'),
   })
   .refine((values) => values.newPassword === values.confirmPassword, {
-    message: 'Passwords do not match.',
+    message: 'Les mots de passe ne correspondent pas.',
     path: ['confirmPassword'],
   })
 
@@ -72,7 +72,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
   const verifyMutation = useMutation({
     mutationFn: async (values: OtpFormValues) => {
       if (!resetContext) {
-        throw new Error('Restart the forgot-password flow before verifying a code.')
+        throw new Error('Relancez le parcours mot de passe oublie avant de verifier un code.')
       }
 
       return resetPassword({
@@ -90,7 +90,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to reset the password right now.')
+        getApiErrorMessage(error, 'Impossible de reinitialiser le mot de passe pour le moment.')
       )
     },
   })
@@ -98,7 +98,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
   const resendMutation = useMutation({
     mutationFn: async () => {
       if (!resetContext) {
-        throw new Error('Restart the forgot-password flow before requesting a new code.')
+        throw new Error('Relancez le parcours mot de passe oublie avant de demander un nouveau code.')
       }
 
       return initPasswordReset({
@@ -113,7 +113,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to resend the verification code.')
+        getApiErrorMessage(error, 'Impossible de renvoyer le code de verification.')
       )
     },
   })
@@ -122,10 +122,10 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
     return (
       <div className='grid gap-4'>
         <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
-          The reset session is missing. Start again from the forgot-password page.
+          La session de reinitialisation est absente. Recommencez depuis la page mot de passe oublie.
         </div>
         <Button asChild variant='outline'>
-          <Link to='/forgot-password'>Back to forgot password</Link>
+          <Link to='/forgot-password'>Retour a mot de passe oublie</Link>
         </Button>
       </div>
     )
@@ -139,7 +139,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
         {...props}
       >
         <div className='rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground'>
-          Enter the OTP sent to <span className='font-medium text-foreground'>{formatPasswordResetDestination(resetContext)}</span> and choose a new password.
+          Saisissez le code OTP envoye a <span className='font-medium text-foreground'>{formatPasswordResetDestination(resetContext)}</span> puis choisissez un nouveau mot de passe.
         </div>
 
         <FormField
@@ -147,7 +147,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
           name='otp'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Verification code</FormLabel>
+              <FormLabel>Code de verification</FormLabel>
               <FormControl>
                 <InputOTP
                   maxLength={6}
@@ -180,12 +180,12 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
           name='newPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>New password</FormLabel>
+              <FormLabel>Nouveau mot de passe</FormLabel>
               <FormControl>
-                <Input type='password' placeholder='New password' {...field} />
+                <Input type='password' placeholder='Nouveau mot de passe' {...field} />
               </FormControl>
               <FormDescription>
-                Choose a password with at least 6 characters.
+                Choisissez un mot de passe contenant au moins 6 caracteres.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -197,11 +197,11 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
           name='confirmPassword'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm new password</FormLabel>
+              <FormLabel>Confirmer le nouveau mot de passe</FormLabel>
               <FormControl>
                 <Input
                   type='password'
-                  placeholder='Confirm new password'
+                  placeholder='Confirmer le nouveau mot de passe'
                   {...field}
                 />
               </FormControl>
@@ -215,7 +215,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
             className='flex-1'
             disabled={otp.length < 6 || verifyMutation.isPending}
           >
-            {verifyMutation.isPending ? 'Verifying...' : 'Verify and reset'}
+            {verifyMutation.isPending ? 'Verification...' : 'Verifier et reinitialiser'}
             {verifyMutation.isPending ? (
               <Loader2 className='animate-spin' />
             ) : null}
@@ -231,7 +231,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
             ) : (
               <RotateCcw />
             )}
-            Resend code
+            Renvoyer le code
           </Button>
         </div>
       </form>

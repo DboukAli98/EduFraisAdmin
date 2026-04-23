@@ -366,7 +366,7 @@ function mapRule(record: ApiRecord): LoyaltyRule {
     id: readNumber(record, 'LoyaltyRuleId', 'loyaltyRuleId') ?? 0,
     loyaltyProgramId:
       readNumber(record, 'LoyaltyProgramId', 'loyaltyProgramId') ?? 0,
-    ruleName: readString(record, 'RuleName', 'ruleName') ?? 'Untitled rule',
+    ruleName: readString(record, 'RuleName', 'ruleName') ?? 'Regle sans titre',
     ruleDescription:
       readString(record, 'RuleDescription', 'ruleDescription') ?? null,
     memberType:
@@ -413,7 +413,7 @@ function mapReward(record: ApiRecord): LoyaltyReward {
     loyaltyProgramId:
       readNumber(record, 'LoyaltyProgramId', 'loyaltyProgramId') ?? 0,
     rewardName:
-      readString(record, 'RewardName', 'rewardName') ?? 'Untitled reward',
+      readString(record, 'RewardName', 'rewardName') ?? 'Recompense sans titre',
     rewardDescription:
       readString(record, 'RewardDescription', 'rewardDescription') ?? null,
     rewardType:
@@ -462,7 +462,7 @@ function mapMember(record: ApiRecord): LoyaltyMember {
     memberEntityId:
       readNumber(record, 'MemberEntityId', 'memberEntityId') ?? 0,
     userId: readString(record, 'UserId', 'userId') ?? '',
-    fullName: readString(record, 'FullName', 'fullName') ?? 'Unknown member',
+    fullName: readString(record, 'FullName', 'fullName') ?? 'Membre inconnu',
     email: readString(record, 'Email', 'email') ?? null,
     phoneNumber: readString(record, 'PhoneNumber', 'phoneNumber') ?? null,
     currentPointsBalance:
@@ -490,9 +490,9 @@ function mapLedgerEntry(record: ApiRecord): LoyaltyLedgerEntry {
       readNumber(record, 'PaymentTransactionId', 'paymentTransactionId') ?? null,
     loyaltyRedemptionId:
       readNumber(record, 'LoyaltyRedemptionId', 'loyaltyRedemptionId') ?? null,
-    entryType: readString(record, 'EntryType', 'entryType') ?? 'Unknown',
+    entryType: readString(record, 'EntryType', 'entryType') ?? 'Inconnu',
     referenceType:
-      readString(record, 'ReferenceType', 'referenceType') ?? 'Unknown',
+      readString(record, 'ReferenceType', 'referenceType') ?? 'Inconnu',
     pointsDelta: readNumber(record, 'PointsDelta', 'pointsDelta') ?? 0,
     balanceBefore: readNumber(record, 'BalanceBefore', 'balanceBefore') ?? 0,
     balanceAfter: readNumber(record, 'BalanceAfter', 'balanceAfter') ?? 0,
@@ -512,13 +512,13 @@ function mapRedemption(record: ApiRecord): LoyaltyRedemption {
       readNumber(record, 'LoyaltyMemberId', 'loyaltyMemberId') ?? 0,
     loyaltyRewardId:
       readNumber(record, 'LoyaltyRewardId', 'loyaltyRewardId') ?? 0,
-    rewardName: readString(record, 'RewardName', 'rewardName') ?? 'Reward',
-    rewardType: readString(record, 'RewardType', 'rewardType') ?? 'Unknown',
+    rewardName: readString(record, 'RewardName', 'rewardName') ?? 'Recompense',
+    rewardType: readString(record, 'RewardType', 'rewardType') ?? 'Inconnu',
     memberType:
       (readString(record, 'MemberType', 'memberType') as LoyaltyMemberType) ??
       'Parent',
     memberFullName:
-      readString(record, 'MemberFullName', 'memberFullName') ?? 'Unknown member',
+      readString(record, 'MemberFullName', 'memberFullName') ?? 'Membre inconnu',
     quantity: readNumber(record, 'Quantity', 'quantity') ?? 1,
     pointsSpent: readNumber(record, 'PointsSpent', 'pointsSpent') ?? 0,
     status:
@@ -540,7 +540,7 @@ function mapRewardUsage(record: ApiRecord): LoyaltyRewardUsage {
   return {
     loyaltyRewardId:
       readNumber(record, 'LoyaltyRewardId', 'loyaltyRewardId') ?? 0,
-    rewardName: readString(record, 'RewardName', 'rewardName') ?? 'Reward',
+    rewardName: readString(record, 'RewardName', 'rewardName') ?? 'Recompense',
     redemptionCount:
       readNumber(record, 'RedemptionCount', 'redemptionCount') ?? 0,
   }
@@ -614,7 +614,9 @@ export async function createLoyaltyProgram(
 
   const program = mapProgram(readRecord(getEnvelopeData(data)))
   if (!program) {
-    throw new Error(readApiMessage(data, 'Program was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'Le programme n a pas ete retourne par l API.')
+    )
   }
 
   return program
@@ -643,7 +645,9 @@ export async function updateLoyaltyProgram(
 
   const program = mapProgram(readRecord(getEnvelopeData(data)))
   if (!program) {
-    throw new Error(readApiMessage(data, 'Program was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'Le programme n a pas ete retourne par l API.')
+    )
   }
 
   return program
@@ -658,7 +662,7 @@ export async function setLoyaltyProgramStatus(
     ActionType: actionType,
   })
 
-  return readApiMessage(data, 'Program status updated.')
+  return readApiMessage(data, 'Statut du programme mis a jour.')
 }
 
 export async function fetchLoyaltyRules(
@@ -705,7 +709,7 @@ export async function createLoyaltyRule(
 
   const rule = readRecord(getEnvelopeData(data))
   if (!rule) {
-    throw new Error(readApiMessage(data, 'Rule was not returned by the API.'))
+    throw new Error(readApiMessage(data, 'La regle n a pas ete retournee par l API.'))
   }
 
   return mapRule(rule)
@@ -737,7 +741,7 @@ export async function updateLoyaltyRule(
 
   const rule = readRecord(getEnvelopeData(data))
   if (!rule) {
-    throw new Error(readApiMessage(data, 'Rule was not returned by the API.'))
+    throw new Error(readApiMessage(data, 'La regle n a pas ete retournee par l API.'))
   }
 
   return mapRule(rule)
@@ -752,7 +756,7 @@ export async function setLoyaltyRuleStatus(
     ActionType: actionType,
   })
 
-  return readApiMessage(data, 'Rule status updated.')
+  return readApiMessage(data, 'Statut de la regle mis a jour.')
 }
 
 export async function fetchLoyaltyRewards(
@@ -797,7 +801,9 @@ export async function createLoyaltyReward(
 
   const reward = readRecord(getEnvelopeData(data))
   if (!reward) {
-    throw new Error(readApiMessage(data, 'Reward was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'La recompense n a pas ete retournee par l API.')
+    )
   }
 
   return mapReward(reward)
@@ -827,7 +833,9 @@ export async function updateLoyaltyReward(
 
   const reward = readRecord(getEnvelopeData(data))
   if (!reward) {
-    throw new Error(readApiMessage(data, 'Reward was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'La recompense n a pas ete retournee par l API.')
+    )
   }
 
   return mapReward(reward)
@@ -842,7 +850,7 @@ export async function setLoyaltyRewardStatus(
     ActionType: actionType,
   })
 
-  return readApiMessage(data, 'Reward status updated.')
+  return readApiMessage(data, 'Statut de la recompense mis a jour.')
 }
 
 export async function fetchLoyaltyMembers(
@@ -883,7 +891,9 @@ export async function enrollLoyaltyMember(
 
   const member = readRecord(getEnvelopeData(data))
   if (!member) {
-    throw new Error(readApiMessage(data, 'Member was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'Le membre n a pas ete retourne par l API.')
+    )
   }
 
   return mapMember(member)
@@ -920,7 +930,9 @@ export async function adjustLoyaltyMemberPoints(
 
   const member = readRecord(getEnvelopeData(data))
   if (!member) {
-    throw new Error(readApiMessage(data, 'Member was not returned by the API.'))
+    throw new Error(
+      readApiMessage(data, 'Le membre n a pas ete retourne par l API.')
+    )
   }
 
   return mapMember(member)
@@ -965,7 +977,7 @@ export async function approveLoyaltyRedemption(
   const redemption = readRecord(getEnvelopeData(data))
   if (!redemption) {
     throw new Error(
-      readApiMessage(data, 'Redemption was not returned by the API.')
+      readApiMessage(data, 'La redemption n a pas ete retournee par l API.')
     )
   }
 
@@ -984,7 +996,7 @@ export async function rejectLoyaltyRedemption(
   const redemption = readRecord(getEnvelopeData(data))
   if (!redemption) {
     throw new Error(
-      readApiMessage(data, 'Redemption was not returned by the API.')
+      readApiMessage(data, 'La redemption n a pas ete retournee par l API.')
     )
   }
 
@@ -1004,7 +1016,7 @@ export async function fulfillLoyaltyRedemption(
   const redemption = readRecord(getEnvelopeData(data))
   if (!redemption) {
     throw new Error(
-      readApiMessage(data, 'Redemption was not returned by the API.')
+      readApiMessage(data, 'La redemption n a pas ete retournee par l API.')
     )
   }
 

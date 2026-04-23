@@ -21,9 +21,9 @@ export function SignIn() {
             EduFrais Admin
           </CardTitle>
           <CardDescription>
-            Sign in with the same country code, mobile number, and password
-            used in the EduFrais platform. Director and Super Admin accounts
-            can access reporting and monitoring here.
+            Connectez-vous avec le meme indicatif, numero mobile et mot de passe
+            utilises dans la plateforme EduFrais. Les comptes Directeur et
+            Super Admin peuvent acceder ici au suivi et au pilotage.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -31,8 +31,8 @@ export function SignIn() {
         </CardContent>
         <CardFooter>
           <p className='px-8 text-center text-sm text-muted-foreground'>
-            Parent and collecting-agent accounts should keep using the mobile
-            app. This panel is reserved for administration workflows.
+            Les comptes parent et agent collecteur doivent continuer a utiliser
+            l application mobile. Ce panneau est reserve a l administration.
           </p>
         </CardFooter>
       </Card>

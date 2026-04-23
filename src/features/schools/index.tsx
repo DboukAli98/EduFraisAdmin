@@ -208,8 +208,8 @@ export function Schools() {
     onSuccess: () => {
       toast.success(
         editingSchoolId
-          ? 'School updated successfully.'
-          : 'School created successfully.'
+          ? 'Ecole mise a jour avec succes.'
+          : 'Ecole creee avec succes.'
       )
       setIsFormOpen(false)
       setEditingSchoolId(null)
@@ -238,8 +238,8 @@ export function Schools() {
 
       toast.success(
         pendingAction.type === 'delete'
-          ? 'School deleted successfully.'
-          : `School ${pendingAction.type}d successfully.`
+          ? 'Ecole supprimee avec succes.'
+          : `Ecole ${pendingAction.type === 'disable' ? 'desactivee' : 'activee'} avec succes.`
       )
       setPendingAction(null)
       void queryClient.invalidateQueries({ queryKey: ['schools'] })
@@ -258,8 +258,8 @@ export function Schools() {
   return (
     <>
       <PageShell
-        title='School Management'
-        description='Create, edit, disable, enable, and retire schools from the EduFrais admin panel.'
+        title='Gestion des ecoles'
+        description='Creer, modifier, desactiver, activer et retirer des ecoles depuis le panneau d administration EduFrais.'
         actions={
           canManageSchools ? (
             <Button
@@ -270,37 +270,37 @@ export function Schools() {
               }}
             >
               <Plus className='h-4 w-4' />
-              Add school
+              Ajouter une ecole
             </Button>
           ) : (
-            <Badge variant='outline'>Read-only for directors</Badge>
+            <Badge variant='outline'>Lecture seule pour les directeurs</Badge>
           )
         }
       >
         <section className='grid gap-4 md:grid-cols-3'>
           <SummaryCard
-            title='Accessible schools'
+            title='Ecoles accessibles'
             value={String(accessibleSchools.length)}
-            description='Schools available in the current admin scope.'
+            description='Ecoles disponibles dans la portee actuelle.'
           />
           <SummaryCard
-            title='Enabled schools'
+            title='Ecoles actives'
             value={String(activeSchools.length)}
-            description='Status id 1 and ready for operations.'
+            description='Statut 1 et pretes pour l exploitation.'
           />
           <SummaryCard
-            title='Disabled schools'
+            title='Ecoles desactivees'
             value={String(disabledSchools.length)}
-            description='Paused schools that can be re-enabled later.'
+            description='Ecoles en pause pouvant etre reactivees plus tard.'
           />
         </section>
 
         {!canManageSchools ? (
           <Card className='border-border/70'>
             <CardContent className='pt-6 text-sm text-muted-foreground'>
-              Directors can inspect their assigned school here, but only Super
-              Admin sessions can create, edit, enable, disable, or delete
-              schools.
+              Les directeurs peuvent consulter leur ecole affectee ici, mais seuls
+              les comptes SuperAdmin peuvent creer, modifier, activer, desactiver
+              ou supprimer des ecoles.
             </CardContent>
           </Card>
         ) : null}
@@ -308,13 +308,12 @@ export function Schools() {
         <Card className='border-border/70'>
           <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
             <div>
-              <CardTitle>School directory</CardTitle>
+              <CardTitle>Annuaire des ecoles</CardTitle>
               <CardDescription>
-                Backend data from <code>/api/School</code> with direct lifecycle
-                actions.
+                Donnees backend issues de <code>/api/School</code> avec actions directes sur le cycle de vie.
               </CardDescription>
             </div>
-            <Badge variant='outline'>{accessibleSchools.length} schools</Badge>
+            <Badge variant='outline'>{accessibleSchools.length} ecoles</Badge>
           </CardHeader>
           <CardContent>
             {schoolsQuery.isLoading ? (
@@ -325,8 +324,8 @@ export function Schools() {
               </div>
             ) : accessibleSchools.length === 0 ? (
               <EmptyState
-                title='No schools found'
-                description='The School listing endpoint returned an empty result for this account.'
+                title='Aucune ecole trouvee'
+                description='Le endpoint de liste des ecoles a renvoye un resultat vide pour ce compte.'
               />
             ) : (
               <div className='rounded-lg border'>
@@ -334,10 +333,10 @@ export function Schools() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>School</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Statut</TableHead>
                       <TableHead>Contact</TableHead>
-                      <TableHead>Established</TableHead>
-                      <TableHead>Website</TableHead>
+                      <TableHead>Creation</TableHead>
+                      <TableHead>Site web</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -392,7 +391,7 @@ export function Schools() {
                                 rel='noreferrer'
                                 className='inline-flex items-center gap-1 text-primary hover:underline'
                               >
-                                Open
+                                Ouvrir
                                 <ExternalLink className='h-3.5 w-3.5' />
                               </a>
                             ) : (
@@ -421,7 +420,7 @@ export function Schools() {
                                 }}
                               >
                                 <Pencil className='h-4 w-4' />
-                                Edit
+                                Modifier
                               </Button>
                               <Button
                                 variant='outline'
@@ -440,7 +439,7 @@ export function Schools() {
                                 }
                               >
                                 <Power className='h-4 w-4' />
-                                {school.statusId === 1 ? 'Disable' : 'Enable'}
+                                {school.statusId === 1 ? 'Desactiver' : 'Activer'}
                               </Button>
                               <Button
                                 variant='destructive'
@@ -456,7 +455,7 @@ export function Schools() {
                                 }
                               >
                                 <Trash2 className='h-4 w-4' />
-                                Delete
+                                Supprimer
                               </Button>
                             </div>
                           </TableCell>
@@ -484,12 +483,12 @@ export function Schools() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingSchoolId ? 'Edit school' : 'Add new school'}
+              {editingSchoolId ? 'Modifier l ecole' : 'Ajouter une nouvelle ecole'}
             </DialogTitle>
             <DialogDescription>
               {editingSchoolId
-                ? 'Update the school profile and keep its reporting scope current.'
-                : 'Register a new school so its users and payments can be managed from EduFrais.'}
+                ? 'Mettez a jour le profil de l ecole et maintenez sa portee de reporting a jour.'
+                : 'Enregistrez une nouvelle ecole afin de gerer ses utilisateurs et ses paiements depuis EduFrais.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -504,7 +503,7 @@ export function Schools() {
             <div className='grid gap-4'>
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='school-name'>School name</Label>
+                  <Label htmlFor='school-name'>Nom de l ecole</Label>
                   <Input
                     id='school-name'
                     value={formState.name}
@@ -517,7 +516,7 @@ export function Schools() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='school-year'>Established year</Label>
+                  <Label htmlFor='school-year'>Annee de creation</Label>
                   <Input
                     id='school-year'
                     inputMode='numeric'
@@ -533,7 +532,7 @@ export function Schools() {
               </div>
 
               <div className='grid gap-2'>
-                <Label htmlFor='school-address'>Address</Label>
+                <Label htmlFor='school-address'>Adresse</Label>
                 <Input
                   id='school-address'
                   value={formState.address}
@@ -548,7 +547,7 @@ export function Schools() {
 
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='school-email'>Email</Label>
+                  <Label htmlFor='school-email'>E-mail</Label>
                   <Input
                     id='school-email'
                     type='email'
@@ -562,7 +561,7 @@ export function Schools() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='school-phone'>Phone number</Label>
+                  <Label htmlFor='school-phone'>Numero de telephone</Label>
                   <Input
                     id='school-phone'
                     value={formState.phoneNumber}
@@ -577,7 +576,7 @@ export function Schools() {
               </div>
 
               <div className='grid gap-2'>
-                <Label htmlFor='school-website'>Website</Label>
+                <Label htmlFor='school-website'>Site web</Label>
                 <Input
                   id='school-website'
                   placeholder='https://example.com'
@@ -627,14 +626,14 @@ export function Schools() {
 
                 {editingSchoolId && currentLogo ? (
                   <div className='rounded-lg border bg-muted/30 p-3 text-sm'>
-                    <p className='font-medium'>Current logo</p>
+                    <p className='font-medium'>Logo actuel</p>
                     <a
                       href={toApiUrl(`/uploads/schools/${currentLogo}`)}
                       target='_blank'
                       rel='noreferrer'
                       className='mt-1 inline-flex items-center gap-1 text-primary hover:underline'
                     >
-                      Open existing logo
+                      Ouvrir le logo existant
                       <ExternalLink className='h-3.5 w-3.5' />
                     </a>
                   </div>
@@ -643,10 +642,9 @@ export function Schools() {
                 {editingSchoolId ? (
                   <div className='flex items-center justify-between rounded-lg border px-3 py-2'>
                     <div>
-                      <p className='text-sm font-medium'>Remove current logo</p>
+                      <p className='text-sm font-medium'>Supprimer le logo actuel</p>
                       <p className='text-xs text-muted-foreground'>
-                        Clear the saved logo if the school should no longer
-                        display one.
+                        Effacez le logo enregistre si l ecole ne doit plus en afficher.
                       </p>
                     </div>
                     <Switch
@@ -671,7 +669,7 @@ export function Schools() {
               onClick={() => setIsFormOpen(false)}
               disabled={saveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               onClick={() => saveMutation.mutate()}
@@ -685,10 +683,10 @@ export function Schools() {
               }
             >
               {saveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingSchoolId
-                  ? 'Save changes'
-                  : 'Create school'}
+                  ? 'Enregistrer les modifications'
+                  : 'Creer l ecole'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -706,24 +704,24 @@ export function Schools() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.type === 'delete'
-                ? 'Delete school?'
+                ? 'Supprimer l ecole ?'
                 : pendingAction?.type === 'disable'
-                  ? 'Disable school?'
-                  : 'Enable school?'}
+                  ? 'Desactiver l ecole ?'
+                  : 'Activer l ecole ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction
                 ? pendingAction.type === 'delete'
-                  ? `This will mark ${pendingAction.school.name} as deleted in EduFrais.`
+                  ? `Cela marquera ${pendingAction.school.name} comme supprimee dans EduFrais.`
                   : pendingAction.type === 'disable'
-                    ? `This will stop ${pendingAction.school.name} from operating as an enabled school.`
-                    : `This will restore ${pendingAction.school.name} to enabled status.`
-                : 'Choose an action.'}
+                    ? `Cela arretera ${pendingAction.school.name} comme ecole active.`
+                    : `Cela restaurera ${pendingAction.school.name} au statut actif.`
+                : 'Choisissez une action.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionMutation.isPending}>
-              Cancel
+              Annuler
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={actionMutation.isPending}
@@ -732,7 +730,7 @@ export function Schools() {
                 actionMutation.mutate()
               }}
             >
-              {actionMutation.isPending ? 'Working...' : 'Confirm'}
+              {actionMutation.isPending ? 'Traitement...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+﻿import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Award, Gift, ListChecks, Settings, Users } from 'lucide-react'
 import { EmptyState } from '@/features/admin/components/empty-state'
@@ -70,12 +70,12 @@ export function LoyaltyOverviewPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty'
-        description='Director-designed rewards programs for parents and collecting agents.'
+        title='Fidelite'
+        description='Programmes de recompenses concus par le directeur pour les parents et les agents collecteurs.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -84,12 +84,12 @@ export function LoyaltyOverviewPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty'
-        description='Director-designed rewards programs for parents and collecting agents.'
+        title='Fidelite'
+        description='Programmes de recompenses concus par le directeur pour les parents et les agents collecteurs.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -100,72 +100,72 @@ export function LoyaltyOverviewPage() {
 
   return (
     <PageShell
-      title='Loyalty'
-      description='Design the school loyalty program, define earning rules, and monitor reward redemptions.'
+      title='Fidelite'
+      description='Concevez le programme de fidelite de l ecole, definissez les regles de gain et suivez les redemptions.'
       actions={
         <div className='flex flex-wrap gap-2'>
           <Button asChild variant='outline'>
             <Link to='/loyalty/program'>
               <Settings className='h-4 w-4' />
-              Program
+              Programme
             </Link>
           </Button>
           <Button asChild variant='outline'>
             <Link to='/loyalty/rules'>
               <ListChecks className='h-4 w-4' />
-              Rules
+              Regles
             </Link>
           </Button>
           <Button asChild>
             <Link to='/loyalty/rewards'>
               <Gift className='h-4 w-4' />
-              Rewards
+              Recompenses
             </Link>
           </Button>
         </div>
       }
     >
       <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-5'>
+          <MetricCard
+            title='Membres actifs'
+            value={dashboardQuery.isLoading ? '...' : formatPoints(dashboard?.activeMembers ?? 0)}
+            description='Parents et agents participant actuellement au programme.'
+          />
         <MetricCard
-          title='Active members'
-          value={dashboardQuery.isLoading ? '...' : formatPoints(dashboard?.activeMembers ?? 0)}
-          description='Parents and agents currently participating in the program.'
-        />
-        <MetricCard
-          title='Outstanding points'
+          title='Points en circulation'
           value={
             dashboardQuery.isLoading
               ? '...'
               : formatPoints(dashboard?.currentOutstandingPoints ?? 0)
           }
-          description='Current live balance across every loyalty member.'
+          description='Solde actuel cumule de tous les membres fidelite.'
         />
         <MetricCard
-          title='Points issued'
+          title='Points attribues'
           value={
             dashboardQuery.isLoading
               ? '...'
               : formatPoints(dashboard?.totalPointsIssued ?? 0)
           }
-          description='All earned and manually credited points issued so far.'
+          description='Tous les points gagnes et credits manuellement emis a ce jour.'
         />
         <MetricCard
-          title='Points redeemed'
+          title='Points utilises'
           value={
             dashboardQuery.isLoading
               ? '...'
               : formatPoints(dashboard?.totalPointsRedeemed ?? 0)
           }
-          description='Points consumed through successful redemptions and debits.'
+          description='Points consommes via les redemptions reussies et les debits.'
         />
         <MetricCard
-          title='Pending redemptions'
+          title='Redemptions en attente'
           value={
             dashboardQuery.isLoading
               ? '...'
               : formatPoints(dashboard?.pendingRedemptions ?? 0)
           }
-          description='Requests waiting for director approval or fulfillment.'
+          description='Demandes en attente d approbation ou de remise par le directeur.'
         />
       </section>
 
@@ -174,10 +174,10 @@ export function LoyaltyOverviewPage() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Award className='h-5 w-5' />
-              Program snapshot
+              Apercu du programme
             </CardTitle>
             <CardDescription>
-              Current school loyalty configuration returned by
+              Configuration actuelle de fidelite de l ecole retournee par
               <code> /api/Loyalty/GetSchoolProgram</code>.
             </CardDescription>
           </CardHeader>
@@ -189,10 +189,10 @@ export function LoyaltyOverviewPage() {
                 <Skeleton className='h-5 w-2/3' />
               </div>
             ) : !program ? (
-              <EmptyState
-                title='No loyalty program yet'
-                description='Create the first school loyalty program to start earning and redeeming points.'
-              />
+                <EmptyState
+                  title='Aucun programme fidelite'
+                  description='Creez le premier programme de fidelite pour commencer a gagner et utiliser des points.'
+                />
             ) : (
               <div className='space-y-5'>
                 <div className='flex flex-wrap items-start justify-between gap-3'>
@@ -201,7 +201,7 @@ export function LoyaltyOverviewPage() {
                       {program.programName}
                     </div>
                     <p className='text-sm text-muted-foreground'>
-                      {program.programDescription || 'No program description yet.'}
+                      {program.programDescription || 'Aucune description du programme pour le moment.'}
                     </p>
                   </div>
                   <Badge
@@ -214,17 +214,17 @@ export function LoyaltyOverviewPage() {
 
                 <div className='grid gap-3 sm:grid-cols-2 lg:grid-cols-3'>
                   <div className='rounded-xl border bg-muted/20 p-4'>
-                    <p className='text-sm text-muted-foreground'>Points label</p>
+                    <p className='text-sm text-muted-foreground'>Libelle des points</p>
                     <p className='mt-2 text-xl font-semibold'>{program.pointsLabel}</p>
                   </div>
                   <div className='rounded-xl border bg-muted/20 p-4'>
-                    <p className='text-sm text-muted-foreground'>Welcome bonus</p>
+                    <p className='text-sm text-muted-foreground'>Bonus de bienvenue</p>
                     <p className='mt-2 text-xl font-semibold'>
                       {formatPoints(program.welcomeBonusPoints)}
                     </p>
                   </div>
                   <div className='rounded-xl border bg-muted/20 p-4'>
-                    <p className='text-sm text-muted-foreground'>Min redeem</p>
+                    <p className='text-sm text-muted-foreground'>Minimum de redemption</p>
                     <p className='mt-2 text-xl font-semibold'>
                       {formatPoints(program.minimumRedeemPoints)}
                     </p>
@@ -235,23 +235,23 @@ export function LoyaltyOverviewPage() {
                   <div className='rounded-xl border p-4 text-sm'>
                     <p className='font-medium'>Participation</p>
                     <p className='mt-2 text-muted-foreground'>
-                      Parents: {program.allowParentParticipation ? 'Enabled' : 'Disabled'}
+                      Parents : {program.allowParentParticipation ? 'Activee' : 'Desactivee'}
                     </p>
                     <p className='text-muted-foreground'>
-                      Collecting agents:{' '}
-                      {program.allowAgentParticipation ? 'Enabled' : 'Disabled'}
+                      Agents collecteurs :{' '}
+                      {program.allowAgentParticipation ? 'Activee' : 'Desactivee'}
                     </p>
                   </div>
                   <div className='rounded-xl border p-4 text-sm'>
-                    <p className='font-medium'>Approvals & dates</p>
+                    <p className='font-medium'>Approbations et dates</p>
                     <p className='mt-2 text-muted-foreground'>
-                      Redemptions: {program.autoApproveRedemptions ? 'Auto-approved' : 'Director review'}
+                      Redemptions : {program.autoApproveRedemptions ? 'Approbation automatique' : 'Revue directeur'}
                     </p>
                     <p className='text-muted-foreground'>
-                      Starts {formatDateTime(program.startsOn)}
+                      Debute le {formatDateTime(program.startsOn)}
                     </p>
                     <p className='text-muted-foreground'>
-                      Ends {formatDateTime(program.endsOn)}
+                      Se termine le {formatDateTime(program.endsOn)}
                     </p>
                   </div>
                 </div>
@@ -264,27 +264,27 @@ export function LoyaltyOverviewPage() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Users className='h-5 w-5' />
-              Participation mix
+              Repartition de la participation
             </CardTitle>
             <CardDescription>
-              Quick read on who is active and what the loyalty workload looks like.
+              Vue rapide des profils actifs et de la charge du programme de fidelite.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-3'>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Active parents</p>
+              <p className='text-sm text-muted-foreground'>Parents actifs</p>
               <p className='mt-2 text-3xl font-semibold'>
                 {dashboardQuery.isLoading ? '...' : formatPoints(dashboard?.activeParents ?? 0)}
               </p>
             </div>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Active agents</p>
+              <p className='text-sm text-muted-foreground'>Agents actifs</p>
               <p className='mt-2 text-3xl font-semibold'>
                 {dashboardQuery.isLoading ? '...' : formatPoints(dashboard?.activeAgents ?? 0)}
               </p>
             </div>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Fulfilled rewards</p>
+              <p className='text-sm text-muted-foreground'>Recompenses finalisees</p>
               <p className='mt-2 text-3xl font-semibold'>
                 {dashboardQuery.isLoading
                   ? '...'
@@ -297,9 +297,9 @@ export function LoyaltyOverviewPage() {
 
       <Card className='border-border/70'>
         <CardHeader>
-          <CardTitle>Top redeemed rewards</CardTitle>
+          <CardTitle>Recompenses les plus utilisees</CardTitle>
           <CardDescription>
-            Highest-traffic rewards based on the loyalty redemption history.
+            Recompenses les plus sollicitees d apres l historique des redemptions.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -311,15 +311,15 @@ export function LoyaltyOverviewPage() {
             </div>
           ) : !dashboard || dashboard.topRewards.length === 0 ? (
             <EmptyState
-              title='No reward activity yet'
-              description='Once members start redeeming rewards, the most-used rewards will show up here.'
+              title='Aucune activite de recompense'
+              description='Des que les membres commenceront a utiliser leurs recompenses, les plus populaires apparaitront ici.'
             />
           ) : (
             <div className='rounded-lg border'>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Reward</TableHead>
+                    <TableHead>Recompense</TableHead>
                     <TableHead>Redemptions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -339,3 +339,5 @@ export function LoyaltyOverviewPage() {
     </PageShell>
   )
 }
+
+

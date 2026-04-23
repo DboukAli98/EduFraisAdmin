@@ -27,11 +27,11 @@ import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const profileFormSchema = z.object({
-  firstName: z.string().min(1, 'Please enter the first name.'),
-  lastName: z.string().min(1, 'Please enter the last name.'),
-  email: z.email('Please enter a valid email address.'),
-  countryCode: z.string().min(1, 'Please enter the country code.'),
-  phoneNumber: z.string().min(1, 'Please enter the phone number.'),
+  firstName: z.string().min(1, 'Veuillez saisir le prenom.'),
+  lastName: z.string().min(1, 'Veuillez saisir le nom.'),
+  email: z.email('Veuillez saisir une adresse e-mail valide.'),
+  countryCode: z.string().min(1, 'Veuillez saisir l indicatif du pays.'),
+  phoneNumber: z.string().min(1, 'Veuillez saisir le numero de telephone.'),
 })
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>
@@ -97,7 +97,7 @@ export function ProfileForm() {
   const saveProfileMutation = useMutation({
     mutationFn: async (values: ProfileFormValues) => {
       if (!directorQuery.data) {
-        throw new Error('Director profile could not be loaded.')
+        throw new Error('Le profil du directeur n a pas pu etre charge.')
       }
 
       await updateDirector(directorQuery.data.id, {
@@ -113,7 +113,7 @@ export function ProfileForm() {
     },
     onSuccess: (values) => {
       setUser(updateAuthUserSnapshot(currentUser, values))
-      toast.success('Profile updated successfully.')
+      toast.success('Profil mis a jour avec succes.')
       void queryClient.invalidateQueries({
         queryKey: ['settings', 'director-profile', schoolId],
       })
@@ -123,7 +123,7 @@ export function ProfileForm() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the profile right now.')
+        getApiErrorMessage(error, 'Impossible de mettre a jour le profil pour le moment.')
       )
     },
   })
@@ -131,7 +131,7 @@ export function ProfileForm() {
   if (!isDirector || schoolId === 0) {
     return (
       <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
-        Profile editing is currently wired for director accounts linked to a school.
+        La modification du profil est disponible pour les comptes directeur relies a une ecole.
       </div>
     )
   }
@@ -150,7 +150,7 @@ export function ProfileForm() {
   if (!directorQuery.data) {
     return (
       <div className='rounded-lg border border-dashed p-4 text-sm text-muted-foreground'>
-        The current director profile could not be loaded from the backend.
+        Le profil actuel du directeur n a pas pu etre charge depuis le backend.
       </div>
     )
   }
@@ -160,13 +160,13 @@ export function ProfileForm() {
       <div className='grid gap-4 rounded-xl border bg-muted/20 p-4 sm:grid-cols-2'>
         <div className='space-y-2'>
           <p className='text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase'>
-            School scope
+            Portee ecole
           </p>
           <p className='font-medium'>{directorQuery.data.schoolName}</p>
         </div>
         <div className='space-y-2'>
           <p className='text-xs font-medium tracking-[0.18em] text-muted-foreground uppercase'>
-            Status
+            Statut
           </p>
           <Badge
             variant='outline'
@@ -190,9 +190,9 @@ export function ProfileForm() {
               name='firstName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First name</FormLabel>
+                  <FormLabel>Prenom</FormLabel>
                   <FormControl>
-                    <Input placeholder='First name' {...field} />
+                    <Input placeholder='Prenom' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -204,9 +204,9 @@ export function ProfileForm() {
               name='lastName'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last name</FormLabel>
+                  <FormLabel>Nom</FormLabel>
                   <FormControl>
-                    <Input placeholder='Last name' {...field} />
+                    <Input placeholder='Nom' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -219,13 +219,13 @@ export function ProfileForm() {
             name='email'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type='email' placeholder='name@example.com' {...field} />
-                </FormControl>
-                <FormDescription>
-                  This email is used for account communication and password reset by OTP.
-                </FormDescription>
+              <FormLabel>E-mail</FormLabel>
+              <FormControl>
+                <Input type='email' placeholder='name@example.com' {...field} />
+              </FormControl>
+              <FormDescription>
+                  Cet e-mail est utilise pour les communications du compte et la reinitialisation du mot de passe par OTP.
+              </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -237,7 +237,7 @@ export function ProfileForm() {
               name='countryCode'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country code</FormLabel>
+                  <FormLabel>Indicatif pays</FormLabel>
                   <FormControl>
                     <Input placeholder='242' {...field} />
                   </FormControl>
@@ -251,12 +251,12 @@ export function ProfileForm() {
               name='phoneNumber'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone number</FormLabel>
+                  <FormLabel>Numero de telephone</FormLabel>
                   <FormControl>
-                    <Input placeholder='Phone number' {...field} />
+                    <Input placeholder='Numero de telephone' {...field} />
                   </FormControl>
                   <FormDescription>
-                    This number is also used when resetting the password through WhatsApp OTP.
+                    Ce numero est aussi utilise lors de la reinitialisation du mot de passe via OTP WhatsApp.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -266,8 +266,8 @@ export function ProfileForm() {
 
           <Button type='submit' disabled={saveProfileMutation.isPending}>
             {saveProfileMutation.isPending
-              ? 'Saving profile...'
-              : 'Update profile'}
+              ? 'Enregistrement du profil...'
+              : 'Mettre a jour le profil'}
           </Button>
         </form>
       </Form>

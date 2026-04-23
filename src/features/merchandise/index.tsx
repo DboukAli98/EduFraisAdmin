@@ -276,7 +276,7 @@ export function SchoolMerchandiseManagement() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to save school merchandise.')
+        getApiErrorMessage(error, 'Impossible d enregistrer les articles scolaires.')
       )
     },
   })
@@ -293,7 +293,7 @@ export function SchoolMerchandiseManagement() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to create merchandise category.')
+        getApiErrorMessage(error, 'Impossible de creer la categorie d article.')
       )
     },
   })
@@ -316,7 +316,7 @@ export function SchoolMerchandiseManagement() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update merchandise status.')
+        getApiErrorMessage(error, 'Impossible de mettre a jour le statut de l article.')
       )
     },
   })
@@ -331,12 +331,12 @@ export function SchoolMerchandiseManagement() {
   if (!hasAccess) {
     return (
       <PageShell
-        title='School Merchandise'
-        description='Manage school merchandise catalog items.'
+        title='Articles scolaires'
+        description='Gerez les articles du catalogue scolaire.'
       >
         <EmptyState
-          title='Director access required'
-          description='School merchandise management is available to directors and SuperAdmin accounts.'
+          title='Acces directeur requis'
+          description='La gestion des articles scolaires est disponible pour les directeurs et les comptes SuperAdmin.'
         />
       </PageShell>
     )
@@ -345,8 +345,8 @@ export function SchoolMerchandiseManagement() {
   return (
     <>
       <PageShell
-        title='School Merchandise'
-        description='Manage school merchandise items, images, categories, prices, and availability.'
+        title='Articles scolaires'
+        description='Gerez les articles scolaires, images, categories, prix et disponibilite.'
         actions={
           <div className='flex flex-wrap gap-2'>
             <Button
@@ -357,7 +357,7 @@ export function SchoolMerchandiseManagement() {
               }}
             >
               <Plus className='h-4 w-4' />
-              Add category
+              Ajouter une categorie
             </Button>
             <Button
               disabled={!selectedSchoolId || categories.length === 0}
@@ -382,31 +382,31 @@ export function SchoolMerchandiseManagement() {
               }}
             >
               <PackagePlus className='h-4 w-4' />
-              Add merchandise
+              Ajouter un article
             </Button>
           </div>
         }
       >
         <section className='grid gap-4 md:grid-cols-4'>
           <SummaryCard
-            title='Catalog items'
+            title='Articles du catalogue'
             value={String(merchandises.length)}
-            description='Merchandise returned for the selected school.'
+            description='Articles retournes pour l ecole selectionnee.'
           />
           <SummaryCard
-            title='Enabled'
+            title='Actifs'
             value={String(enabledMerchandises.length)}
-            description='Items currently available for parent purchase.'
+            description='Articles actuellement disponibles a l achat pour les parents.'
           />
           <SummaryCard
-            title='Disabled'
+            title='Inactifs'
             value={String(disabledMerchandises.length)}
-            description='Items paused but still kept in history.'
+            description='Articles suspendus mais conserves dans l historique.'
           />
           <SummaryCard
-            title='Enabled value'
+            title='Valeur active'
             value={formatCurrency(catalogValue)}
-            description='Sum of enabled item prices in the catalog.'
+            description='Somme des prix des articles actifs du catalogue.'
           />
         </section>
 
@@ -414,23 +414,23 @@ export function SchoolMerchandiseManagement() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <ShoppingBag className='h-5 w-5 text-primary' />
-              Catalog controls
+              Filtres du catalogue
             </CardTitle>
             <CardDescription>
-              Directors are scoped to their school; SuperAdmin accounts can
-              switch school scope.
+              Les directeurs restent limites a leur ecole ; les comptes
+              SuperAdmin peuvent changer la portee de l ecole.
             </CardDescription>
           </CardHeader>
           <CardContent className='grid gap-4 lg:grid-cols-[1fr_1fr_1.2fr]'>
             <div className='grid gap-2'>
-              <Label>School</Label>
+              <Label>Ecole</Label>
               <Select
                 value={selectedSchoolId ? String(selectedSchoolId) : undefined}
                 onValueChange={(value) => setSelectedSchoolId(Number(value))}
                 disabled={isDirector || accessibleSchools.length === 0}
               >
                 <SelectTrigger className='w-full'>
-                  <SelectValue placeholder='Select a school' />
+                  <SelectValue placeholder='Selectionner une ecole' />
                 </SelectTrigger>
                 <SelectContent>
                   {accessibleSchools.map((school) => (
@@ -443,16 +443,16 @@ export function SchoolMerchandiseManagement() {
             </div>
 
             <div className='grid gap-2'>
-              <Label>Category</Label>
+              <Label>Categorie</Label>
               <Select
                 value={String(selectedCategoryId)}
                 onValueChange={(value) => setSelectedCategoryId(Number(value))}
               >
                 <SelectTrigger className='w-full'>
-                  <SelectValue placeholder='Filter by category' />
+                  <SelectValue placeholder='Filtrer par categorie' />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='0'>All categories</SelectItem>
+                  <SelectItem value='0'>Toutes les categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={String(category.id)}>
                       {category.name}
@@ -463,13 +463,13 @@ export function SchoolMerchandiseManagement() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='merchandise-search'>Search</Label>
+              <Label htmlFor='merchandise-search'>Recherche</Label>
               <div className='relative'>
                 <Search className='absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
                 <Input
                   id='merchandise-search'
                   className='ps-9'
-                  placeholder='Search by name or description'
+                  placeholder='Rechercher par nom ou description'
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                 />
@@ -480,8 +480,8 @@ export function SchoolMerchandiseManagement() {
 
         {!selectedSchool ? (
           <EmptyState
-            title='No school available'
-            description='No school was found for this director account.'
+            title='Aucune ecole disponible'
+            description='Aucune ecole n a ete trouvee pour ce compte directeur.'
           />
         ) : categoriesQuery.isLoading || merchandisesQuery.isLoading ? (
           <div className='space-y-3'>
@@ -491,36 +491,36 @@ export function SchoolMerchandiseManagement() {
           </div>
         ) : categories.length === 0 ? (
           <EmptyState
-            title='Create a category first'
-            description='The merchandise API requires a category before items can be added.'
+            title='Creez d abord une categorie'
+            description='L API des articles requiert une categorie avant de pouvoir ajouter des elements.'
           />
         ) : merchandises.length === 0 ? (
           <EmptyState
-            title='No merchandise found'
-            description='Add the first school merchandise item for this catalog.'
+            title='Aucun article trouve'
+            description='Ajoutez le premier article scolaire de ce catalogue.'
           />
         ) : (
           <Card className='border-border/70'>
             <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
               <div>
-                <CardTitle>{selectedSchool.name} merchandise</CardTitle>
+                <CardTitle>{selectedSchool.name} - articles</CardTitle>
                 <CardDescription>
-                  Items are loaded from <code>GetSchoolMerchandises</code> with
-                  all statuses included.
+                  Les articles sont charges depuis
+                  <code>GetSchoolMerchandises</code> avec tous les statuts inclus.
                 </CardDescription>
               </div>
-              <Badge variant='outline'>{merchandises.length} items</Badge>
+              <Badge variant='outline'>{merchandises.length} articles</Badge>
             </CardHeader>
             <CardContent>
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Merchandise</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Updated</TableHead>
+                      <TableHead>Article</TableHead>
+                      <TableHead>Categorie</TableHead>
+                      <TableHead>Prix</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Mis a jour</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -547,7 +547,7 @@ export function SchoolMerchandiseManagement() {
                               <div>
                                 <div className='font-medium'>{item.name}</div>
                                 <div className='text-xs text-muted-foreground'>
-                                  {item.description || 'No description'}
+                                  {item.description || 'Aucune description'}
                                 </div>
                               </div>
                             </div>
@@ -579,7 +579,7 @@ export function SchoolMerchandiseManagement() {
                                 }}
                               >
                                 <Pencil className='h-4 w-4' />
-                                Edit
+                                Modifier
                               </Button>
                               <Button
                                 variant='outline'
@@ -596,7 +596,7 @@ export function SchoolMerchandiseManagement() {
                                 }
                               >
                                 <Power className='h-4 w-4' />
-                                {item.statusId === 1 ? 'Disable' : 'Enable'}
+                                {item.statusId === 1 ? 'Desactiver' : 'Activer'}
                               </Button>
                               <Button
                                 variant='destructive'
@@ -610,7 +610,7 @@ export function SchoolMerchandiseManagement() {
                                 }
                               >
                                 <Trash2 className='h-4 w-4' />
-                                Delete
+                                Supprimer
                               </Button>
                             </div>
                           </TableCell>
@@ -638,17 +638,17 @@ export function SchoolMerchandiseManagement() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingMerchandise ? 'Edit merchandise' : 'Add merchandise'}
+              {editingMerchandise ? 'Modifier l article' : 'Ajouter un article'}
             </DialogTitle>
             <DialogDescription>
-              Configure the merchandise item shown to parents for this school.
+              Configurez l article affiche aux parents pour cette ecole.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='merchandise-name'>Name</Label>
+                <Label htmlFor='merchandise-name'>Nom</Label>
                 <Input
                   id='merchandise-name'
                   value={merchandiseForm.name}
@@ -661,7 +661,7 @@ export function SchoolMerchandiseManagement() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='merchandise-price'>Price</Label>
+                <Label htmlFor='merchandise-price'>Prix</Label>
                 <Input
                   id='merchandise-price'
                   inputMode='decimal'
@@ -678,7 +678,7 @@ export function SchoolMerchandiseManagement() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label>Category</Label>
+                <Label>Categorie</Label>
                 <Select
                   value={merchandiseForm.categoryId}
                   onValueChange={(value) =>
@@ -689,7 +689,7 @@ export function SchoolMerchandiseManagement() {
                   }
                 >
                   <SelectTrigger className='w-full'>
-                    <SelectValue placeholder='Select category' />
+                    <SelectValue placeholder='Selectionner une categorie' />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -701,7 +701,7 @@ export function SchoolMerchandiseManagement() {
                 </Select>
               </div>
               <div className='grid gap-2'>
-                <Label>Status</Label>
+                <Label>Statut</Label>
                 <Select
                   value={merchandiseForm.statusId}
                   onValueChange={(value) =>
@@ -716,9 +716,9 @@ export function SchoolMerchandiseManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='1'>Enabled</SelectItem>
-                    <SelectItem value='2'>Disabled</SelectItem>
-                    <SelectItem value='5'>Deleted</SelectItem>
+                    <SelectItem value='1'>Actif</SelectItem>
+                    <SelectItem value='2'>Inactif</SelectItem>
+                    <SelectItem value='5'>Supprime</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -761,10 +761,10 @@ export function SchoolMerchandiseManagement() {
               {editingMerchandise?.logo ? (
                 <div className='flex items-center justify-between rounded-lg border px-3 py-2'>
                   <div>
-                    <p className='text-sm font-medium'>Remove current logo</p>
+                    <p className='text-sm font-medium'>Supprimer le logo actuel</p>
                     <p className='text-xs text-muted-foreground'>
-                      The backend will delete the saved merchandise image when
-                      this is enabled.
+                      Le backend supprimera l image enregistree de l article
+                      lorsque cette option est activee.
                     </p>
                   </div>
                   <Switch
@@ -784,7 +784,7 @@ export function SchoolMerchandiseManagement() {
             {!isValidPrice(merchandiseForm.price) &&
             merchandiseForm.price.length > 0 ? (
               <p className='text-sm font-medium text-destructive'>
-                Price must be greater than 0.
+                Le prix doit etre superieur a 0.
               </p>
             ) : null}
           </div>
@@ -795,17 +795,17 @@ export function SchoolMerchandiseManagement() {
               onClick={() => setIsMerchandiseDialogOpen(false)}
               disabled={saveMerchandiseMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={!canSaveMerchandise}
               onClick={() => saveMerchandiseMutation.mutate()}
             >
               {saveMerchandiseMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingMerchandise
-                  ? 'Save changes'
-                  : 'Create merchandise'}
+                  ? 'Enregistrer'
+                  : 'Creer l article'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -822,16 +822,16 @@ export function SchoolMerchandiseManagement() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add merchandise category</DialogTitle>
+            <DialogTitle>Ajouter une categorie d article</DialogTitle>
             <DialogDescription>
-              Categories are shared by merchandise items and required by the
-              backend before creating items.
+              Les categories sont partagees entre les articles et requises par
+              le backend avant la creation des elements.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='category-name'>Name</Label>
+              <Label htmlFor='category-name'>Nom</Label>
               <Input
                 id='category-name'
                 value={categoryForm.name}
@@ -844,7 +844,7 @@ export function SchoolMerchandiseManagement() {
               />
             </div>
             <div className='grid gap-2'>
-              <Label htmlFor='category-description'>Description</Label>
+                <Label htmlFor='category-description'>Description</Label>
               <Textarea
                 id='category-description'
                 rows={4}
@@ -865,7 +865,7 @@ export function SchoolMerchandiseManagement() {
               onClick={() => setIsCategoryDialogOpen(false)}
               disabled={saveCategoryMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -875,8 +875,8 @@ export function SchoolMerchandiseManagement() {
               onClick={() => saveCategoryMutation.mutate()}
             >
               {saveCategoryMutation.isPending
-                ? 'Saving...'
-                : 'Create category'}
+                ? 'Enregistrement...'
+                : 'Creer la categorie'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -894,20 +894,20 @@ export function SchoolMerchandiseManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.type === 'delete'
-                ? 'Delete merchandise?'
-                : `${pendingAction?.type === 'enable' ? 'Enable' : 'Disable'} merchandise?`}
+                ? 'Supprimer cet article ?'
+                : `${pendingAction?.type === 'enable' ? 'Activer' : 'Desactiver'} cet article ?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction?.type === 'delete'
-                ? 'This will soft-delete the item by changing its status to Deleted.'
+                ? 'Cela supprimera logiquement l article en changeant son statut en Supprime.'
                 : pendingAction?.type === 'enable'
-                  ? 'This item will become available again in the merchandise catalog.'
-                  : 'This item will remain in history but stop being active.'}
+                  ? 'Cet article redeviendra disponible dans le catalogue.'
+                  : 'Cet article restera dans l historique mais ne sera plus actif.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionMutation.isPending}>
-              Cancel
+              Annuler
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={actionMutation.isPending}
@@ -916,7 +916,7 @@ export function SchoolMerchandiseManagement() {
                 actionMutation.mutate()
               }}
             >
-              {actionMutation.isPending ? 'Working...' : 'Confirm'}
+              {actionMutation.isPending ? 'Traitement...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

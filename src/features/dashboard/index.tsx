@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react'
+﻿import { useEffect, useState, type ComponentType } from 'react'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import {
   AlertCircle,
@@ -108,7 +108,7 @@ function formatCurrency(value: number): string {
 }
 
 function formatNumber(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('fr-FR', {
     notation: value >= 10000 ? 'compact' : 'standard',
     maximumFractionDigits: 1,
   }).format(value)
@@ -121,15 +121,15 @@ function formatGrowth(value: number): string {
 
 function formatDate(value: string | null): string {
   if (!value) {
-    return 'No date'
+    return 'Aucune date'
   }
 
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) {
-    return 'No date'
+    return 'Aucune date'
   }
 
-  return new Intl.DateTimeFormat('en-GB', {
+  return new Intl.DateTimeFormat('fr-FR', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -1100,7 +1100,7 @@ export function Dashboard() {
                     </div>
                     {openSupportPanel ? (
                       <Badge variant='outline' className='w-fit'>
-                        {supportSources.map(formatSourceLabel).join(' • ')}
+                        {supportSources.map(formatSourceLabel).join(' â€¢ ')}
                       </Badge>
                     ) : null}
                   </CardHeader>
@@ -1245,3 +1245,4 @@ export function Dashboard() {
     </>
   )
 }
+

@@ -11,17 +11,17 @@ import { SidebarNav } from './components/sidebar-nav'
 
 const sidebarNavItems = [
   {
-    title: 'Profile',
+    title: 'Profil',
     href: '/settings',
     icon: <UserCog size={18} />,
   },
   {
-    title: 'Account',
+    title: 'Compte',
     href: '/settings/account',
     icon: <Wrench size={18} />,
   },
   {
-    title: 'Appearance',
+    title: 'Apparence',
     href: '/settings/appearance',
     icon: <Palette size={18} />,
   },
@@ -31,7 +31,7 @@ const sidebarNavItems = [
     icon: <Bell size={18} />,
   },
   {
-    title: 'Display',
+    title: 'Affichage',
     href: '/settings/display',
     icon: <Monitor size={18} />,
   },
@@ -51,10 +51,10 @@ export function Settings() {
       <Main fixed>
         <div className='space-y-0.5'>
           <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            Settings
+            Parametres
           </h1>
           <p className='text-muted-foreground'>
-            Manage your profile, password, and in-app notifications.
+            Gere ton profil, ton mot de passe et les notifications de l'application.
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />

@@ -170,19 +170,19 @@ export function DirectorDashboard() {
 
   return (
     <PageShell
-      title='Director Workspace'
-      description='Run your school from one place: reporting, classes, parents, children, agents, payments, and support.'
+      title='Espace directeur'
+      description='Gerez votre ecole depuis un seul espace : rapports, classes, parents, enfants, agents, paiements et support.'
       actions={
         <Badge variant='outline'>
           <ShieldCheck className='mr-1 h-3.5 w-3.5' />
-          Director scope
+          Portee directeur
         </Badge>
       }
     >
       {!schoolId ? (
         <EmptyState
-          title='No school is assigned'
-          description='This director account is not linked to a school yet, so the workspace cannot load.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole, l espace ne peut donc pas etre charge.'
         />
       ) : (
         <>
@@ -191,7 +191,7 @@ export function DirectorDashboard() {
               <CardContent className='grid gap-6 p-6'>
                 <div className='space-y-3'>
                   <Badge className='w-fit bg-white/10 text-white hover:bg-white/10'>
-                    School command center
+                    Centre de pilotage de l ecole
                   </Badge>
                   {schoolQuery.isLoading ? (
                     <div className='space-y-3'>
@@ -205,20 +205,20 @@ export function DirectorDashboard() {
                           {school.name}
                         </h2>
                         <p className='mt-2 max-w-2xl text-sm text-white/70'>
-                          Monitor families, fees, class structure, field agents,
-                          and support operations for your school.
+                          Suivez les familles, les frais, la structure des classes,
+                          les agents terrain et les operations de support de votre ecole.
                         </p>
                       </div>
                       <div className='grid gap-3 sm:grid-cols-3'>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
                           <p className='text-xs tracking-[0.18em] text-white/65 uppercase'>
-                            Status
+                            Statut
                           </p>
                           <p className='mt-2 text-2xl font-semibold'>
                             {getEntityStatusMeta(school.statusId).label}
                           </p>
                           <p className='text-sm text-white/70'>
-                            Current school state
+                            Etat actuel de l ecole
                           </p>
                         </div>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
@@ -229,26 +229,26 @@ export function DirectorDashboard() {
                             {sections.length}
                           </p>
                           <p className='text-sm text-white/70'>
-                            Configured grade sections
+                            Sections configurees
                           </p>
                         </div>
                         <div className='rounded-2xl border border-white/10 bg-white/5 p-4'>
                           <p className='text-xs tracking-[0.18em] text-white/65 uppercase'>
-                            Support queue
+                            File de support
                           </p>
                           <p className='mt-2 text-2xl font-semibold'>
                             {supportRequests.length}
                           </p>
                           <p className='text-sm text-white/70'>
-                            Recent support items
+                            Elements recents du support
                           </p>
                         </div>
                       </div>
                     </>
                   ) : (
                     <EmptyState
-                      title='School unavailable'
-                      description='The assigned school record could not be loaded.'
+                      title='Ecole indisponible'
+                      description='L enregistrement de l ecole affectee n a pas pu etre charge.'
                     />
                   )}
                 </div>
@@ -257,40 +257,40 @@ export function DirectorDashboard() {
 
             <Card className='border-border/70'>
               <CardHeader>
-                <CardTitle>Quick actions</CardTitle>
+                <CardTitle>Actions rapides</CardTitle>
                 <CardDescription>
-                  Jump straight into the areas directors manage every day.
+                  Accedez directement aux espaces que les directeurs utilisent chaque jour.
                 </CardDescription>
               </CardHeader>
               <CardContent className='grid gap-3'>
                 <Button asChild className='justify-start'>
                   <Link to='/my-school'>
                     <School2 className='h-4 w-4' />
-                    Manage my school
+                    Gerer mon ecole
                   </Link>
                 </Button>
                 <Button asChild variant='outline' className='justify-start'>
                   <Link to='/users'>
                     <Users className='h-4 w-4' />
-                    Manage parents and children
+                    Gerer parents et enfants
                   </Link>
                 </Button>
                 <Button asChild variant='outline' className='justify-start'>
                   <Link to='/payments'>
                     <Wallet className='h-4 w-4' />
-                    Review payments
+                    Consulter les paiements
                   </Link>
                 </Button>
                 <Button asChild variant='outline' className='justify-start'>
                   <Link to='/collecting-agents'>
                     <UserCog className='h-4 w-4' />
-                    Manage collecting agents
+                    Gerer les agents collecteurs
                   </Link>
                 </Button>
                 <Button asChild variant='outline' className='justify-start'>
                   <Link to='/support'>
                     <LifeBuoy className='h-4 w-4' />
-                    Manage support requests
+                    Gerer les demandes de support
                   </Link>
                 </Button>
               </CardContent>
@@ -299,27 +299,27 @@ export function DirectorDashboard() {
 
           <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
             <SummaryCard
-              title='Enabled students'
+              title='Eleves actifs'
               value={String(studentMetricsQuery.data?.total ?? 0)}
-              description='Students currently linked to this school.'
+              description='Eleves actuellement lies a cette ecole.'
               icon={GraduationCap}
             />
             <SummaryCard
-              title='Enabled parents'
+              title='Parents actifs'
               value={String(parentMetricsQuery.data?.total ?? 0)}
-              description='Parent accounts active in your school.'
+              description='Comptes parents actifs dans votre ecole.'
               icon={Users}
             />
             <SummaryCard
-              title='Collected fees'
+              title='Frais encaisses'
               value={formatCurrency(paidMetricsQuery.data?.total ?? 0)}
-              description='Processed school-fee revenue.'
+              description='Revenus des frais scolaires traites.'
               icon={Wallet}
             />
             <SummaryCard
-              title='Pending balance'
+              title='Solde en attente'
               value={formatCurrency(pendingMetricsQuery.data?.total ?? 0)}
-              description='Outstanding installment amount still pending.'
+              description='Montant des echeances encore en attente.'
               icon={HandCoins}
             />
           </section>
@@ -328,13 +328,13 @@ export function DirectorDashboard() {
             <Card className='border-border/70'>
               <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>Pending child approvals</CardTitle>
+                  <CardTitle>Approbations d enfants en attente</CardTitle>
                   <CardDescription>
-                    Recent children waiting for director review.
+                    Enfants recents en attente de validation par le directeur.
                   </CardDescription>
                 </div>
                 <Badge variant='outline'>
-                  {pendingChildren.length} pending
+                  {pendingChildren.length} en attente
                 </Badge>
               </CardHeader>
               <CardContent>
@@ -346,8 +346,8 @@ export function DirectorDashboard() {
                   </div>
                 ) : pendingChildren.length === 0 ? (
                   <EmptyState
-                    title='Approval queue is clear'
-                    description='No child profiles are currently waiting for review.'
+                    title='Aucune approbation en attente'
+                    description='Aucun profil enfant n attend actuellement de validation.'
                   />
                 ) : (
                   <div className='space-y-3'>
@@ -362,7 +362,7 @@ export function DirectorDashboard() {
                               {buildFullName(child.firstName, child.lastName)}
                             </p>
                             <p className='text-muted-foreground'>
-                              {child.parentName || 'No parent linked'}
+                              {child.parentName || 'Aucun parent lie'}
                             </p>
                           </div>
                           <Badge
@@ -375,12 +375,12 @@ export function DirectorDashboard() {
                           </Badge>
                         </div>
                         <p className='mt-2 text-xs text-muted-foreground'>
-                          Submitted {formatDateTime(child.createdOn)}
+                          Soumis le {formatDateTime(child.createdOn)}
                         </p>
                       </div>
                     ))}
                     <Button asChild variant='outline' className='w-full'>
-                      <Link to='/users'>Open family management</Link>
+                      <Link to='/users'>Ouvrir la gestion des familles</Link>
                     </Button>
                   </div>
                 )}
@@ -390,12 +390,12 @@ export function DirectorDashboard() {
             <Card className='border-border/70'>
               <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>Support requests</CardTitle>
+                  <CardTitle>Demandes de support</CardTitle>
                   <CardDescription>
-                    Parent and collecting-agent issues that need follow-up.
+                    Problemes des parents et des agents collecteurs necessitant un suivi.
                   </CardDescription>
                 </div>
-                <Badge variant='outline'>{supportRequests.length} items</Badge>
+                <Badge variant='outline'>{supportRequests.length} elements</Badge>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -406,8 +406,8 @@ export function DirectorDashboard() {
                   </div>
                 ) : supportRequests.length === 0 ? (
                   <EmptyState
-                    title='No support requests'
-                    description='There are no active support items in the current school scope.'
+                    title='Aucune demande de support'
+                    description='Aucun element de support actif dans la portee actuelle de l ecole.'
                   />
                 ) : (
                   <div className='space-y-3'>

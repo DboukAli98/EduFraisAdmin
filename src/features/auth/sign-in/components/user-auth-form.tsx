@@ -25,16 +25,16 @@ import { PasswordInput } from '@/components/password-input'
 const formSchema = z.object({
   countryCode: z
     .string()
-    .min(1, 'Please enter your country code.')
-    .regex(/^\d+$/, 'Country code must contain digits only.'),
+    .min(1, 'Veuillez saisir votre indicatif pays.')
+    .regex(/^\d+$/, 'L indicatif pays doit contenir uniquement des chiffres.'),
   mobileNumber: z
     .string()
-    .min(1, 'Please enter your mobile number.')
-    .regex(/^\d+$/, 'Mobile number must contain digits only.'),
+    .min(1, 'Veuillez saisir votre numero mobile.')
+    .regex(/^\d+$/, 'Le numero mobile doit contenir uniquement des chiffres.'),
   password: z
     .string()
-    .min(1, 'Please enter your password.')
-    .min(6, 'Password must be at least 6 characters long.'),
+    .min(1, 'Veuillez saisir votre mot de passe.')
+    .min(6, 'Le mot de passe doit contenir au moins 6 caracteres.'),
 })
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLFormElement> {
@@ -66,12 +66,12 @@ export function UserAuthForm({
       const result = await login(data)
 
       if (!result.success || !result.token) {
-        throw new Error(result.message || 'Unable to sign in.')
+        throw new Error(result.message || 'Connexion impossible.')
       }
 
       if (result.mustChangePassword) {
         throw new Error(
-          'Password change required before opening the admin panel.'
+          'Le changement de mot de passe est requis avant d ouvrir le panneau admin.'
         )
       }
 
@@ -81,11 +81,11 @@ export function UserAuthForm({
       if (!hasAdminAccess(currentUser)) {
         auth.reset()
         throw new Error(
-          'This account does not have access to the EduFrais admin panel.'
+          'Ce compte n a pas acces au panneau administrateur EduFrais.'
         )
       }
 
-      toast.success(`Welcome back, ${currentUser?.name || data.mobileNumber}.`)
+      toast.success(`Bon retour, ${currentUser?.name || data.mobileNumber}.`)
 
       navigate({ to: redirectTo || '/', replace: true })
     } catch (error) {
@@ -107,7 +107,7 @@ export function UserAuthForm({
           name='countryCode'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Country code</FormLabel>
+              <FormLabel>Indicatif pays</FormLabel>
               <FormControl>
                 <Input placeholder='242' {...field} />
               </FormControl>
@@ -120,7 +120,7 @@ export function UserAuthForm({
           name='mobileNumber'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mobile number</FormLabel>
+              <FormLabel>Numero mobile</FormLabel>
               <FormControl>
                 <Input placeholder='065123456' {...field} />
               </FormControl>
@@ -133,7 +133,7 @@ export function UserAuthForm({
           name='password'
           render={({ field }) => (
             <FormItem className='relative'>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Mot de passe</FormLabel>
               <FormControl>
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
@@ -142,14 +142,14 @@ export function UserAuthForm({
                 to='/forgot-password'
                 className='absolute inset-e-0 -top-0.5 text-sm font-medium text-muted-foreground hover:opacity-75'
               >
-                Forgot password?
+                Mot de passe oublie ?
               </Link>
             </FormItem>
           )}
         />
         <Button className='mt-2' disabled={isLoading}>
           {isLoading ? <Loader2 className='animate-spin' /> : <LogIn />}
-          Sign in
+          Connexion
         </Button>
       </form>
     </Form>

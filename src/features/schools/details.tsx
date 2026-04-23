@@ -235,8 +235,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
     onSuccess: () => {
       toast.success(
         editingSection
-          ? 'Class updated successfully.'
-          : 'Class created successfully.'
+          ? 'Classe mise a jour avec succes.'
+          : 'Classe creee avec succes.'
       )
       setIsSectionDialogOpen(false)
       setEditingSection(null)
@@ -265,8 +265,10 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
 
       toast.success(
         pendingAction.type === 'delete'
-          ? 'Class deleted successfully.'
-          : `Class ${pendingAction.type}d successfully.`
+          ? 'Classe supprimee avec succes.'
+          : pendingAction.type === 'enable'
+            ? 'Classe activee avec succes.'
+            : 'Classe desactivee avec succes.'
       )
       setPendingAction(null)
       void queryClient.invalidateQueries({
@@ -278,20 +280,20 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
   if (!hasValidSchoolId) {
     return (
       <PageShell
-        title='School details'
-        description='Review the school profile, dependencies, and class setup.'
+        title='Details de l ecole'
+        description='Consultez le profil de l ecole, ses dependances et sa configuration de classes.'
         actions={
           <Button variant='outline' asChild>
             <Link to='/schools'>
               <ArrowLeft className='h-4 w-4' />
-              Back to schools
+              Retour aux ecoles
             </Link>
           </Button>
         }
       >
         <EmptyState
-          title='Invalid school'
-          description='The page was opened without a valid school id.'
+          title='Ecole invalide'
+          description='La page a ete ouverte sans identifiant ecole valide.'
         />
       </PageShell>
     )
@@ -300,20 +302,20 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
   if (!hasSchoolAccess) {
     return (
       <PageShell
-        title='School details'
-        description='Review the school profile, dependencies, and class setup.'
+        title='Details de l ecole'
+        description='Consultez le profil de l ecole, ses dependances et sa configuration de classes.'
         actions={
           <Button variant='outline' asChild>
             <Link to='/schools'>
               <ArrowLeft className='h-4 w-4' />
-              Back to schools
+              Retour aux ecoles
             </Link>
           </Button>
         }
       >
         <EmptyState
-          title='Access limited'
-          description='This school is outside the current director scope.'
+          title='Acces limite'
+          description='Cette ecole est hors de la portee actuelle du directeur.'
         />
       </PageShell>
     )
@@ -333,14 +335,14 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
   return (
     <>
       <PageShell
-        title={school?.name ?? 'School details'}
-        description='Track the school profile, linked users, and class structure from one place.'
+        title={school?.name ?? 'Details de l ecole'}
+        description='Suivez le profil de l ecole, les utilisateurs lies et la structure des classes depuis un seul endroit.'
         actions={
           <div className='flex flex-wrap gap-2'>
             <Button variant='outline' asChild>
               <Link to='/schools'>
                 <ArrowLeft className='h-4 w-4' />
-                Back to schools
+                Retour aux ecoles
               </Link>
             </Button>
             {canManageSections ? (
@@ -352,7 +354,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 }}
               >
                 <Plus className='h-4 w-4' />
-                Add class
+                Ajouter une classe
               </Button>
             ) : null}
           </div>
@@ -371,31 +373,31 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
           </div>
         ) : schoolQuery.isError || !school ? (
           <EmptyState
-            title='Unable to load school'
-            description='The School details endpoint did not return a usable record for this page.'
+            title='Impossible de charger l ecole'
+            description='Le point de terminaison des details de l ecole n a pas retourne de fiche exploitable pour cette page.'
           />
         ) : (
           <>
             <section className='grid gap-4 md:grid-cols-4'>
               <SummaryCard
-                title='Status'
+                title='Statut'
                 value={getEntityStatusMeta(school.statusId).label}
-                description='Current lifecycle status from the school record.'
+                description='Etat actuel du cycle de vie provenant de la fiche ecole.'
               />
               <SummaryCard
                 title='Parents'
                 value={String(parents.length)}
-                description='Parent accounts linked to this school.'
+                description='Comptes parents lies a cette ecole.'
               />
               <SummaryCard
-                title='Children'
+                title='Enfants'
                 value={String(children.length)}
-                description='Child records currently assigned to this school.'
+                description='Fiches enfants actuellement assignees a cette ecole.'
               />
               <SummaryCard
                 title='Classes'
                 value={String(sections.length)}
-                description='School grade sections available for assignment.'
+                description='Classes disponibles pour les affectations.'
               />
             </section>
 
@@ -405,11 +407,11 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                   <div>
                     <CardTitle className='flex items-center gap-2'>
                       <Building2 className='h-5 w-5 text-primary' />
-                      School profile
+                      Profil de l ecole
                     </CardTitle>
                     <CardDescription>
-                      Primary school information returned from the EduFrais
-                      backend.
+                      Informations principales de l ecole retournees par le
+                      backend EduFrais.
                     </CardDescription>
                   </div>
                   <Badge
@@ -435,29 +437,29 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                     )}
                   </div>
                   <div className='grid gap-4'>
-                    <DetailRow label='School name' value={school.name} />
+                    <DetailRow label='Nom de l ecole' value={school.name} />
                     <DetailRow
-                      label='Address'
-                      value={school.address || 'No address'}
+                      label='Adresse'
+                      value={school.address || 'Aucune adresse'}
                     />
                     <DetailRow
                       label='Email'
-                      value={school.email || 'No email'}
+                      value={school.email || 'Aucun email'}
                     />
                     <DetailRow
-                      label='Phone number'
-                      value={school.phoneNumber || 'No phone number'}
+                      label='Numero de telephone'
+                      value={school.phoneNumber || 'Aucun numero de telephone'}
                     />
                     <DetailRow
-                      label='Established'
+                      label='Annee de fondation'
                       value={
                         school.establishedYear
                           ? String(school.establishedYear)
-                          : 'No established year'
+                          : 'Aucune annee renseignee'
                       }
                     />
                     <DetailRow
-                      label='Website'
+                      label='Site web'
                       value={
                         school.website ? (
                           <a
@@ -466,17 +468,17 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                             rel='noreferrer'
                             className='inline-flex items-center gap-1 text-primary hover:underline'
                           >
-                            Visit website
+                            Visiter le site
                             <ExternalLink className='h-3.5 w-3.5' />
                           </a>
                         ) : (
-                          'No website'
+                          'Aucun site web'
                         )
                       }
                     />
                     <DetailRow
                       label='Description'
-                      value={school.description || 'No description'}
+                      value={school.description || 'Aucune description'}
                     />
                   </div>
                 </CardContent>
@@ -485,14 +487,14 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
               <div className='space-y-4'>
                 <Card className='border-border/70'>
                   <CardHeader>
-                    <CardTitle>Dependencies</CardTitle>
+                    <CardTitle>Dependances</CardTitle>
                     <CardDescription>
-                      People and operations directly linked to this school.
+                      Personnes et operations directement liees a cette ecole.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className='grid gap-4'>
                     <DetailRow
-                      label='Director'
+                      label='Directeur'
                       value={
                         director ? (
                           <div className='space-y-1'>
@@ -503,35 +505,35 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                               )}
                             </div>
                             <div className='text-xs text-muted-foreground'>
-                              {director.email || 'No email'} | +
+                              {director.email || 'Aucun email'} | +
                               {director.countryCode} {director.phoneNumber}
                             </div>
                           </div>
                         ) : (
-                          'No director returned for this school.'
+                          'Aucun directeur retourne pour cette ecole.'
                         )
                       }
                     />
                     <DetailRow
-                      label='Collecting agents'
+                      label='Agents collecteurs'
                       value={`${collectingAgents.length} agent${collectingAgents.length === 1 ? '' : 's'}`}
                     />
                     <DetailRow
                       label='Parents'
-                      value={`${parents.length} linked account${parents.length === 1 ? '' : 's'}`}
+                      value={`${parents.length} compte${parents.length === 1 ? '' : 's'} lie${parents.length === 1 ? '' : 's'}`}
                     />
                     <DetailRow
-                      label='Children'
-                      value={`${children.length} linked child${children.length === 1 ? '' : 'ren'}`}
+                      label='Enfants'
+                      value={`${children.length} enfant${children.length === 1 ? '' : 's'} lie${children.length === 1 ? '' : 's'}`}
                     />
                   </CardContent>
                 </Card>
 
                 <Card className='border-border/70'>
                   <CardHeader>
-                    <CardTitle>Collecting agents</CardTitle>
+                    <CardTitle>Agents collecteurs</CardTitle>
                     <CardDescription>
-                      Operational field agents visible for this school.
+                      Agents terrain operationnels visibles pour cette ecole.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -542,7 +544,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                       </div>
                     ) : collectingAgents.length === 0 ? (
                       <p className='text-sm text-muted-foreground'>
-                        No collecting agents were returned for this school.
+                        Aucun agent collecteur n a ete retourne pour cette ecole.
                       </p>
                     ) : (
                       <div className='space-y-3'>
@@ -558,8 +560,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                               {agent.email}
                             </div>
                             <div className='mt-1 text-xs text-muted-foreground'>
-                              {agent.assignedArea || 'No assigned area'} |
-                              Status:{' '}
+                              {agent.assignedArea || 'Aucune zone assignee'} |
+                              Statut :{' '}
                               {getEntityStatusMeta(agent.statusId).label}
                             </div>
                           </div>
@@ -576,8 +578,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 <div>
                   <CardTitle>Classes</CardTitle>
                   <CardDescription>
-                    Create grade sections, review fees, and toggle availability
-                    for assignments.
+                    Creez des classes, verifiez les frais et gerez leur
+                    disponibilite pour les affectations.
                   </CardDescription>
                 </div>
                 <Badge variant='outline'>{sections.length} classes</Badge>
@@ -591,19 +593,19 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                   </div>
                 ) : sections.length === 0 ? (
                   <EmptyState
-                    title='No classes found'
-                    description='Add the first class section for this school so children can be assigned to a grade.'
+                    title='Aucune classe trouvee'
+                    description='Ajoutez la premiere classe de cette ecole pour pouvoir affecter les enfants.'
                   />
                 ) : (
                   <div className='rounded-lg border'>
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Class</TableHead>
-                          <TableHead>Fee</TableHead>
-                          <TableHead>Term</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Updated</TableHead>
+                          <TableRow>
+                          <TableHead>Classe</TableHead>
+                          <TableHead>Frais</TableHead>
+                          <TableHead>Periode</TableHead>
+                          <TableHead>Statut</TableHead>
+                          <TableHead>Mis a jour</TableHead>
                           <TableHead className='text-right'>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -620,7 +622,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                   {section.name}
                                 </div>
                                 <div className='text-xs text-muted-foreground'>
-                                  {section.description || 'No description'}
+                                  {section.description || 'Aucune description'}
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -628,8 +630,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                               </TableCell>
                               <TableCell>
                                 {section.termStartDate || section.termEndDate
-                                  ? `${formatDateOnly(section.termStartDate)} to ${formatDateOnly(section.termEndDate)}`
-                                  : 'No term dates'}
+                                  ? `${formatDateOnly(section.termStartDate)} au ${formatDateOnly(section.termEndDate)}`
+                                  : 'Aucune date de periode'}
                               </TableCell>
                               <TableCell>
                                 <Badge
@@ -657,7 +659,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                     }}
                                   >
                                     <Pencil className='h-4 w-4' />
-                                    Edit
+                                    Modifier
                                   </Button>
                                   <Button
                                     variant='outline'
@@ -678,8 +680,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                   >
                                     <Power className='h-4 w-4' />
                                     {section.statusId === 1
-                                      ? 'Disable'
-                                      : 'Enable'}
+                                      ? 'Desactiver'
+                                      : 'Activer'}
                                   </Button>
                                   <Button
                                     variant='destructive'
@@ -696,7 +698,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                     }
                                   >
                                     <Trash2 className='h-4 w-4' />
-                                    Delete
+                                    Supprimer
                                   </Button>
                                 </div>
                               </TableCell>
@@ -725,7 +727,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                       Parents
                     </CardTitle>
                     <CardDescription>
-                      Parent dependencies tied to this school.
+                      Dependances parents liees a cette ecole.
                     </CardDescription>
                   </div>
                   <Badge variant='outline'>{parents.length} parents</Badge>
@@ -738,8 +740,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                     </div>
                   ) : parents.length === 0 ? (
                     <EmptyState
-                      title='No parents found'
-                      description='This school does not currently return any parent dependencies.'
+                      title='Aucun parent trouve'
+                      description='Cette ecole ne retourne actuellement aucune dependance parent.'
                     />
                   ) : (
                     <div className='rounded-lg border'>
@@ -748,8 +750,8 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                           <TableRow>
                             <TableHead>Parent</TableHead>
                             <TableHead>Contact</TableHead>
-                            <TableHead>Children</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Enfants</TableHead>
+                            <TableHead>Statut</TableHead>
                             <TableHead className='text-right'>
                               Details
                             </TableHead>
@@ -771,11 +773,11 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                     )}
                                   </div>
                                   <div className='text-xs text-muted-foreground'>
-                                    {parent.fatherName || 'No father name'}
+                                    {parent.fatherName || 'Aucun nom du pere'}
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <div>{parent.email || 'No email'}</div>
+                                  <div>{parent.email || 'Aucun email'}</div>
                                   <div className='text-xs text-muted-foreground'>
                                     +{parent.countryCode} {parent.phoneNumber}
                                   </div>
@@ -795,7 +797,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                       to='/parent-details/$parentId'
                                       params={{ parentId: String(parent.id) }}
                                     >
-                                      View details
+                                      Voir les details
                                     </Link>
                                   </Button>
                                 </TableCell>
@@ -814,13 +816,13 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                   <div>
                     <CardTitle className='flex items-center gap-2'>
                       <UserRound className='h-4 w-4 text-primary' />
-                      Children
+                      Enfants
                     </CardTitle>
                     <CardDescription>
-                      Child dependencies currently attached to this school.
+                      Dependances enfants actuellement rattachees a cette ecole.
                     </CardDescription>
                   </div>
-                  <Badge variant='outline'>{children.length} children</Badge>
+                  <Badge variant='outline'>{children.length} enfants</Badge>
                 </CardHeader>
                 <CardContent>
                   {childrenQuery.isLoading ? (
@@ -830,18 +832,18 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                     </div>
                   ) : children.length === 0 ? (
                     <EmptyState
-                      title='No children found'
-                      description='This school does not currently return any child dependencies.'
+                      title='Aucun enfant trouve'
+                      description='Cette ecole ne retourne actuellement aucune dependance enfant.'
                     />
                   ) : (
                     <div className='rounded-lg border'>
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Child</TableHead>
+                            <TableHead>Enfant</TableHead>
                             <TableHead>Parent</TableHead>
-                            <TableHead>Date of birth</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Date de naissance</TableHead>
+                            <TableHead>Statut</TableHead>
                             <TableHead className='text-right'>
                               Details
                             </TableHead>
@@ -863,11 +865,11 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                     )}
                                   </div>
                                   <div className='text-xs text-muted-foreground'>
-                                    {child.rejectionReason || 'No review notes'}
+                                    {child.rejectionReason || 'Aucune note de revue'}
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  {child.parentName || 'No parent linked'}
+                                  {child.parentName || 'Aucun parent lie'}
                                 </TableCell>
                                 <TableCell>
                                   {formatDateOnly(child.dateOfBirth)}
@@ -886,7 +888,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                                       to='/child-details/$childId'
                                       params={{ childId: String(child.id) }}
                                     >
-                                      View details
+                                      Voir les details
                                     </Link>
                                   </Button>
                                 </TableCell>
@@ -917,16 +919,16 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingSection ? 'Edit class' : 'Add class'}
+              {editingSection ? 'Modifier la classe' : 'Ajouter une classe'}
             </DialogTitle>
             <DialogDescription>
-              Configure the class name, fee, and term window for this school.
+              Configurez le nom, les frais et la periode de cette classe.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='class-name'>Class name</Label>
+              <Label htmlFor='class-name'>Nom de la classe</Label>
               <Input
                 id='class-name'
                 value={sectionForm.name}
@@ -956,7 +958,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
 
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='grid gap-2'>
-                <Label htmlFor='class-fee'>Fee</Label>
+                <Label htmlFor='class-fee'>Frais</Label>
                 <Input
                   id='class-fee'
                   inputMode='decimal'
@@ -970,7 +972,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='class-start'>Term start</Label>
+                <Label htmlFor='class-start'>Debut de periode</Label>
                 <Input
                   id='class-start'
                   type='date'
@@ -984,7 +986,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='class-end'>Term end</Label>
+                <Label htmlFor='class-end'>Fin de periode</Label>
                 <Input
                   id='class-end'
                   type='date'
@@ -1005,7 +1007,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
               variant='outline'
               onClick={() => setIsSectionDialogOpen(false)}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -1014,7 +1016,7 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
               }
               onClick={() => saveSectionMutation.mutate()}
             >
-              {editingSection ? 'Save changes' : 'Create class'}
+              {editingSection ? 'Enregistrer' : 'Creer la classe'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1032,21 +1034,21 @@ export function SchoolDetails({ schoolId }: SchoolDetailsProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.type === 'delete'
-                ? 'Delete class?'
-                : `${pendingAction?.type === 'enable' ? 'Enable' : 'Disable'} class?`}
+                ? 'Supprimer cette classe ?'
+                : `${pendingAction?.type === 'enable' ? 'Activer' : 'Desactiver'} cette classe ?`}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction?.type === 'delete'
-                ? 'This will mark the selected class as deleted in EduFrais.'
+                ? 'Cela marquera la classe selectionnee comme supprimee dans EduFrais.'
                 : pendingAction?.type === 'enable'
-                  ? 'This class will be available again for child assignments.'
-                  : 'This class will stay visible but should no longer be used for active assignment.'}
+                  ? 'Cette classe redeviendra disponible pour les affectations des enfants.'
+                  : 'Cette classe restera visible mais ne devra plus etre utilisee pour les affectations actives.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={() => actionMutation.mutate()}>
-              Confirm
+              Confirmer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

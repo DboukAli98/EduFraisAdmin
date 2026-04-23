@@ -44,7 +44,7 @@ const forgotPasswordSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['email'],
-          message: 'Please enter your email.',
+          message: 'Veuillez saisir votre e-mail.',
         })
         return
       }
@@ -55,7 +55,7 @@ const forgotPasswordSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['email'],
-          message: 'Please enter a valid email.',
+          message: 'Veuillez saisir un e-mail valide.',
         })
       }
 
@@ -66,7 +66,7 @@ const forgotPasswordSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['countryCode'],
-        message: 'Please enter the country code.',
+        message: 'Veuillez saisir l indicatif pays.',
       })
     }
 
@@ -74,7 +74,7 @@ const forgotPasswordSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['mobileNumber'],
-        message: 'Please enter the mobile number.',
+        message: 'Veuillez saisir le numero mobile.',
       })
     }
   })
@@ -122,12 +122,12 @@ export function ForgotPasswordForm({
       })
     },
     onSuccess: () => {
-      toast.success('Verification code sent successfully.')
+      toast.success('Code de verification envoye avec succes.')
       navigate({ to: '/otp' })
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to send the reset code right now.')
+        getApiErrorMessage(error, 'Impossible d envoyer le code de reinitialisation pour le moment.')
       )
     },
   })
@@ -146,7 +146,7 @@ export function ForgotPasswordForm({
           name='channel'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Delivery method</FormLabel>
+              <FormLabel>Methode de reception</FormLabel>
               <Select
                 value={field.value}
                 onValueChange={(value) => {
@@ -161,13 +161,13 @@ export function ForgotPasswordForm({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value='email'>Email OTP</SelectItem>
+                  <SelectItem value='email'>OTP par e-mail</SelectItem>
                   <SelectItem value='whatsapp'>WhatsApp OTP</SelectItem>
                 </SelectContent>
               </Select>
               <FormDescription>
-                Choose whether the reset code should be delivered by email or
-                WhatsApp.
+                Choisissez si le code de reinitialisation doit etre envoye par
+                e-mail ou via WhatsApp.
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -180,7 +180,7 @@ export function ForgotPasswordForm({
             name='email'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Registered email</FormLabel>
+                <FormLabel>E-mail enregistre</FormLabel>
                 <FormControl>
                   <Input placeholder='name@example.com' {...field} />
                 </FormControl>
@@ -195,7 +195,7 @@ export function ForgotPasswordForm({
               name='countryCode'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country code</FormLabel>
+                  <FormLabel>Indicatif pays</FormLabel>
                   <FormControl>
                     <Input placeholder='242' {...field} />
                   </FormControl>
@@ -209,9 +209,9 @@ export function ForgotPasswordForm({
               name='mobileNumber'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>WhatsApp number</FormLabel>
+                  <FormLabel>Numero WhatsApp</FormLabel>
                   <FormControl>
-                    <Input placeholder='Mobile number' {...field} />
+                    <Input placeholder='Numero mobile' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -221,7 +221,7 @@ export function ForgotPasswordForm({
         )}
 
         <Button className='mt-2' disabled={resetInitMutation.isPending}>
-          {resetInitMutation.isPending ? 'Sending code...' : 'Continue'}
+          {resetInitMutation.isPending ? 'Envoi du code...' : 'Continuer'}
           {resetInitMutation.isPending ? (
             <Loader2 className='animate-spin' />
           ) : (

@@ -235,17 +235,42 @@ function SummaryCard({
   )
 }
 
+type UserEntity = NonNullable<UsersAction>['entity']
+
+function getUserEntityLabel(entity: UserEntity): string {
+  switch (entity) {
+    case 'parent':
+      return 'parent'
+    case 'director':
+      return 'directeur'
+    case 'child':
+      return 'enfant'
+  }
+}
+
+function getUserEntityTitle(entity: UserEntity): string {
+  switch (entity) {
+    case 'parent':
+      return 'Parent'
+    case 'director':
+      return 'Directeur'
+    case 'child':
+      return 'Enfant'
+  }
+}
+
 function buildActionDialogText(action: UsersAction): {
   title: string
   description: string
 } {
   if (!action) {
     return {
-      title: 'Confirm action',
-      description: 'Choose an action to continue.',
+      title: 'Confirmer l action',
+      description: 'Choisissez une action pour continuer.',
     }
   }
 
+  const entityLabel = getUserEntityLabel(action.entity)
   const name =
     action.entity === 'child'
       ? buildFullName(action.item.firstName, action.item.lastName)
@@ -253,17 +278,17 @@ function buildActionDialogText(action: UsersAction): {
 
   if (action.type === 'delete') {
     return {
-      title: `Delete ${action.entity}?`,
-      description: `This will mark ${name || action.entity} as deleted in EduFrais.`,
+      title: `Supprimer ce ${entityLabel} ?`,
+      description: `Cela marquera ${name || `ce ${entityLabel}`} comme supprime dans EduFrais.`,
     }
   }
 
   return {
-    title: `${action.type === 'enable' ? 'Enable' : 'Disable'} ${action.entity}?`,
+    title: `${action.type === 'enable' ? 'Activer' : 'Desactiver'} ce ${entityLabel} ?`,
     description:
       action.type === 'enable'
-        ? `This will restore ${name || action.entity} to enabled status.`
-        : `This will pause ${name || action.entity} until it is enabled again.`,
+        ? `Cela reactivera ${name || `ce ${entityLabel}`} dans EduFrais.`
+        : `Cela suspendra ${name || `ce ${entityLabel}`} jusqu a sa reactivation.`,
   }
 }
 
@@ -376,7 +401,7 @@ export function Users() {
   const parentSaveMutation = useMutation({
     mutationFn: async () => {
       if (!selectedSchoolId) {
-        throw new Error('Select a school before saving a parent.')
+        throw new Error('Selectionnez une ecole avant d enregistrer un parent.')
       }
 
       if (editingParent) {
@@ -399,8 +424,8 @@ export function Users() {
     onSuccess: () => {
       toast.success(
         editingParent
-          ? 'Parent updated successfully.'
-          : 'Parent created successfully.'
+          ? 'Parent mis a jour avec succes.'
+          : 'Parent cree avec succes.'
       )
       setIsParentDialogOpen(false)
       setEditingParent(null)
@@ -412,7 +437,9 @@ export function Users() {
   const directorSaveMutation = useMutation({
     mutationFn: async () => {
       if (!selectedSchoolId) {
-        throw new Error('Select a school before saving a director.')
+        throw new Error(
+          'Selectionnez une ecole avant d enregistrer un directeur.'
+        )
       }
 
       if (editingDirector) {
@@ -435,8 +462,8 @@ export function Users() {
     onSuccess: () => {
       toast.success(
         editingDirector
-          ? 'Director updated successfully.'
-          : 'Director created successfully.'
+          ? 'Directeur mis a jour avec succes.'
+          : 'Directeur cree avec succes.'
       )
       setIsDirectorDialogOpen(false)
       setEditingDirector(null)
@@ -448,7 +475,7 @@ export function Users() {
   const childSaveMutation = useMutation({
     mutationFn: async () => {
       if (!selectedSchoolId) {
-        throw new Error('Select a school before saving a child.')
+        throw new Error('Selectionnez une ecole avant d enregistrer un enfant.')
       }
 
       if (editingChild) {
@@ -467,8 +494,8 @@ export function Users() {
     onSuccess: () => {
       toast.success(
         editingChild
-          ? 'Child updated successfully.'
-          : 'Child created successfully.'
+          ? 'Enfant mis a jour avec succes.'
+          : 'Enfant cree avec succes.'
       )
       setIsChildDialogOpen(false)
       setEditingChild(null)
@@ -513,14 +540,15 @@ export function Users() {
         return
       }
 
+      const entityTitle = getUserEntityTitle(pendingAction.entity)
       toast.success(
-        `${pendingAction.entity} ${
+        `${entityTitle} ${
           pendingAction.type === 'delete'
-            ? 'deleted'
+            ? 'supprime'
             : pendingAction.type === 'enable'
-              ? 'enabled'
-              : 'disabled'
-        } successfully.`
+              ? 'active'
+              : 'desactive'
+        } avec succes.`
       )
       setPendingAction(null)
       void queryClient.invalidateQueries({ queryKey: ['users'] })
@@ -530,7 +558,7 @@ export function Users() {
   const approveMutation = useMutation({
     mutationFn: (childId: number) => approveChild(childId),
     onSuccess: () => {
-      toast.success('Child approved successfully.')
+      toast.success('Enfant approuve avec succes.')
       void queryClient.invalidateQueries({ queryKey: ['users'] })
     },
   })
@@ -544,7 +572,7 @@ export function Users() {
       await rejectChild(rejectingChild.id, rejectionReason)
     },
     onSuccess: () => {
-      toast.success('Child rejected successfully.')
+      toast.success('Enfant rejete avec succes.')
       setRejectingChild(null)
       setRejectionReason('')
       void queryClient.invalidateQueries({ queryKey: ['users'] })
@@ -567,24 +595,25 @@ export function Users() {
   return (
     <>
       <PageShell
-        title={isDirector ? 'Family Management' : 'User Management'}
+        title={isDirector ? 'Gestion des familles' : 'Gestion des utilisateurs'}
         description={
           isDirector
-            ? 'Manage parents and children in your school with director-scoped EduFrais workflows.'
-            : 'Manage parents, directors, and children with live EduFrais API workflows.'
+            ? 'Gerez les parents et les enfants de votre ecole avec les workflows EduFrais du directeur.'
+            : 'Gerez les parents, directeurs et enfants avec les workflows API EduFrais en direct.'
         }
         actions={
           <Badge variant='outline'>
-            {isSuperAdmin ? 'Super Admin scope' : 'Director scope'}
+            {isSuperAdmin ? 'Portee SuperAdmin' : 'Portee directeur'}
           </Badge>
         }
       >
         <section className='grid gap-4 rounded-2xl border bg-card p-4 md:grid-cols-[1.2fr_0.8fr]'>
           <div>
-            <p className='text-sm font-medium'>School scope</p>
+            <p className='text-sm font-medium'>Portee de l ecole</p>
             <p className='text-sm text-muted-foreground'>
-              Parents, directors, and children are managed within the selected
-              school. Directors stay locked to their assigned school.
+              Les parents, directeurs et enfants sont geres dans l ecole
+              selectionnee. Les directeurs restent limites a leur ecole
+              assignee.
             </p>
           </div>
           <Select
@@ -593,7 +622,7 @@ export function Users() {
             disabled={isDirector || accessibleSchools.length === 0}
           >
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select a school' />
+              <SelectValue placeholder='Selectionner une ecole' />
             </SelectTrigger>
             <SelectContent>
               {accessibleSchools.map((school) => (
@@ -607,12 +636,12 @@ export function Users() {
 
         <section className='grid gap-4 md:grid-cols-3'>
           <SummaryCard
-            title='Enabled parents'
+            title='Parents actifs'
             value={String(activeParents.length)}
-            description='Enabled parent accounts in the selected school.'
+            description='Comptes parents actifs dans l ecole selectionnee.'
           />
           <SummaryCard
-            title={isDirector ? 'Children in school' : 'Directors in scope'}
+            title={isDirector ? 'Enfants dans l ecole' : 'Directeurs dans la portee'}
             value={String(
               isDirector
                 ? selectedSchoolChildren.length
@@ -622,21 +651,21 @@ export function Users() {
             )}
             description={
               isDirector
-                ? 'Children currently linked to the selected school.'
-                : 'Director assignments returned from the backend.'
+                ? 'Enfants actuellement lies a l ecole selectionnee.'
+                : 'Affectations de directeurs retournees par le backend.'
             }
           />
           <SummaryCard
-            title='Pending child approvals'
+            title='Approbations en attente'
             value={String(pendingChildren.length)}
-            description='Children waiting for director or super admin review.'
+            description='Enfants en attente de revue par le directeur ou le SuperAdmin.'
           />
         </section>
 
         {!selectedSchool ? (
           <EmptyState
-            title='No school selected yet'
-            description='Choose a school first so the users page can load parents, directors, and children.'
+            title='Aucune ecole selectionnee'
+            description='Choisissez d abord une ecole pour charger les parents, directeurs et enfants.'
           />
         ) : (
           <Tabs defaultValue='parents' className='space-y-4'>
@@ -644,9 +673,9 @@ export function Users() {
               <TabsList>
                 <TabsTrigger value='parents'>Parents</TabsTrigger>
                 {isSuperAdmin ? (
-                  <TabsTrigger value='directors'>Directors</TabsTrigger>
+                  <TabsTrigger value='directors'>Directeurs</TabsTrigger>
                 ) : null}
-                <TabsTrigger value='children'>Children</TabsTrigger>
+                <TabsTrigger value='children'>Enfants</TabsTrigger>
               </TabsList>
             </div>
 
@@ -656,8 +685,8 @@ export function Users() {
                   <div>
                     <CardTitle>Parents</CardTitle>
                     <CardDescription>
-                      Add, edit, enable, disable, and delete parent accounts for{' '}
-                      {selectedSchool.name}.
+                      Ajoutez, modifiez, activez, desactivez et supprimez les
+                      comptes parents pour {selectedSchool.name}.
                     </CardDescription>
                   </div>
                   <Button
@@ -669,7 +698,7 @@ export function Users() {
                     }}
                   >
                     <Plus className='h-4 w-4' />
-                    Add parent
+                    Ajouter un parent
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -681,8 +710,8 @@ export function Users() {
                     </div>
                   ) : selectedSchoolParents.length === 0 ? (
                     <EmptyState
-                      title='No parents found'
-                      description='This school does not have any parent accounts yet.'
+                      title='Aucun parent trouve'
+                      description='Cette ecole ne contient encore aucun compte parent.'
                     />
                   ) : (
                     <div className='rounded-lg border'>
@@ -691,8 +720,8 @@ export function Users() {
                           <TableRow>
                             <TableHead>Parent</TableHead>
                             <TableHead>Contact</TableHead>
-                            <TableHead>Children</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Enfants</TableHead>
+                            <TableHead>Statut</TableHead>
                             <TableHead className='text-right'>
                               Actions
                             </TableHead>
@@ -714,12 +743,12 @@ export function Users() {
                                     )}
                                   </div>
                                   <div className='text-xs text-muted-foreground'>
-                                    {parent.civilId || 'No civil ID'} •{' '}
-                                    {parent.fatherName || 'No father name'}
+                                    {parent.civilId || 'Aucun ID civil'} |{' '}
+                                    {parent.fatherName || 'Aucun nom du pere'}
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  <div>{parent.email || 'No email'}</div>
+                                  <div>{parent.email || 'Aucun email'}</div>
                                   <div className='text-xs text-muted-foreground'>
                                     +{parent.countryCode} {parent.phoneNumber}
                                   </div>
@@ -755,7 +784,7 @@ export function Users() {
                                       }}
                                     >
                                       <Pencil className='h-4 w-4' />
-                                      Edit
+                                      Modifier
                                     </Button>
                                     <Button
                                       variant='outline'
@@ -777,8 +806,8 @@ export function Users() {
                                     >
                                       <Power className='h-4 w-4' />
                                       {parent.statusId === 1
-                                        ? 'Disable'
-                                        : 'Enable'}
+                                        ? 'Desactiver'
+                                        : 'Activer'}
                                     </Button>
                                     <Button
                                       variant='destructive'
@@ -796,7 +825,7 @@ export function Users() {
                                       }
                                     >
                                       <Trash2 className='h-4 w-4' />
-                                      Delete
+                                      Supprimer
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -815,10 +844,10 @@ export function Users() {
               <Card className='border-border/70'>
                 <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                   <div>
-                    <CardTitle>Directors</CardTitle>
+                    <CardTitle>Directeurs</CardTitle>
                     <CardDescription>
-                      One school-scoped director record is fetched per
-                      accessible school.
+                      Une fiche directeur liee a l ecole est retournee pour
+                      chaque ecole accessible.
                     </CardDescription>
                   </div>
                   <Button
@@ -834,20 +863,22 @@ export function Users() {
                     }}
                   >
                     <Plus className='h-4 w-4' />
-                    Add director
+                    Ajouter un directeur
                   </Button>
                 </CardHeader>
                 <CardContent className='space-y-4'>
                   {!canManageDirectors ? (
                     <div className='rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground'>
-                      Directors can inspect assignments here, but only Super
-                      Admin sessions can create or update director accounts.
+                      Les directeurs peuvent consulter les affectations ici,
+                      mais seules les sessions SuperAdmin peuvent creer ou
+                      mettre a jour des comptes directeur.
                     </div>
                   ) : null}
                   {canManageDirectors && selectedSchoolHasDirector ? (
                     <div className='rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground'>
-                      {selectedSchool.name} already has a director assignment.
-                      Edit the existing record instead of creating another one.
+                      {selectedSchool.name} a deja une affectation de
+                      directeur. Modifiez la fiche existante au lieu d en creer
+                      une nouvelle.
                     </div>
                   ) : null}
                   {directorsQuery.isLoading ? (
@@ -857,18 +888,18 @@ export function Users() {
                     </div>
                   ) : directorsForSelectedSchool.length === 0 ? (
                     <EmptyState
-                      title='No directors found'
-                      description='The selected school does not currently return a director record.'
+                      title='Aucun directeur trouve'
+                      description='L ecole selectionnee ne retourne actuellement aucune fiche directeur.'
                     />
                   ) : (
                     <div className='rounded-lg border'>
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Director</TableHead>
-                            <TableHead>School</TableHead>
+                            <TableHead>Directeur</TableHead>
+                            <TableHead>Ecole</TableHead>
                             <TableHead>Contact</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Statut</TableHead>
                             <TableHead className='text-right'>
                               Actions
                             </TableHead>
@@ -890,12 +921,12 @@ export function Users() {
                                     )}
                                   </div>
                                   <div className='text-xs text-muted-foreground'>
-                                    Created {formatDateTime(director.createdOn)}
+                                    Cree le {formatDateTime(director.createdOn)}
                                   </div>
                                 </TableCell>
                                 <TableCell>{director.schoolName}</TableCell>
                                 <TableCell>
-                                  <div>{director.email || 'No email'}</div>
+                                  <div>{director.email || 'Aucun email'}</div>
                                   <div className='text-xs text-muted-foreground'>
                                     +{director.countryCode}{' '}
                                     {director.phoneNumber}
@@ -924,7 +955,7 @@ export function Users() {
                                       }}
                                     >
                                       <Pencil className='h-4 w-4' />
-                                      Edit
+                                      Modifier
                                     </Button>
                                     <Button
                                       variant='outline'
@@ -946,8 +977,8 @@ export function Users() {
                                     >
                                       <Power className='h-4 w-4' />
                                       {director.statusId === 1
-                                        ? 'Disable'
-                                        : 'Enable'}
+                                        ? 'Desactiver'
+                                        : 'Activer'}
                                     </Button>
                                     <Button
                                       variant='destructive'
@@ -965,7 +996,7 @@ export function Users() {
                                       }
                                     >
                                       <Trash2 className='h-4 w-4' />
-                                      Delete
+                                      Supprimer
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -984,10 +1015,10 @@ export function Users() {
               <Card className='border-border/70'>
                 <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                   <div>
-                    <CardTitle>Children</CardTitle>
+                    <CardTitle>Enfants</CardTitle>
                     <CardDescription>
-                      Review student records, approval state, and school
-                      assignment for {selectedSchool.name}.
+                      Consultez les fiches eleves, leur etat d approbation et
+                      leur affectation scolaire pour {selectedSchool.name}.
                     </CardDescription>
                   </div>
                   <Button
@@ -999,7 +1030,7 @@ export function Users() {
                     }}
                   >
                     <Plus className='h-4 w-4' />
-                    Add child
+                    Ajouter un enfant
                   </Button>
                 </CardHeader>
                 <CardContent>
@@ -1011,19 +1042,19 @@ export function Users() {
                     </div>
                   ) : selectedSchoolChildren.length === 0 ? (
                     <EmptyState
-                      title='No children found'
-                      description='The selected school does not have any student records yet.'
+                      title='Aucun enfant trouve'
+                      description='L ecole selectionnee ne contient encore aucune fiche eleve.'
                     />
                   ) : (
                     <div className='rounded-lg border'>
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Student</TableHead>
+                            <TableHead>Eleve</TableHead>
                             <TableHead>Parent</TableHead>
-                            <TableHead>Date of birth</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Created</TableHead>
+                            <TableHead>Date de naissance</TableHead>
+                            <TableHead>Statut</TableHead>
+                            <TableHead>Cree le</TableHead>
                             <TableHead className='text-right'>
                               Actions
                             </TableHead>
@@ -1047,11 +1078,11 @@ export function Users() {
                                   <div className='text-xs text-muted-foreground'>
                                     {child.rejectionReason ||
                                       child.schoolName ||
-                                      'No notes'}
+                                      'Aucune note'}
                                   </div>
                                 </TableCell>
                                 <TableCell>
-                                  {child.parentName || 'No parent linked'}
+                                  {child.parentName || 'Aucun parent lie'}
                                 </TableCell>
                                 <TableCell>
                                   {formatDateOnly(child.dateOfBirth)}
@@ -1091,7 +1122,7 @@ export function Users() {
                                           }
                                         >
                                           <CheckCheck className='h-4 w-4' />
-                                          Approve
+                                          Approuver
                                         </Button>
                                         <Button
                                           variant='outline'
@@ -1103,7 +1134,7 @@ export function Users() {
                                           }}
                                         >
                                           <XCircle className='h-4 w-4' />
-                                          Reject
+                                          Rejeter
                                         </Button>
                                       </>
                                     ) : null}
@@ -1118,7 +1149,7 @@ export function Users() {
                                       }}
                                     >
                                       <Pencil className='h-4 w-4' />
-                                      Edit
+                                      Modifier
                                     </Button>
                                     <Button
                                       variant='outline'
@@ -1140,8 +1171,8 @@ export function Users() {
                                     >
                                       <Power className='h-4 w-4' />
                                       {child.statusId === 1
-                                        ? 'Disable'
-                                        : 'Enable'}
+                                        ? 'Desactiver'
+                                        : 'Activer'}
                                     </Button>
                                     <Button
                                       variant='destructive'
@@ -1159,7 +1190,7 @@ export function Users() {
                                       }
                                     >
                                       <Trash2 className='h-4 w-4' />
-                                      Delete
+                                      Supprimer
                                     </Button>
                                   </div>
                                 </TableCell>
@@ -1190,18 +1221,18 @@ export function Users() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingParent ? 'Edit parent' : 'Add parent'}
+              {editingParent ? 'Modifier le parent' : 'Ajouter un parent'}
             </DialogTitle>
             <DialogDescription>
               {selectedSchool
-                ? `This parent will be managed under ${selectedSchool.name}.`
-                : 'Choose a school first.'}
+                ? `Ce parent sera gere sous ${selectedSchool.name}.`
+                : 'Choisissez d abord une ecole.'}
             </DialogDescription>
           </DialogHeader>
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-first-name'>First name</Label>
+                <Label htmlFor='parent-first-name'>Prenom</Label>
                 <Input
                   id='parent-first-name'
                   value={parentForm.firstName}
@@ -1214,7 +1245,7 @@ export function Users() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-last-name'>Last name</Label>
+                <Label htmlFor='parent-last-name'>Nom</Label>
                 <Input
                   id='parent-last-name'
                   value={parentForm.lastName}
@@ -1230,7 +1261,7 @@ export function Users() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-father-name'>Father name</Label>
+                <Label htmlFor='parent-father-name'>Nom du pere</Label>
                 <Input
                   id='parent-father-name'
                   value={parentForm.fatherName}
@@ -1243,7 +1274,7 @@ export function Users() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-civil-id'>Civil ID</Label>
+                <Label htmlFor='parent-civil-id'>ID civil</Label>
                 <Input
                   id='parent-civil-id'
                   value={parentForm.civilId}
@@ -1259,7 +1290,7 @@ export function Users() {
 
             <div className='grid gap-4 sm:grid-cols-[0.35fr_0.65fr]'>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-country-code'>Country code</Label>
+                <Label htmlFor='parent-country-code'>Indicatif</Label>
                 <Input
                   id='parent-country-code'
                   value={parentForm.countryCode}
@@ -1272,7 +1303,7 @@ export function Users() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='parent-phone'>Phone number</Label>
+                <Label htmlFor='parent-phone'>Numero de telephone</Label>
                 <Input
                   id='parent-phone'
                   value={parentForm.phoneNumber}
@@ -1307,7 +1338,7 @@ export function Users() {
               onClick={() => setIsParentDialogOpen(false)}
               disabled={parentSaveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               onClick={() => parentSaveMutation.mutate()}
@@ -1321,10 +1352,10 @@ export function Users() {
               }
             >
               {parentSaveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingParent
-                  ? 'Save changes'
-                  : 'Create parent'}
+                  ? 'Enregistrer'
+                  : 'Creer le parent'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1343,18 +1374,18 @@ export function Users() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingDirector ? 'Edit director' : 'Add director'}
+              {editingDirector ? 'Modifier le directeur' : 'Ajouter un directeur'}
             </DialogTitle>
             <DialogDescription>
               {selectedSchool
-                ? `Director record for ${selectedSchool.name}.`
-                : 'Choose a school first.'}
+                ? `Fiche directeur pour ${selectedSchool.name}.`
+                : 'Choisissez d abord une ecole.'}
             </DialogDescription>
           </DialogHeader>
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='director-first-name'>First name</Label>
+                <Label htmlFor='director-first-name'>Prenom</Label>
                 <Input
                   id='director-first-name'
                   value={directorForm.firstName}
@@ -1367,7 +1398,7 @@ export function Users() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='director-last-name'>Last name</Label>
+                <Label htmlFor='director-last-name'>Nom</Label>
                 <Input
                   id='director-last-name'
                   value={directorForm.lastName}
@@ -1384,7 +1415,7 @@ export function Users() {
             {!editingDirector ? (
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='director-father-name'>Father name</Label>
+                  <Label htmlFor='director-father-name'>Nom du pere</Label>
                   <Input
                     id='director-father-name'
                     value={directorForm.fatherName}
@@ -1397,7 +1428,7 @@ export function Users() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='director-civil-id'>Civil ID</Label>
+                  <Label htmlFor='director-civil-id'>ID civil</Label>
                   <Input
                     id='director-civil-id'
                     value={directorForm.civilId}
@@ -1414,7 +1445,7 @@ export function Users() {
 
             <div className='grid gap-4 sm:grid-cols-[0.35fr_0.65fr]'>
               <div className='grid gap-2'>
-                <Label htmlFor='director-country-code'>Country code</Label>
+                <Label htmlFor='director-country-code'>Indicatif</Label>
                 <Input
                   id='director-country-code'
                   value={directorForm.countryCode}
@@ -1427,7 +1458,7 @@ export function Users() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='director-phone'>Phone number</Label>
+                <Label htmlFor='director-phone'>Numero de telephone</Label>
                 <Input
                   id='director-phone'
                   value={directorForm.phoneNumber}
@@ -1462,7 +1493,7 @@ export function Users() {
               onClick={() => setIsDirectorDialogOpen(false)}
               disabled={directorSaveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               onClick={() => directorSaveMutation.mutate()}
@@ -1476,10 +1507,10 @@ export function Users() {
               }
             >
               {directorSaveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingDirector
-                  ? 'Save changes'
-                  : 'Create director'}
+                  ? 'Enregistrer'
+                  : 'Creer le directeur'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1498,12 +1529,12 @@ export function Users() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingChild ? 'Edit child' : 'Add child'}
+              {editingChild ? 'Modifier l enfant' : 'Ajouter un enfant'}
             </DialogTitle>
             <DialogDescription>
               {selectedSchool
-                ? `Child record for ${selectedSchool.name}.`
-                : 'Choose a school first.'}
+                ? `Fiche enfant pour ${selectedSchool.name}.`
+                : 'Choisissez d abord une ecole.'}
             </DialogDescription>
           </DialogHeader>
           {editingChild && childDetailsQuery.isLoading ? (
@@ -1516,7 +1547,7 @@ export function Users() {
             <div className='grid gap-4'>
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='child-first-name'>First name</Label>
+                  <Label htmlFor='child-first-name'>Prenom</Label>
                   <Input
                     id='child-first-name'
                     value={childForm.firstName}
@@ -1529,7 +1560,7 @@ export function Users() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='child-last-name'>Last name</Label>
+                  <Label htmlFor='child-last-name'>Nom</Label>
                   <Input
                     id='child-last-name'
                     value={childForm.lastName}
@@ -1545,7 +1576,7 @@ export function Users() {
 
               <div className='grid gap-4 sm:grid-cols-2'>
                 <div className='grid gap-2'>
-                  <Label htmlFor='child-father-name'>Father name</Label>
+                  <Label htmlFor='child-father-name'>Nom du pere</Label>
                   <Input
                     id='child-father-name'
                     value={childForm.fatherName}
@@ -1558,7 +1589,7 @@ export function Users() {
                   />
                 </div>
                 <div className='grid gap-2'>
-                  <Label htmlFor='child-date-of-birth'>Date of birth</Label>
+                  <Label htmlFor='child-date-of-birth'>Date de naissance</Label>
                   <Input
                     id='child-date-of-birth'
                     type='date'
@@ -1587,7 +1618,7 @@ export function Users() {
                   }
                 >
                   <SelectTrigger id='child-parent'>
-                    <SelectValue placeholder='Select a parent' />
+                    <SelectValue placeholder='Selectionner un parent' />
                   </SelectTrigger>
                   <SelectContent>
                     {selectedSchoolParents.map((parent) => (
@@ -1606,7 +1637,7 @@ export function Users() {
               onClick={() => setIsChildDialogOpen(false)}
               disabled={childSaveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               onClick={() => childSaveMutation.mutate()}
@@ -1621,10 +1652,10 @@ export function Users() {
               }
             >
               {childSaveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingChild
-                  ? 'Save changes'
-                  : 'Create child'}
+                  ? 'Enregistrer'
+                  : 'Creer l enfant'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1641,14 +1672,14 @@ export function Users() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject child request</DialogTitle>
+            <DialogTitle>Rejeter la demande de l enfant</DialogTitle>
             <DialogDescription>
-              Explain why this child record should be rejected so the parent can
-              act on it.
+              Expliquez pourquoi cette fiche enfant doit etre rejetee afin que
+              le parent puisse agir.
             </DialogDescription>
           </DialogHeader>
           <div className='grid gap-2'>
-            <Label htmlFor='rejection-reason'>Reason</Label>
+            <Label htmlFor='rejection-reason'>Motif</Label>
             <Textarea
               id='rejection-reason'
               rows={4}
@@ -1665,7 +1696,7 @@ export function Users() {
               }}
               disabled={rejectMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               variant='destructive'
@@ -1674,7 +1705,7 @@ export function Users() {
                 rejectMutation.isPending || rejectionReason.trim().length === 0
               }
             >
-              {rejectMutation.isPending ? 'Rejecting...' : 'Reject child'}
+              {rejectMutation.isPending ? 'Rejet...' : 'Rejeter l enfant'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1697,7 +1728,7 @@ export function Users() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionMutation.isPending}>
-              Cancel
+              Annuler
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={actionMutation.isPending}
@@ -1706,7 +1737,7 @@ export function Users() {
                 actionMutation.mutate()
               }}
             >
-              {actionMutation.isPending ? 'Working...' : 'Confirm'}
+              {actionMutation.isPending ? 'Traitement...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

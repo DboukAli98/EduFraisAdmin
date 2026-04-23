@@ -25,72 +25,72 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
   if (isDirectorOnly) {
     return {
       user: {
-        name: user?.name || 'EduFrais Director',
-        email: user?.email || 'No email on file',
+        name: user?.name || 'Directeur EduFrais',
+        email: user?.email || 'Aucun e-mail renseigne',
         avatar: '',
       },
       teams: [
         {
-          name: 'EduFrais Director',
+          name: 'Directeur EduFrais',
           logo: Command,
-          plan: 'School Operations',
+          plan: 'Operations scolaires',
         },
       ],
       navGroups: [
         {
-          title: 'Director',
+          title: 'Direction',
           items: [
             {
-              title: 'Overview',
+              title: 'Vue generale',
               url: '/',
               icon: LayoutDashboard,
             },
             {
-              title: 'My School',
+              title: 'Mon ecole',
               url: '/my-school',
               icon: School2,
             },
             {
-              title: 'Merchandise',
+              title: 'Articles',
               url: '/school-merchandise',
               icon: ShoppingBag,
             },
             {
-              title: 'Parents & Children',
+              title: 'Parents et enfants',
               url: '/users',
               icon: Users,
             },
             {
-              title: 'Payments',
+              title: 'Paiements',
               url: '/payments',
               icon: HandCoins,
             },
             {
-              title: 'Loyalty',
+              title: 'Fidelite',
               icon: Award,
               items: [
                 {
-                  title: 'Overview',
+                  title: 'Vue generale',
                   url: '/loyalty',
                   icon: LayoutDashboard,
                 },
                 {
-                  title: 'Program',
+                  title: 'Programme',
                   url: '/loyalty/program',
                   icon: Settings,
                 },
                 {
-                  title: 'Rules',
+                  title: 'Regles',
                   url: '/loyalty/rules',
                   icon: ListChecks,
                 },
                 {
-                  title: 'Rewards',
+                  title: 'Recompenses',
                   url: '/loyalty/rewards',
                   icon: ShoppingBag,
                 },
                 {
-                  title: 'Members',
+                  title: 'Membres',
                   url: '/loyalty/members',
                   icon: Users,
                 },
@@ -102,12 +102,12 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
               ],
             },
             {
-              title: 'Collecting Agents',
+              title: 'Agents collecteurs',
               url: '/collecting-agents',
               icon: ShieldCheck,
             },
             {
-              title: 'Support Requests',
+              title: 'Demandes support',
               url: '/support',
               icon: HelpCircle,
             },
@@ -117,7 +117,7 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
           title: 'Preferences',
           items: [
             {
-              title: 'Settings',
+              title: 'Parametres',
               url: '/settings',
               icon: Settings,
             },
@@ -129,57 +129,57 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
 
   return {
     user: {
-      name: user?.name || 'EduFrais User',
-      email: user?.email || 'No email on file',
+      name: user?.name || 'Utilisateur EduFrais',
+      email: user?.email || 'Aucun e-mail renseigne',
       avatar: '',
     },
     teams: [
       {
-        name: 'EduFrais Admin',
+        name: 'Admin EduFrais',
         logo: Command,
-        plan: 'Reporting Console',
+        plan: 'Console de suivi',
       },
     ],
     navGroups: [
       {
-        title: 'Workspace',
+        title: 'Espace de travail',
         items: [
           {
-            title: 'Dashboard',
+            title: 'Tableau de bord',
             url: '/',
             icon: LayoutDashboard,
           },
           {
-            title: 'Schools',
+            title: 'Ecoles',
             url: '/schools',
             icon: Building2,
           },
           {
-            title: 'Users',
+            title: 'Utilisateurs',
             url: '/users',
             icon: Users,
           },
           {
-            title: 'Payments',
+            title: 'Paiements',
             url: '/payments',
             icon: HandCoins,
           },
           {
-            title: 'Commission Admin',
+            title: 'Administration des commissions',
             icon: Percent,
             items: [
               {
-                title: 'Overview',
+                title: 'Vue generale',
                 url: '/commission-admin',
                 icon: LayoutDashboard,
               },
               {
-                title: 'Platform Fee',
+                title: 'Frais plateforme',
                 url: '/commission-admin/platform-fee',
                 icon: SlidersHorizontal,
               },
               {
-                title: 'Payment Providers',
+                title: 'Prestataires de paiement',
                 url: '/commission-admin/providers',
                 icon: CreditCard,
               },
@@ -188,15 +188,15 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
         ],
       },
       {
-        title: 'Support',
+        title: 'Assistance',
         items: [
           {
-            title: 'Settings',
+            title: 'Parametres',
             url: '/settings',
             icon: Settings,
           },
           {
-            title: 'Help Center',
+            title: 'Centre aide',
             url: '/help-center',
             icon: HelpCircle,
           },

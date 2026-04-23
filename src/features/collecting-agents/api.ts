@@ -272,7 +272,7 @@ function mapActivity(record: ApiRecord): AgentActivityRecord {
       activityType,
     activityDescription:
       readString(record, 'ActivityDescription', 'activityDescription') ??
-      'No description',
+      'Aucune description',
     notes: readString(record, 'Notes', 'notes') ?? null,
     relatedTransactionId:
       readNumber(record, 'RelatedTransactionId', 'relatedTransactionId') ?? null,

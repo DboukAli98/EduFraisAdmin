@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   Coins,
@@ -149,6 +149,52 @@ const activityTypeOptions: AgentActivityType[] = [
   'Other',
 ]
 
+function getActivityTypeLabel(type: AgentActivityType): string {
+  switch (type) {
+    case 'PaymentCollected':
+      return 'Paiement collecte'
+    case 'PaymentAttempted':
+      return 'Tentative de paiement'
+    case 'ParentContact':
+      return 'Contact parent'
+    case 'SupportRequestHandled':
+      return 'Demande de support traitee'
+    case 'ParentAssigned':
+      return 'Parent affecte'
+    case 'ParentUnassigned':
+      return 'Parent retire'
+    case 'FieldVisit':
+      return 'Visite terrain'
+    case 'PhoneCall':
+      return 'Appel telephonique'
+    case 'Other':
+    default:
+      return 'Autre'
+  }
+}
+
+function translateWorkflowStatus(status: string | null | undefined): string {
+  switch (status?.trim().toLowerCase()) {
+    case 'approved':
+      return 'Approuve'
+    case 'pending':
+      return 'En attente'
+    case 'rejected':
+      return 'Rejete'
+    case 'cancelled':
+      return 'Annule'
+    case 'failed':
+      return 'Echoue'
+    case 'processed':
+      return 'Traite'
+    case 'inprogress':
+    case 'in progress':
+      return 'En cours'
+    default:
+      return status?.trim() || 'En attente'
+  }
+}
+
 function SummaryCard({ title, value, description }: SummaryCardProps) {
   return (
     <Card className='border-border/70'>
@@ -217,15 +263,13 @@ function createEmptyCommissionForm(defaultRate = ''): CommissionFormState {
 }
 
 function formatCommissionStatus(record: AgentCommissionRecord): string {
-  if (record.status) {
-    return record.status
-  }
-
-  return record.isApproved ? 'Approved' : 'Pending'
+  return translateWorkflowStatus(
+    record.status ?? (record.isApproved ? 'Approved' : 'Pending')
+  )
 }
 
 function formatApprovalStatus(status: string | null): string {
-  return status?.trim() || 'Pending'
+  return translateWorkflowStatus(status)
 }
 
 export function CollectingAgents() {
@@ -262,6 +306,7 @@ export function CollectingAgents() {
   )
   const [pendingUnassignParent, setPendingUnassignParent] =
     useState<AgentAssignmentParent | null>(null)
+  const selectedAgentPanelRef = useRef<HTMLDivElement | null>(null)
 
   const agentsQuery = useQuery({
     queryKey: ['collecting-agents', 'roster', schoolId],
@@ -336,6 +381,17 @@ export function CollectingAgents() {
     )
   }, [assignedParents, schoolParents])
 
+  function focusSelectedAgent(agentId: number) {
+    setSelectedAgentId(agentId)
+
+    requestAnimationFrame(() => {
+      selectedAgentPanelRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
   const saveAgentMutation = useMutation({
     mutationFn: async () => {
       if (!schoolId) {
@@ -363,8 +419,8 @@ export function CollectingAgents() {
     onSuccess: () => {
       toast.success(
         editingAgent
-          ? 'Collecting agent updated successfully.'
-          : 'Collecting agent added successfully.'
+          ? 'Agent collecteur mis a jour avec succes.'
+          : 'Agent collecteur ajoute avec succes.'
       )
       setIsAgentDialogOpen(false)
       setEditingAgent(null)
@@ -390,7 +446,9 @@ export function CollectingAgents() {
       }
 
       const nextLabel = pendingStatusAgent.statusId === 1 ? 'disabled' : 'enabled'
-      toast.success(`Collecting agent ${nextLabel} successfully.`)
+      toast.success(
+        `Agent collecteur ${nextLabel === 'disabled' ? 'desactive' : 'active'} avec succes.`
+      )
       setPendingStatusAgent(null)
       void queryClient.invalidateQueries({
         queryKey: ['collecting-agents', 'roster', schoolId],
@@ -412,7 +470,7 @@ export function CollectingAgents() {
       })
     },
     onSuccess: () => {
-      toast.success('Parent assigned to collecting agent.')
+      toast.success('Parent affecte a l agent collecteur.')
       setIsAssignmentDialogOpen(false)
       setAssignmentForm(createEmptyAssignmentForm())
       void queryClient.invalidateQueries({
@@ -436,7 +494,7 @@ export function CollectingAgents() {
       })
     },
     onSuccess: () => {
-      toast.success('Parent unassigned from collecting agent.')
+      toast.success('Parent retire de l agent collecteur.')
       setPendingUnassignParent(null)
       void queryClient.invalidateQueries({
         queryKey: ['collecting-agents', 'assigned-parents', selectedAgentId],
@@ -471,8 +529,8 @@ export function CollectingAgents() {
     onSuccess: () => {
       toast.success(
         reviewAction?.mode === 'approve'
-          ? 'Agent request approved.'
-          : 'Agent request rejected.'
+          ? 'Demande d agent approuvee.'
+          : 'Demande d agent rejetee.'
       )
       setReviewAction(null)
       setReviewNotes('')
@@ -504,7 +562,7 @@ export function CollectingAgents() {
       await logAgentActivity(payload)
     },
     onSuccess: () => {
-      toast.success('Agent activity logged successfully.')
+      toast.success('Activite agent enregistree avec succes.')
       setIsActivityDialogOpen(false)
       setActivityForm(createEmptyActivityForm())
       void queryClient.invalidateQueries({
@@ -533,7 +591,7 @@ export function CollectingAgents() {
       })
     },
     onSuccess: () => {
-      toast.success('Commission recorded successfully.')
+      toast.success('Commission enregistree avec succes.')
       setIsCommissionDialogOpen(false)
       setCommissionForm(
         createEmptyCommissionForm(
@@ -551,12 +609,12 @@ export function CollectingAgents() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Collecting Agents'
-        description='Director-owned field operations workspace.'
+        title='Agents collecteurs'
+        description='Espace des operations terrain gere par le directeur.'
       >
         <EmptyState
-          title='Director workspace only'
-          description='This page is reserved for director accounts because agent assignments, activity tracking, and support follow-up are school-scoped director workflows.'
+          title='Espace reserve au directeur'
+          description='Cette page est reservee aux comptes directeur car les affectations agents, le suivi d activite et le support sont lies a l ecole.'
         />
       </PageShell>
     )
@@ -565,12 +623,12 @@ export function CollectingAgents() {
   if (!schoolId || !directorId) {
     return (
       <PageShell
-        title='Collecting Agents'
-        description='Director-owned field operations workspace.'
+        title='Agents collecteurs'
+        description='Espace des operations terrain gere par le directeur.'
       >
         <EmptyState
-          title='Director profile is incomplete'
-          description='This account is missing a linked school or director entity id, so collecting-agent management cannot load yet.'
+          title='Profil directeur incomplet'
+          description='Ce compte ne contient pas d ecole liee ou d identifiant directeur, la gestion des agents collecteurs ne peut donc pas encore etre chargee.'
         />
       </PageShell>
     )
@@ -579,8 +637,8 @@ export function CollectingAgents() {
   return (
     <>
       <PageShell
-        title='Collecting Agents'
-        description='Manage your field collection team, parent assignments, commissions, and activity follow-up.'
+        title='Agents collecteurs'
+        description='Gerez votre equipe terrain, les affectations parents, les commissions et le suivi des activites.'
         actions={
           <Button
             onClick={() => {
@@ -590,40 +648,39 @@ export function CollectingAgents() {
             }}
           >
             <Plus className='h-4 w-4' />
-            Add collecting agent
+            Ajouter un agent collecteur
           </Button>
         }
       >
         <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
           <SummaryCard
-            title='Collecting agents'
+            title='Agents collecteurs'
             value={String(agents.length)}
-            description='Agent accounts in the current school.'
+            description='Comptes agents dans l ecole actuelle.'
           />
           <SummaryCard
-            title='Assigned parents'
+            title='Parents affectes'
             value={String(assignedParents.length)}
-            description='Parents linked to the selected agent.'
+            description='Parents lies a l agent selectionne.'
           />
           <SummaryCard
-            title='Pending requests'
+            title='Demandes en attente'
             value={String(pendingRequests.length)}
-            description='Parent-initiated assignment requests awaiting review.'
+            description='Demandes d affectation initiees par les parents en attente de revue.'
           />
           <SummaryCard
-            title='Recent activities'
+            title='Activites recentes'
             value={String(activities.length)}
-            description='Logged activity entries for the selected agent.'
+            description='Activites journalisees pour l agent selectionne.'
           />
         </section>
 
         <section className='grid gap-4 xl:grid-cols-[1.2fr_0.8fr]'>
           <Card className='border-border/70'>
             <CardHeader>
-              <CardTitle>Agent roster</CardTitle>
+              <CardTitle>Liste des agents</CardTitle>
               <CardDescription>
-                Add agents, adjust commission percentages, set their areas, and
-                enable or disable accounts.
+                Ajoutez des agents, ajustez les pourcentages de commission, definissez leurs zones et activez ou desactivez les comptes.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -635,19 +692,19 @@ export function CollectingAgents() {
                 </div>
               ) : agents.length === 0 ? (
                 <EmptyState
-                  title='No collecting agents yet'
-                  description='Start by adding the first field agent for this school.'
+                  title='Aucun agent collecteur pour le moment'
+                  description='Commencez par ajouter le premier agent terrain pour cette ecole.'
                 />
               ) : (
                 <div className='rounded-lg border'>
                   <Table>
                     <TableHeader>
-                      <TableRow>
-                        <TableHead>Agent</TableHead>
-                        <TableHead>Area</TableHead>
-                        <TableHead>Commission</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className='text-right'>Actions</TableHead>
+                        <TableRow>
+                          <TableHead>Agent</TableHead>
+                          <TableHead>Zone</TableHead>
+                          <TableHead>Commission</TableHead>
+                          <TableHead>Statut</TableHead>
+                          <TableHead className='text-right'>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -666,15 +723,15 @@ export function CollectingAgents() {
                                 {buildFullName(agent.firstName, agent.lastName)}
                               </div>
                               <div className='text-xs text-muted-foreground'>
-                                {agent.email || 'No email'} | +{agent.countryCode}{' '}
+                                {agent.email || 'Aucun e-mail'} | +{agent.countryCode}{' '}
                                 {agent.phoneNumber}
                               </div>
                             </TableCell>
-                            <TableCell>{agent.assignedArea || 'No area set'}</TableCell>
+                            <TableCell>{agent.assignedArea || 'Aucune zone definie'}</TableCell>
                             <TableCell>
                               {agent.commissionPercentage != null
                                 ? `${agent.commissionPercentage.toFixed(2)}%`
-                                : 'Not set'}
+                                : 'Non defini'}
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -687,11 +744,15 @@ export function CollectingAgents() {
                             <TableCell className='text-right'>
                               <div className='flex flex-wrap justify-end gap-2'>
                                 <Button
-                                  variant='outline'
+                                  variant={
+                                    selectedAgentId === agent.id ? 'secondary' : 'outline'
+                                  }
                                   size='sm'
-                                  onClick={() => setSelectedAgentId(agent.id)}
+                                  onClick={() => focusSelectedAgent(agent.id)}
                                 >
-                                  Manage
+                                  {selectedAgentId === agent.id
+                                    ? 'Selectionne'
+                                    : 'Gerer'}
                                 </Button>
                                 <Button
                                   variant='outline'
@@ -703,7 +764,7 @@ export function CollectingAgents() {
                                   }}
                                 >
                                   <Pencil className='h-4 w-4' />
-                                  Edit
+                                  Modifier
                                 </Button>
                                 <Button
                                   variant='outline'
@@ -711,7 +772,7 @@ export function CollectingAgents() {
                                   onClick={() => setPendingStatusAgent(agent)}
                                 >
                                   <Power className='h-4 w-4' />
-                                  {agent.statusId === 1 ? 'Disable' : 'Enable'}
+                                  {agent.statusId === 1 ? 'Desactiver' : 'Activer'}
                                 </Button>
                               </div>
                             </TableCell>
@@ -725,19 +786,22 @@ export function CollectingAgents() {
             </CardContent>
           </Card>
 
-          <Card className='border-border/70'>
+          <Card className='border-border/70' ref={selectedAgentPanelRef}>
             <CardHeader>
-              <CardTitle>Selected agent</CardTitle>
+              <CardTitle>
+                {selectedAgent
+                  ? `Agent selectionne : ${buildFullName(selectedAgent.firstName, selectedAgent.lastName)}`
+                  : 'Agent selectionne'}
+              </CardTitle>
               <CardDescription>
-                Work with one agent at a time to manage assignments, activities,
-                and commission entries.
+                Travaillez avec un agent a la fois pour gerer les affectations, activites et commissions.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {!selectedAgent ? (
                 <EmptyState
-                  title='No agent selected'
-                  description='Choose an agent from the roster to manage their work.'
+                  title='Aucun agent selectionne'
+                  description='Choisissez un agent dans la liste pour gerer son activite.'
                 />
               ) : (
                 <div className='space-y-4'>
@@ -747,7 +811,7 @@ export function CollectingAgents() {
                         {buildFullName(selectedAgent.firstName, selectedAgent.lastName)}
                       </h3>
                       <p className='text-sm text-muted-foreground'>
-                        {selectedAgent.email || 'No email'} | +{selectedAgent.countryCode}{' '}
+                        {selectedAgent.email || 'Aucun e-mail'} | +{selectedAgent.countryCode}{' '}
                         {selectedAgent.phoneNumber}
                       </p>
                     </div>
@@ -761,20 +825,20 @@ export function CollectingAgents() {
 
                   <div className='grid gap-4'>
                     <DetailRow
-                      label='Assigned area'
-                      value={selectedAgent.assignedArea || 'No area configured'}
+                      label='Zone attribuee'
+                      value={selectedAgent.assignedArea || 'Aucune zone configuree'}
                     />
                     <DetailRow
-                      label='Commission percentage'
+                      label='Pourcentage de commission'
                       value={
                         selectedAgent.commissionPercentage != null
                           ? `${selectedAgent.commissionPercentage.toFixed(2)}%`
-                          : 'Not configured'
+                          : 'Non configure'
                       }
                     />
                     <DetailRow
-                      label='Operational scope'
-                      value='This director can assign parents, log activities, and post commission records for the selected agent.'
+                      label='Portee operationnelle'
+                      value='Ce directeur peut affecter des parents, journaliser des activites et enregistrer des commissions pour l agent selectionne.'
                     />
                   </div>
                 </div>
@@ -789,10 +853,10 @@ export function CollectingAgents() {
               <div>
                 <CardTitle className='flex items-center gap-2'>
                   <Users className='h-4 w-4 text-primary' />
-                  Assigned parents
+                  Parents affectes
                 </CardTitle>
                 <CardDescription>
-                  Link parents to the selected agent and remove inactive assignments.
+                  Liez des parents a l agent selectionne et retirez les affectations inactives.
                 </CardDescription>
               </div>
               <Button
@@ -804,14 +868,14 @@ export function CollectingAgents() {
                 }}
               >
                 <UserPlus className='h-4 w-4' />
-                Assign parent
+                Affecter un parent
               </Button>
             </CardHeader>
             <CardContent>
               {!selectedAgent ? (
                 <EmptyState
-                  title='Select an agent first'
-                  description='Assigned parents are shown per agent.'
+                  title='Selectionnez d abord un agent'
+                  description='Les parents affectes s affichent agent par agent.'
                 />
               ) : assignedParentsQuery.isLoading ? (
                 <div className='space-y-3'>
@@ -820,8 +884,8 @@ export function CollectingAgents() {
                 </div>
               ) : assignedParents.length === 0 ? (
                 <EmptyState
-                  title='No assigned parents'
-                  description='The selected agent does not have any parent assignments yet.'
+                  title='Aucun parent affecte'
+                  description='L agent selectionne n a encore aucune affectation parent.'
                 />
               ) : (
                 <div className='rounded-lg border'>
@@ -830,8 +894,8 @@ export function CollectingAgents() {
                       <TableRow>
                         <TableHead>Parent</TableHead>
                         <TableHead>Contact</TableHead>
-                        <TableHead>Children</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Enfants</TableHead>
+                        <TableHead>Statut</TableHead>
                         <TableHead className='text-right'>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -842,12 +906,12 @@ export function CollectingAgents() {
                             <div className='font-medium'>
                               {buildFullName(parent.firstName, parent.lastName)}
                             </div>
-                            <div className='text-xs text-muted-foreground'>
-                              {parent.fatherName || 'No father name'}
-                            </div>
-                          </TableCell>
+                              <div className='text-xs text-muted-foreground'>
+                                {parent.fatherName || 'Aucun nom du pere'}
+                              </div>
+                            </TableCell>
                           <TableCell>
-                            <div>{parent.email || 'No email'}</div>
+                            <div>{parent.email || 'Aucun e-mail'}</div>
                             <div className='text-xs text-muted-foreground'>
                               +{parent.countryCode} {parent.phoneNumber}
                             </div>
@@ -867,7 +931,7 @@ export function CollectingAgents() {
                               size='sm'
                               onClick={() => setPendingUnassignParent(parent)}
                             >
-                              Unassign
+                              Retirer
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -883,10 +947,10 @@ export function CollectingAgents() {
             <CardHeader>
               <CardTitle className='flex items-center gap-2'>
                 <ShieldCheck className='h-4 w-4 text-primary' />
-                Pending assignment requests
+                Demandes d affectation en attente
               </CardTitle>
               <CardDescription>
-                Review parent requests for specific collecting agents in this school.
+                Examinez les demandes de parents visant des agents collecteurs specifiques dans cette ecole.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -897,8 +961,8 @@ export function CollectingAgents() {
                 </div>
               ) : pendingRequests.length === 0 ? (
                 <EmptyState
-                  title='No pending requests'
-                  description='There are no parent-initiated agent requests awaiting director review.'
+                  title='Aucune demande en attente'
+                  description='Aucune demande d agent initiee par un parent n attend la revue du directeur.'
                 />
               ) : (
                 <div className='rounded-lg border'>
@@ -906,9 +970,9 @@ export function CollectingAgents() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Parent</TableHead>
-                        <TableHead>Requested agent</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
+                        <TableHead>Agent demande</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Cree le</TableHead>
                         <TableHead className='text-right'>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -916,15 +980,15 @@ export function CollectingAgents() {
                       {pendingRequests.map((request) => (
                         <TableRow key={request.id}>
                           <TableCell>
-                            <div className='font-medium'>
-                              {request.parentName || 'Unknown parent'}
-                            </div>
-                            <div className='text-xs text-muted-foreground'>
-                              {request.assignmentNotes || 'No request notes'}
-                            </div>
-                          </TableCell>
+                              <div className='font-medium'>
+                                {request.parentName || 'Parent inconnu'}
+                              </div>
+                              <div className='text-xs text-muted-foreground'>
+                                {request.assignmentNotes || 'Aucune note de demande'}
+                              </div>
+                            </TableCell>
                           <TableCell>
-                            {request.collectingAgentName || 'Unknown agent'}
+                            {request.collectingAgentName || 'Agent inconnu'}
                           </TableCell>
                           <TableCell>
                             <Badge variant='outline'>
@@ -941,7 +1005,7 @@ export function CollectingAgents() {
                                   setReviewNotes('')
                                 }}
                               >
-                                Approve
+                                Approuver
                               </Button>
                               <Button
                                 variant='outline'
@@ -951,7 +1015,7 @@ export function CollectingAgents() {
                                   setReviewNotes('')
                                 }}
                               >
-                                Reject
+                                Rejeter
                               </Button>
                             </div>
                           </TableCell>
@@ -971,11 +1035,10 @@ export function CollectingAgents() {
               <div>
                 <CardTitle className='flex items-center gap-2'>
                   <MapPinned className='h-4 w-4 text-primary' />
-                  Activity log
+                  Journal des activites
                 </CardTitle>
                 <CardDescription>
-                  Track field work, contact attempts, payment collection updates,
-                  and manual director requests.
+                  Suivez le travail terrain, les tentatives de contact, les mises a jour de collecte de paiement et les demandes manuelles du directeur.
                 </CardDescription>
               </div>
               <Button
@@ -987,14 +1050,14 @@ export function CollectingAgents() {
                 }}
               >
                 <Plus className='h-4 w-4' />
-                Log activity
+                Journaliser une activite
               </Button>
             </CardHeader>
             <CardContent>
               {!selectedAgent ? (
                 <EmptyState
-                  title='Select an agent first'
-                  description='Activities are loaded for the selected collecting agent.'
+                  title='Selectionnez d abord un agent'
+                  description='Les activites sont chargees pour l agent collecteur selectionne.'
                 />
               ) : activitiesQuery.isLoading ? (
                 <div className='space-y-3'>
@@ -1003,8 +1066,8 @@ export function CollectingAgents() {
                 </div>
               ) : activities.length === 0 ? (
                 <EmptyState
-                  title='No activities yet'
-                  description='No activity log entries were returned for the selected agent.'
+                  title='Aucune activite pour le moment'
+                  description='Aucune entree de journal n a ete retournee pour l agent selectionne.'
                 />
               ) : (
                 <div className='rounded-lg border'>
@@ -1022,19 +1085,16 @@ export function CollectingAgents() {
                         <TableRow key={activity.id}>
                           <TableCell>
                             <div className='font-medium'>
-                              {activity.activityTypeDisplayName}
-                            </div>
-                            <div className='text-xs text-muted-foreground'>
-                              {activity.activityType}
+                              {getActivityTypeLabel(activity.activityType)}
                             </div>
                           </TableCell>
-                          <TableCell>{activity.parentName || 'No parent linked'}</TableCell>
+                          <TableCell>{activity.parentName || 'Aucun parent lie'}</TableCell>
                           <TableCell>
                             <div className='font-medium'>
                               {activity.activityDescription}
                             </div>
                             <div className='text-xs text-muted-foreground'>
-                              {activity.notes || 'No extra notes'}
+                              {activity.notes || 'Aucune note supplementaire'}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -1057,7 +1117,7 @@ export function CollectingAgents() {
                   Commissions
                 </CardTitle>
                 <CardDescription>
-                  Record and review commission payouts related to agent-collected payments.
+                  Enregistrez et consultez les commissions liees aux paiements collectes par les agents.
                 </CardDescription>
               </div>
               <Button
@@ -1075,14 +1135,14 @@ export function CollectingAgents() {
                 }}
               >
                 <Plus className='h-4 w-4' />
-                Add commission
+                Ajouter une commission
               </Button>
             </CardHeader>
             <CardContent>
               {!selectedAgent ? (
                 <EmptyState
-                  title='Select an agent first'
-                  description='Commissions are shown for the selected collecting agent.'
+                  title='Selectionnez d abord un agent'
+                  description='Les commissions s affichent pour l agent collecteur selectionne.'
                 />
               ) : commissionsQuery.isLoading ? (
                 <div className='space-y-3'>
@@ -1091,8 +1151,8 @@ export function CollectingAgents() {
                 </div>
               ) : commissions.length === 0 ? (
                 <EmptyState
-                  title='No commissions yet'
-                  description='No commission history was returned for the selected agent.'
+                  title='Aucune commission pour le moment'
+                  description='Aucun historique de commission n a ete retourne pour l agent selectionne.'
                 />
               ) : (
                 <div className='rounded-lg border'>
@@ -1100,10 +1160,10 @@ export function CollectingAgents() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Transaction</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Rate</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
+                        <TableHead>Montant</TableHead>
+                        <TableHead>Taux</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Cree le</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1114,7 +1174,7 @@ export function CollectingAgents() {
                               #{commission.paymentTransactionId}
                             </div>
                             <div className='text-xs text-muted-foreground'>
-                              {commission.description || 'No description'}
+                              {commission.description || 'Aucune description'}
                             </div>
                           </TableCell>
                           <TableCell>{formatCurrency(commission.commissionAmount)}</TableCell>
@@ -1151,17 +1211,19 @@ export function CollectingAgents() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingAgent ? 'Edit collecting agent' : 'Add collecting agent'}
+              {editingAgent
+                ? 'Modifier un agent collecteur'
+                : 'Ajouter un agent collecteur'}
             </DialogTitle>
             <DialogDescription>
-              Configure the agent identity, assigned field area, and default commission percentage.
+              Configurez l identite de l agent, sa zone terrain attribuee et son pourcentage de commission par defaut.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-first-name'>First name</Label>
+                <Label htmlFor='agent-first-name'>Prenom</Label>
                 <Input
                   id='agent-first-name'
                   value={agentForm.firstName}
@@ -1174,7 +1236,7 @@ export function CollectingAgents() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-last-name'>Last name</Label>
+                <Label htmlFor='agent-last-name'>Nom</Label>
                 <Input
                   id='agent-last-name'
                   value={agentForm.lastName}
@@ -1190,7 +1252,7 @@ export function CollectingAgents() {
 
             <div className='grid gap-4 sm:grid-cols-[120px_1fr]'>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-country-code'>Country code</Label>
+                <Label htmlFor='agent-country-code'>Indicatif pays</Label>
                 <Input
                   id='agent-country-code'
                   value={agentForm.countryCode}
@@ -1203,7 +1265,7 @@ export function CollectingAgents() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-phone'>Phone number</Label>
+                <Label htmlFor='agent-phone'>Numero de telephone</Label>
                 <Input
                   id='agent-phone'
                   value={agentForm.phoneNumber}
@@ -1218,7 +1280,7 @@ export function CollectingAgents() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='agent-email'>Email</Label>
+              <Label htmlFor='agent-email'>Adresse e-mail</Label>
               <Input
                 id='agent-email'
                 type='email'
@@ -1234,7 +1296,7 @@ export function CollectingAgents() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-area'>Assigned area</Label>
+                <Label htmlFor='agent-area'>Zone attribuee</Label>
                 <Input
                   id='agent-area'
                   value={agentForm.assignedArea}
@@ -1247,7 +1309,7 @@ export function CollectingAgents() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='agent-commission'>Commission percentage</Label>
+                <Label htmlFor='agent-commission'>Pourcentage de commission</Label>
                 <Input
                   id='agent-commission'
                   inputMode='decimal'
@@ -1265,7 +1327,7 @@ export function CollectingAgents() {
 
           <DialogFooter>
             <Button variant='outline' onClick={() => setIsAgentDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -1277,10 +1339,10 @@ export function CollectingAgents() {
               onClick={() => saveAgentMutation.mutate()}
             >
               {saveAgentMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingAgent
-                  ? 'Save changes'
-                  : 'Create agent'}
+                  ? 'Enregistrer les modifications'
+                  : 'Creer l agent'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1297,9 +1359,9 @@ export function CollectingAgents() {
       >
         <DialogContent className='sm:max-w-xl'>
           <DialogHeader>
-            <DialogTitle>Assign parent</DialogTitle>
+            <DialogTitle>Affecter un parent</DialogTitle>
             <DialogDescription>
-              Link a parent account to the selected collecting agent.
+              Liez un compte parent a l agent collecteur selectionne.
             </DialogDescription>
           </DialogHeader>
 
@@ -1320,7 +1382,7 @@ export function CollectingAgents() {
                 }
               >
                 <SelectTrigger id='assignment-parent'>
-                  <SelectValue placeholder='Select a parent' />
+                  <SelectValue placeholder='Selectionnez un parent' />
                 </SelectTrigger>
                 <SelectContent>
                   {availableParents.map((parent) => (
@@ -1333,7 +1395,7 @@ export function CollectingAgents() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='assignment-notes'>Assignment notes</Label>
+              <Label htmlFor='assignment-notes'>Notes d affectation</Label>
               <Textarea
                 id='assignment-notes'
                 rows={4}
@@ -1353,13 +1415,15 @@ export function CollectingAgents() {
               variant='outline'
               onClick={() => setIsAssignmentDialogOpen(false)}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={assignmentMutation.isPending || assignmentForm.parentId === 0}
               onClick={() => assignmentMutation.mutate()}
             >
-              {assignmentMutation.isPending ? 'Assigning...' : 'Assign parent'}
+              {assignmentMutation.isPending
+                ? 'Affectation en cours...'
+                : 'Affecter le parent'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1376,16 +1440,16 @@ export function CollectingAgents() {
       >
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
-            <DialogTitle>Log agent activity</DialogTitle>
+            <DialogTitle>Journaliser une activite agent</DialogTitle>
             <DialogDescription>
-              Record a field action, payment follow-up, or a specific manual task request for the selected agent.
+              Enregistrez une action terrain, un suivi de paiement ou une demande manuelle specifique pour l agent selectionne.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='activity-type'>Activity type</Label>
+                <Label htmlFor='activity-type'>Type d activite</Label>
                 <Select
                   value={activityForm.activityType}
                   onValueChange={(value) =>
@@ -1401,7 +1465,7 @@ export function CollectingAgents() {
                   <SelectContent>
                     {activityTypeOptions.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {getActivityTypeLabel(type)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1422,7 +1486,7 @@ export function CollectingAgents() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='none'>No parent linked</SelectItem>
+                    <SelectItem value='none'>Aucun parent lie</SelectItem>
                     {assignedParents.map((parent) => (
                       <SelectItem key={parent.id} value={String(parent.id)}>
                         {buildFullName(parent.firstName, parent.lastName)}
@@ -1464,7 +1528,7 @@ export function CollectingAgents() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='activity-transaction'>Transaction id</Label>
+                <Label htmlFor='activity-transaction'>ID transaction</Label>
                 <Input
                   id='activity-transaction'
                   inputMode='numeric'
@@ -1478,7 +1542,7 @@ export function CollectingAgents() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='activity-support-request'>Support request id</Label>
+                <Label htmlFor='activity-support-request'>ID demande de support</Label>
                 <Input
                   id='activity-support-request'
                   inputMode='numeric'
@@ -1496,7 +1560,7 @@ export function CollectingAgents() {
 
           <DialogFooter>
             <Button variant='outline' onClick={() => setIsActivityDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -1505,7 +1569,9 @@ export function CollectingAgents() {
               }
               onClick={() => activityMutation.mutate()}
             >
-              {activityMutation.isPending ? 'Saving...' : 'Log activity'}
+              {activityMutation.isPending
+                ? 'Enregistrement...'
+                : 'Journaliser l activite'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1528,15 +1594,15 @@ export function CollectingAgents() {
       >
         <DialogContent className='sm:max-w-xl'>
           <DialogHeader>
-            <DialogTitle>Add commission</DialogTitle>
+            <DialogTitle>Ajouter une commission</DialogTitle>
             <DialogDescription>
-              Record a commission entry tied to a specific payment transaction.
+              Enregistrez une ligne de commission liee a une transaction de paiement specifique.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='commission-transaction'>Payment transaction id</Label>
+              <Label htmlFor='commission-transaction'>ID transaction de paiement</Label>
               <Input
                 id='commission-transaction'
                 inputMode='numeric'
@@ -1552,7 +1618,7 @@ export function CollectingAgents() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='commission-amount'>Commission amount</Label>
+                <Label htmlFor='commission-amount'>Montant de la commission</Label>
                 <Input
                   id='commission-amount'
                   inputMode='decimal'
@@ -1566,7 +1632,7 @@ export function CollectingAgents() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='commission-rate'>Commission rate</Label>
+                <Label htmlFor='commission-rate'>Taux de commission</Label>
                 <Input
                   id='commission-rate'
                   inputMode='decimal'
@@ -1602,7 +1668,7 @@ export function CollectingAgents() {
               variant='outline'
               onClick={() => setIsCommissionDialogOpen(false)}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -1612,7 +1678,9 @@ export function CollectingAgents() {
               }
               onClick={() => commissionMutation.mutate()}
             >
-              {commissionMutation.isPending ? 'Saving...' : 'Record commission'}
+              {commissionMutation.isPending
+                ? 'Enregistrement...'
+                : 'Enregistrer la commission'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1631,18 +1699,18 @@ export function CollectingAgents() {
           <DialogHeader>
             <DialogTitle>
               {reviewAction?.mode === 'approve'
-                ? 'Approve agent request'
-                : 'Reject agent request'}
+                ? 'Approuver la demande d agent'
+                : 'Rejeter la demande d agent'}
             </DialogTitle>
             <DialogDescription>
               {reviewAction?.mode === 'approve'
-                ? 'Confirm the assignment request and optionally leave a review note.'
-                : 'Reject the assignment request and record an optional explanation.'}
+                ? 'Confirmez la demande d affectation et laissez eventuellement une note de revue.'
+                : 'Rejetez la demande d affectation et enregistrez eventuellement une explication.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-2'>
-            <Label htmlFor='review-notes'>Review notes</Label>
+            <Label htmlFor='review-notes'>Notes de revue</Label>
             <Textarea
               id='review-notes'
               rows={4}
@@ -1659,14 +1727,14 @@ export function CollectingAgents() {
                 setReviewNotes('')
               }}
             >
-              Cancel
+              Annuler
             </Button>
             <Button onClick={() => reviewMutation.mutate()} disabled={reviewMutation.isPending}>
               {reviewMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : reviewAction?.mode === 'approve'
-                  ? 'Approve request'
-                  : 'Reject request'}
+                  ? 'Approuver la demande'
+                  : 'Rejeter la demande'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1683,18 +1751,20 @@ export function CollectingAgents() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {pendingStatusAgent?.statusId === 1 ? 'Disable agent?' : 'Enable agent?'}
+              {pendingStatusAgent?.statusId === 1
+                ? 'Desactiver cet agent ?'
+                : 'Activer cet agent ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingStatusAgent?.statusId === 1
-                ? 'This will prevent the agent from being used in active field operations until they are enabled again.'
-                : 'This will restore the agent to active operational use.'}
+                ? 'Cela empechera l agent d etre utilise dans les operations terrain actives jusqu a sa reactivation.'
+                : 'Cela remettra l agent en service actif.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={() => statusMutation.mutate()}>
-              Confirm
+              Confirmer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1710,15 +1780,15 @@ export function CollectingAgents() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unassign parent?</AlertDialogTitle>
+            <AlertDialogTitle>Retirer ce parent ?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove the selected parent from the current agent assignment list.
+              Cela retirera le parent selectionne de la liste d affectation de l agent courant.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={() => unassignMutation.mutate()}>
-              Unassign
+              Retirer
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

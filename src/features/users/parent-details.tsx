@@ -115,20 +115,20 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
   if (!hasValidParentId) {
     return (
       <PageShell
-        title='Parent details'
-        description='Review linked schools, children, and payment dependencies.'
+        title='Details du parent'
+        description='Consultez les ecoles liees, les enfants et les dependances de paiement.'
         actions={
           <Button variant='outline' asChild>
             <Link to='/users'>
               <ArrowLeft className='h-4 w-4' />
-              Back to users
+              Retour aux utilisateurs
             </Link>
           </Button>
         }
       >
         <EmptyState
-          title='Invalid parent'
-          description='The page was opened without a valid parent id.'
+          title='Parent invalide'
+          description='La page a ete ouverte sans identifiant parent valide.'
         />
       </PageShell>
     )
@@ -136,6 +136,13 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
 
   const parent = parentQuery.data
   const schools = schoolsQuery.data ?? []
+  const resolvedSchoolIds = schools
+    .map((school) => school.schoolId)
+    .filter((schoolId) => schoolId > 0)
+  const resolvedSchoolNames =
+    schools.length > 0
+      ? schools.map((school) => school.schoolName).filter(Boolean)
+      : parent?.schoolNames ?? []
   const children = childrenQuery.data ?? []
   const installments = installmentsQuery.data ?? []
   const unpaidInstallments = installments.filter(
@@ -144,9 +151,13 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
   const outstandingAmount = unpaidInstallments.reduce((total, installment) => {
     return total + installment.amount + (installment.lateFee ?? 0)
   }, 0)
+  const parentSchoolIds =
+    resolvedSchoolIds.length > 0 ? resolvedSchoolIds : (parent?.schoolIds ?? [])
+  const isResolvingDirectorAccess =
+    isDirector && schoolsQuery.isLoading && parentSchoolIds.length === 0
   const hasAccess =
     !isDirector ||
-    (parent?.schoolIds ?? []).some((schoolId) =>
+    parentSchoolIds.some((schoolId) =>
       (currentUser?.schoolIds ?? []).includes(schoolId)
     )
 
@@ -155,19 +166,19 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
       title={
         parent
           ? buildFullName(parent.firstName, parent.lastName)
-          : 'Parent details'
+          : 'Details du parent'
       }
-      description='Inspect the parent profile, linked schools, children, and installment history.'
+      description='Consultez le profil du parent, les ecoles liees, les enfants et l historique des echeances.'
       actions={
         <Button variant='outline' asChild>
           <Link to='/users'>
             <ArrowLeft className='h-4 w-4' />
-            Back to users
+            Retour aux utilisateurs
           </Link>
         </Button>
       }
     >
-      {parentQuery.isLoading ? (
+      {parentQuery.isLoading || isResolvingDirectorAccess ? (
         <div className='space-y-4'>
           <div className='grid gap-4 md:grid-cols-4'>
             <Skeleton className='h-28 w-full' />
@@ -180,36 +191,36 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
         </div>
       ) : parentQuery.isError || !parent ? (
         <EmptyState
-          title='Unable to load parent'
-          description='The backend did not return a usable parent record for this page.'
+          title='Impossible de charger le parent'
+          description='Le backend n a pas retourne de fiche parent exploitable pour cette page.'
         />
       ) : !hasAccess ? (
         <EmptyState
-          title='Access limited'
-          description='This parent is linked to a school outside the current director scope.'
+          title='Acces limite'
+          description='Ce parent est lie a une ecole hors de la portee actuelle du directeur.'
         />
       ) : (
         <>
           <section className='grid gap-4 md:grid-cols-4'>
             <SummaryCard
-              title='Status'
+              title='Statut'
               value={getEntityStatusMeta(parent.statusId).label}
-              description='Current account lifecycle for the parent.'
+              description='Cycle de vie actuel du compte parent.'
             />
             <SummaryCard
-              title='Schools'
+              title='Ecoles'
               value={String(schools.length)}
-              description='Schools currently linked to this parent.'
+              description='Ecoles actuellement liees a ce parent.'
             />
             <SummaryCard
-              title='Children'
+              title='Enfants'
               value={String(children.length)}
-              description='Children currently attached to this parent.'
+              description='Enfants actuellement rattaches a ce parent.'
             />
             <SummaryCard
-              title='Outstanding'
+              title='Impayes'
               value={formatCurrency(outstandingAmount)}
-              description={`${unpaidInstallments.length} unpaid installment${unpaidInstallments.length === 1 ? '' : 's'} in the history.`}
+              description={`${unpaidInstallments.length} echeance${unpaidInstallments.length === 1 ? '' : 's'} impayee${unpaidInstallments.length === 1 ? '' : 's'} dans l historique.`}
             />
           </section>
 
@@ -219,11 +230,11 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     <UserRound className='h-5 w-5 text-primary' />
-                    Parent profile
+                    Profil du parent
                   </CardTitle>
                   <CardDescription>
-                    Contact and identity details returned from the EduFrais
-                    parent record.
+                    Coordonnees et informations d identite retournees par la
+                    fiche parent EduFrais.
                   </CardDescription>
                 </div>
                 <Badge
@@ -235,32 +246,32 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
               </CardHeader>
               <CardContent className='grid gap-4'>
                 <DetailRow
-                  label='Full name'
+                  label='Nom complet'
                   value={buildFullName(parent.firstName, parent.lastName)}
                 />
                 <DetailRow
-                  label='Father name'
-                  value={parent.fatherName || 'No father name'}
+                  label='Nom du pere'
+                  value={parent.fatherName || 'Aucun nom du pere'}
                 />
                 <DetailRow
-                  label='Civil id'
-                  value={parent.civilId || 'No civil id'}
+                  label='ID civil'
+                  value={parent.civilId || 'Aucun ID civil'}
                 />
-                <DetailRow label='Email' value={parent.email || 'No email'} />
+                <DetailRow label='Email' value={parent.email || 'Aucun email'} />
                 <DetailRow
-                  label='Phone number'
-                  value={`+${parent.countryCode} ${parent.phoneNumber || 'No phone number'}`}
+                  label='Numero de telephone'
+                  value={`+${parent.countryCode} ${parent.phoneNumber || 'Aucun numero de telephone'}`}
                 />
                 <DetailRow
-                  label='Created on'
+                  label='Cree le'
                   value={formatDateTime(parent.createdOn)}
                 />
                 <DetailRow
-                  label='Linked schools'
+                  label='Ecoles liees'
                   value={
-                    parent.schoolNames.length > 0
-                      ? parent.schoolNames.join(', ')
-                      : 'No schools'
+                    resolvedSchoolNames.length > 0
+                      ? resolvedSchoolNames.join(', ')
+                      : 'Aucune ecole'
                   }
                 />
               </CardContent>
@@ -271,13 +282,13 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     <Building2 className='h-5 w-5 text-primary' />
-                    School dependencies
+                    Dependances ecoles
                   </CardTitle>
                   <CardDescription>
-                    Every school currently associated with this parent.
+                    Toutes les ecoles actuellement associees a ce parent.
                   </CardDescription>
                 </div>
-                <Badge variant='outline'>{schools.length} schools</Badge>
+                <Badge variant='outline'>{schools.length} ecoles</Badge>
               </CardHeader>
               <CardContent>
                 {schoolsQuery.isLoading ? (
@@ -287,15 +298,15 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                   </div>
                 ) : schools.length === 0 ? (
                   <EmptyState
-                    title='No schools found'
-                    description='The parent school dependency endpoint returned an empty list.'
+                    title='Aucune ecole trouvee'
+                    description='Le point de terminaison des dependances ecoles du parent a retourne une liste vide.'
                   />
                 ) : (
                   <div className='rounded-lg border'>
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>School</TableHead>
+                          <TableHead>Ecole</TableHead>
                           <TableHead className='text-right'>Details</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -311,7 +322,7 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                                   to='/school-details/$schoolId'
                                   params={{ schoolId: String(school.schoolId) }}
                                 >
-                                  View school
+                                  Voir l ecole
                                 </Link>
                               </Button>
                             </TableCell>
@@ -327,17 +338,17 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
 
           <Card className='border-border/70'>
             <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-              <div>
-                <CardTitle className='flex items-center gap-2'>
-                  <GraduationCap className='h-5 w-5 text-primary' />
-                  Children
-                </CardTitle>
-                <CardDescription>
-                  Children linked to this parent, including their school and
-                  current class label.
-                </CardDescription>
-              </div>
-              <Badge variant='outline'>{children.length} children</Badge>
+                <div>
+                  <CardTitle className='flex items-center gap-2'>
+                    <GraduationCap className='h-5 w-5 text-primary' />
+                    Enfants
+                  </CardTitle>
+                  <CardDescription>
+                    Enfants lies a ce parent, avec leur ecole et leur classe
+                    actuelle.
+                  </CardDescription>
+                </div>
+              <Badge variant='outline'>{children.length} enfants</Badge>
             </CardHeader>
             <CardContent>
               {childrenQuery.isLoading ? (
@@ -347,18 +358,18 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                 </div>
               ) : children.length === 0 ? (
                 <EmptyState
-                  title='No children found'
-                  description='The parent child dependency endpoint returned an empty list.'
+                  title='Aucun enfant trouve'
+                  description='Le point de terminaison des dependances enfants du parent a retourne une liste vide.'
                 />
               ) : (
                 <div className='rounded-lg border'>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Child</TableHead>
-                        <TableHead>School</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Enfant</TableHead>
+                        <TableHead>Ecole</TableHead>
+                        <TableHead>Classe</TableHead>
+                        <TableHead>Statut</TableHead>
                         <TableHead className='text-right'>Details</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -378,7 +389,7 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                             </TableCell>
                             <TableCell>{child.schoolName}</TableCell>
                             <TableCell>
-                              {child.schoolGradeName || 'No class assigned'}
+                              {child.schoolGradeName || 'Aucune classe assignee'}
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -394,7 +405,7 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                                   to='/child-details/$childId'
                                   params={{ childId: String(child.id) }}
                                 >
-                                  View child
+                                  Voir l enfant
                                 </Link>
                               </Button>
                             </TableCell>
@@ -410,18 +421,18 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
 
           <Card className='border-border/70'>
             <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
-              <div>
-                <CardTitle className='flex items-center gap-2'>
-                  <HandCoins className='h-5 w-5 text-primary' />
-                  Installments
-                </CardTitle>
-                <CardDescription>
-                  School fee history returned for this parent and their
-                  children.
-                </CardDescription>
-              </div>
+                <div>
+                  <CardTitle className='flex items-center gap-2'>
+                    <HandCoins className='h-5 w-5 text-primary' />
+                    Echeances
+                  </CardTitle>
+                  <CardDescription>
+                    Historique des frais scolaires retourne pour ce parent et
+                    ses enfants.
+                  </CardDescription>
+                </div>
               <Badge variant='outline'>
-                {installments.length} installments
+                {installments.length} echeances
               </Badge>
             </CardHeader>
             <CardContent>
@@ -432,20 +443,20 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                 </div>
               ) : installments.length === 0 ? (
                 <EmptyState
-                  title='No installments found'
-                  description='The payment history endpoint returned no installments for this parent.'
+                  title='Aucune echeance trouvee'
+                  description='Le point de terminaison de l historique de paiement n a retourne aucune echeance pour ce parent.'
                 />
               ) : (
                 <div className='rounded-lg border'>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Child</TableHead>
-                        <TableHead>School</TableHead>
-                        <TableHead>Class</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Due date</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>Enfant</TableHead>
+                        <TableHead>Ecole</TableHead>
+                        <TableHead>Classe</TableHead>
+                        <TableHead>Montant</TableHead>
+                        <TableHead>Date d echeance</TableHead>
+                        <TableHead>Statut</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -465,14 +476,14 @@ export function ParentDetails({ parentId }: ParentDetailsProps) {
                               <div>{formatCurrency(installment.amount)}</div>
                               {installment.lateFee ? (
                                 <div className='text-xs text-muted-foreground'>
-                                  Late fee {formatCurrency(installment.lateFee)}
+                                  Penalite de retard {formatCurrency(installment.lateFee)}
                                 </div>
                               ) : null}
                             </TableCell>
                             <TableCell>
                               <div>{formatDateOnly(installment.dueDate)}</div>
                               <div className='text-xs text-muted-foreground'>
-                                Paid {formatDateOnly(installment.paidDate)}
+                                Paye le {formatDateOnly(installment.paidDate)}
                               </div>
                             </TableCell>
                             <TableCell>

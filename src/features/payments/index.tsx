@@ -172,27 +172,26 @@ export function Payments() {
 
   return (
     <PageShell
-      title='Payments'
-      description='Monitor school fee and merchandise payment history with a shared status filter and direct transaction lookup.'
-      actions={<Badge variant='outline'>{selectedStatusLabel} filter active</Badge>}
+      title='Paiements'
+      description='Suivez l historique des paiements des frais scolaires et des articles avec un filtre de statut partage et une verification directe des transactions.'
+      actions={<Badge variant='outline'>Filtre actif : {selectedStatusLabel}</Badge>}
     >
       <section className='grid gap-4 rounded-2xl border bg-card p-4 lg:grid-cols-[1.1fr_0.9fr_0.9fr]'>
         <div className='space-y-1'>
-          <p className='text-sm font-medium'>School scope</p>
+          <p className='text-sm font-medium'>Portee ecole</p>
           <p className='text-sm text-muted-foreground'>
-            Payment history is aggregated school-wide by collecting each parent&apos;s
-            transaction history behind the scenes.
+            L historique des paiements est agrege a l echelle de l ecole en collectant en arriere-plan l historique de chaque parent.
           </p>
         </div>
         <div className='space-y-2'>
-          <p className='text-sm font-medium'>School</p>
+          <p className='text-sm font-medium'>Ecole</p>
           <Select
             value={selectedSchoolId ? String(selectedSchoolId) : undefined}
             onValueChange={(value) => setSelectedSchoolId(Number(value))}
             disabled={isDirector || accessibleSchools.length === 0}
           >
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select a school' />
+              <SelectValue placeholder='Selectionner une ecole' />
             </SelectTrigger>
             <SelectContent>
               {accessibleSchools.map((school) => (
@@ -204,19 +203,19 @@ export function Payments() {
           </Select>
         </div>
         <div className='space-y-2'>
-          <p className='text-sm font-medium'>Status filter</p>
+          <p className='text-sm font-medium'>Filtre de statut</p>
           <Select
             value={String(selectedStatusId)}
             onValueChange={(value) => setSelectedStatusId(Number(value))}
           >
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder='Select a payment status' />
+              <SelectValue placeholder='Selectionner un statut de paiement' />
             </SelectTrigger>
             <SelectContent>
               {statusFilterOptions.map((statusId) => (
                 <SelectItem key={statusId} value={String(statusId)}>
                   {statusId === 0
-                    ? 'All statuses'
+                    ? 'Tous les statuts'
                     : getEntityStatusMeta(statusId).label}
                 </SelectItem>
               ))}
@@ -227,39 +226,38 @@ export function Payments() {
 
       <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
         <SummaryCard
-          title='Processed school fees'
+          title='Frais scolaires traites'
           value={formatCurrency(totalSchoolFees)}
-          description='Collected installment payments with status Processed.'
+          description='Paiements d echeances collectes avec le statut Traite.'
         />
         <SummaryCard
-          title='Processed merchandise'
+          title='Articles traites'
           value={formatCurrency(totalMerchandise)}
-          description='Collected merchandise payments with status Processed.'
+          description='Paiements d articles collectes avec le statut Traite.'
         />
         <SummaryCard
-          title='Visible transactions'
+          title='Transactions visibles'
           value={formatNumber(totalTransactions)}
-          description={`Combined school fee and merchandise history for ${selectedStatusLabel.toLowerCase()}.`}
+          description={`Historique combine des frais scolaires et des articles pour ${selectedStatusLabel.toLowerCase()}.`}
         />
         <SummaryCard
-          title='Agent handled'
+          title='Pris en charge par un agent'
           value={formatNumber(agentProcessedTransactions)}
-          description={`Transactions handled by collecting agents for ${selectedStatusLabel.toLowerCase()}.`}
+          description={`Transactions prises en charge par les agents collecteurs pour ${selectedStatusLabel.toLowerCase()}.`}
         />
       </section>
 
       <section className='grid gap-4 xl:grid-cols-[1.35fr_0.65fr]'>
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>School-wide payment coverage</CardTitle>
+            <CardTitle>Couverture des paiements de l ecole</CardTitle>
             <CardDescription>
-              This page aggregates per-parent payment histories because the backend
-              does not yet expose a single school-level history endpoint.
+              Cette page agrege les historiques de paiement par parent car le backend n expose pas encore un endpoint unique au niveau de l ecole.
             </CardDescription>
           </CardHeader>
           <CardContent className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Parents in scope</p>
+              <p className='text-sm text-muted-foreground'>Parents concernes</p>
               <p className='mt-2 text-2xl font-semibold'>
                 {schoolFeesQuery.data?.totalParents ??
                   merchandiseQuery.data?.totalParents ??
@@ -267,7 +265,7 @@ export function Payments() {
               </p>
             </div>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Parents scanned</p>
+              <p className='text-sm text-muted-foreground'>Parents analyses</p>
               <p className='mt-2 text-2xl font-semibold'>
                 {schoolFeesQuery.data?.scannedParents ??
                   merchandiseQuery.data?.scannedParents ??
@@ -275,13 +273,13 @@ export function Payments() {
               </p>
             </div>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>School fee fetch errors</p>
+              <p className='text-sm text-muted-foreground'>Erreurs de chargement des frais scolaires</p>
               <p className='mt-2 text-2xl font-semibold'>
                 {schoolFeesQuery.data?.failedParents ?? 0}
               </p>
             </div>
             <div className='rounded-xl border bg-muted/20 p-4'>
-              <p className='text-sm text-muted-foreground'>Merch fetch errors</p>
+              <p className='text-sm text-muted-foreground'>Erreurs de chargement des articles</p>
               <p className='mt-2 text-2xl font-semibold'>
                 {merchandiseQuery.data?.failedParents ?? 0}
               </p>
@@ -291,15 +289,15 @@ export function Payments() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Transaction status lookup</CardTitle>
+            <CardTitle>Verification du statut d une transaction</CardTitle>
             <CardDescription>
-              Check a payment reference directly against <code>/api/Payments/CheckPaymentStatus</code>.
+              Verifiez directement une reference de paiement via <code>/api/Payments/CheckPaymentStatus</code>.
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             <div className='flex gap-2'>
               <Input
-                placeholder='Transaction ID'
+                placeholder='ID de transaction'
                 value={lookupReference}
                 onChange={(event) => setLookupReference(event.target.value)}
               />
@@ -308,7 +306,7 @@ export function Payments() {
                 disabled={lookupMutation.isPending || lookupReference.trim().length === 0}
               >
                 <Search className='h-4 w-4' />
-                Check
+                Verifier
               </Button>
             </div>
 
@@ -322,21 +320,21 @@ export function Payments() {
                 <div className='flex items-center justify-between gap-3'>
                   <p className='font-medium'>Reference {lookupMutation.data.transactionId}</p>
                   <Badge variant='outline'>
-                    {lookupMutation.data.status || 'Unknown'}
+                    {lookupMutation.data.status || 'Inconnu'}
                   </Badge>
                 </div>
                 <p className='mt-3 text-muted-foreground'>
                   {lookupMutation.data.message}
                 </p>
                 <div className='mt-4 grid gap-2 sm:grid-cols-2'>
-                  <p>Amount: {formatCurrency(lookupMutation.data.amount)}</p>
-                  <p>Currency: {lookupMutation.data.currency}</p>
-                  <p>Country: {lookupMutation.data.country}</p>
+                  <p>Montant : {formatCurrency(lookupMutation.data.amount)}</p>
+                  <p>Devise : {lookupMutation.data.currency}</p>
+                  <p>Pays : {lookupMutation.data.country}</p>
                 </div>
               </div>
             ) : (
               <div className='rounded-xl border border-dashed p-4 text-sm text-muted-foreground'>
-                Enter a transaction ID to inspect its latest payment status.
+                Saisissez un ID de transaction pour consulter son dernier statut de paiement.
               </div>
             )}
           </CardContent>
@@ -345,15 +343,15 @@ export function Payments() {
 
       {!selectedSchool ? (
         <EmptyState
-          title='No school selected yet'
-          description='Choose a school first so the payment console can assemble its transaction history.'
+          title='Aucune ecole selectionnee'
+          description='Choisissez d abord une ecole pour que la console de paiement puisse assembler son historique de transactions.'
         />
       ) : (
         <Tabs defaultValue='school-fees' className='space-y-4'>
           <div className='overflow-x-auto pb-2'>
             <TabsList>
-              <TabsTrigger value='school-fees'>School fees</TabsTrigger>
-              <TabsTrigger value='merchandise'>Merchandise</TabsTrigger>
+              <TabsTrigger value='school-fees'>Frais scolaires</TabsTrigger>
+              <TabsTrigger value='merchandise'>Articles</TabsTrigger>
             </TabsList>
           </div>
 
@@ -363,8 +361,7 @@ export function Payments() {
                 <CardContent className='flex items-start gap-3 pt-6 text-sm'>
                   <AlertCircle className='mt-0.5 h-4 w-4 text-amber-600' />
                   <p>
-                    Some parent payment histories could not be fetched. The table below
-                    shows the transactions we successfully aggregated.
+                    Certains historiques de paiement parent n ont pas pu etre charges. Le tableau ci-dessous affiche les transactions agregees avec succes.
                   </p>
                 </CardContent>
               </Card>
@@ -373,9 +370,9 @@ export function Payments() {
             <Card className='border-border/70'>
               <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>School fee history</CardTitle>
+                  <CardTitle>Historique des frais scolaires</CardTitle>
                   <CardDescription>
-                    Installment payment history for {selectedSchool.name} filtered by{' '}
+                    Historique des paiements d echeances pour {selectedSchool.name} filtre par{' '}
                     {selectedStatusLabel}.
                   </CardDescription>
                 </div>
@@ -394,13 +391,13 @@ export function Payments() {
                   <EmptyState
                     title={
                       schoolFees.length === 0
-                        ? 'No school fee payments found'
-                        : 'No school fee payments match this status'
+                        ? 'Aucun paiement de frais scolaires trouve'
+                        : 'Aucun paiement de frais scolaires ne correspond a ce statut'
                     }
                     description={
                       schoolFees.length === 0
-                        ? 'No school fee payment history was returned for the selected school.'
-                        : `No school fee payment history with status ${selectedStatusLabel} was returned for the selected school.`
+                        ? 'Aucun historique de paiement des frais scolaires n a ete renvoye pour l ecole selectionnee.'
+                        : `Aucun historique de paiement des frais scolaires avec le statut ${selectedStatusLabel} n a ete renvoye pour l ecole selectionnee.`
                     }
                   />
                 ) : (
@@ -410,11 +407,11 @@ export function Payments() {
                         <TableRow>
                           <TableHead>Reference</TableHead>
                           <TableHead>Parent</TableHead>
-                          <TableHead>Child</TableHead>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Method</TableHead>
-                          <TableHead>Paid</TableHead>
-                          <TableHead>Status</TableHead>
+                          <TableHead>Enfant</TableHead>
+                          <TableHead>Montant</TableHead>
+                          <TableHead>Methode</TableHead>
+                          <TableHead>Paye le</TableHead>
+                          <TableHead>Statut</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -438,7 +435,7 @@ export function Payments() {
                                   {formatCurrency(payment.amountPaid)}
                                 </div>
                                 <div className='text-xs text-muted-foreground'>
-                                  Installment {formatCurrency(payment.installmentAmount)}
+                                  Echeance {formatCurrency(payment.installmentAmount)}
                                 </div>
                               </TableCell>
                               <TableCell>
@@ -470,8 +467,7 @@ export function Payments() {
                 <CardContent className='flex items-start gap-3 pt-6 text-sm'>
                   <AlertCircle className='mt-0.5 h-4 w-4 text-amber-600' />
                   <p>
-                    Some merchandise histories could not be fetched. The table below
-                    includes the successful responses we were able to aggregate.
+                    Certains historiques d articles n ont pas pu etre charges. Le tableau ci-dessous inclut les reponses agregees avec succes.
                   </p>
                 </CardContent>
               </Card>
@@ -480,9 +476,9 @@ export function Payments() {
             <Card className='border-border/70'>
               <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
                 <div>
-                  <CardTitle>Merchandise history</CardTitle>
+                  <CardTitle>Historique des articles</CardTitle>
                   <CardDescription>
-                    Merchandise payment history linked to {selectedSchool.name} filtered by{' '}
+                    Historique des paiements d articles lie a {selectedSchool.name} filtre par{' '}
                     {selectedStatusLabel}.
                   </CardDescription>
                 </div>
@@ -501,13 +497,13 @@ export function Payments() {
                   <EmptyState
                     title={
                       merchandisePayments.length === 0
-                        ? 'No merchandise payments found'
-                        : 'No merchandise payments match this status'
+                        ? 'Aucun paiement d article trouve'
+                        : 'Aucun paiement d article ne correspond a ce statut'
                     }
                     description={
                       merchandisePayments.length === 0
-                        ? 'No merchandise payment history was returned for the selected school.'
-                        : `No merchandise payment history with status ${selectedStatusLabel} was returned for the selected school.`
+                        ? 'Aucun historique de paiement d article n a ete renvoye pour l ecole selectionnee.'
+                        : `Aucun historique de paiement d article avec le statut ${selectedStatusLabel} n a ete renvoye pour l ecole selectionnee.`
                     }
                   />
                 ) : (
@@ -517,11 +513,11 @@ export function Payments() {
                         <TableRow>
                           <TableHead>Reference</TableHead>
                           <TableHead>Parent</TableHead>
-                          <TableHead>Amount</TableHead>
-                          <TableHead>Items</TableHead>
-                          <TableHead>Method</TableHead>
-                          <TableHead>Paid</TableHead>
-                          <TableHead>Status</TableHead>
+                          <TableHead>Montant</TableHead>
+                          <TableHead>Articles</TableHead>
+                          <TableHead>Methode</TableHead>
+                          <TableHead>Paye le</TableHead>
+                          <TableHead>Statut</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -535,20 +531,20 @@ export function Payments() {
                                   {payment.transactionReference || `TRX-${payment.id}`}
                                 </div>
                                 <div className='text-xs text-muted-foreground'>
-                                  {payment.totalItems} distinct items
+                                  {payment.totalItems} articles distincts
                                 </div>
                               </TableCell>
                               <TableCell>{payment.parentName}</TableCell>
                               <TableCell>{formatCurrency(payment.amountPaid)}</TableCell>
                               <TableCell>
                                 <div className='font-medium'>
-                                  {payment.totalQuantity} units
+                                  {payment.totalQuantity} unites
                                 </div>
                                 <div className='text-xs text-muted-foreground'>
                                   {payment.items
                                     .slice(0, 2)
                                     .map((item) => item.name)
-                                    .join(', ') || 'No item detail'}
+                                    .join(', ') || 'Aucun detail d article'}
                                 </div>
                               </TableCell>
                               <TableCell>

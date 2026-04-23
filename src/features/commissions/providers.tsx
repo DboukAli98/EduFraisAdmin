@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, Pencil, Plus, Power, Save } from 'lucide-react'
@@ -128,7 +128,9 @@ export function PaymentProvidersManagement() {
     },
     onSuccess: () => {
       toast.success(
-        editingProvider ? 'Provider updated successfully.' : 'Provider added.'
+        editingProvider
+          ? 'Prestataire mis a jour avec succes.'
+          : 'Prestataire ajoute avec succes.'
       )
       setIsDialogOpen(false)
       setEditingProvider(null)
@@ -137,7 +139,10 @@ export function PaymentProvidersManagement() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to save the provider right now.')
+        getApiErrorMessage(
+          error,
+          'Impossible d enregistrer le prestataire pour le moment.'
+        )
       )
     },
   })
@@ -160,7 +165,10 @@ export function PaymentProvidersManagement() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the provider status.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour le statut du prestataire.'
+        )
       )
     },
   })
@@ -168,12 +176,12 @@ export function PaymentProvidersManagement() {
   if (!isSuperAdmin) {
     return (
       <PageShell
-        title='Payment Providers'
-        description='Manage payment-provider commission settings.'
+        title='Prestataires de paiement'
+        description='Gerez les parametres de commission des prestataires de paiement.'
       >
         <EmptyState
-          title='SuperAdmin access required'
-          description='Payment provider management is restricted to SuperAdmin accounts.'
+          title='Acces SuperAdmin requis'
+          description='La gestion des prestataires de paiement est reservee aux comptes SuperAdmin.'
         />
       </PageShell>
     )
@@ -182,14 +190,14 @@ export function PaymentProvidersManagement() {
   return (
     <>
       <PageShell
-        title='Payment Providers'
-        description='Add providers, update provider fee percentages, and toggle active status.'
+        title='Prestataires de paiement'
+        description='Ajoutez des prestataires, mettez a jour leurs pourcentages de frais et gerez leur statut actif.'
         actions={
           <div className='flex flex-wrap gap-2'>
             <Button asChild variant='outline'>
               <Link to='/commission-admin'>
                 <ArrowLeft className='h-4 w-4' />
-                Overview
+                Vue d ensemble
               </Link>
             </Button>
             <Button
@@ -200,17 +208,17 @@ export function PaymentProvidersManagement() {
               }}
             >
               <Plus className='h-4 w-4' />
-              Add provider
+              Ajouter un prestataire
             </Button>
           </div>
         }
       >
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Provider commission settings</CardTitle>
+            <CardTitle>Parametres de commission des prestataires</CardTitle>
             <CardDescription>
-              Provider codes are sent uppercase and must be unique. Disable a
-              provider instead of deleting it.
+              Les codes prestataires sont envoyes en majuscules et doivent etre
+              uniques. Desactivez un prestataire au lieu de le supprimer.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -222,19 +230,19 @@ export function PaymentProvidersManagement() {
               </div>
             ) : providers.length === 0 ? (
               <EmptyState
-                title='No payment providers yet'
-                description='Add the first provider to define its commission percentage and display order.'
+                title='Aucun prestataire de paiement'
+                description='Ajoutez le premier prestataire pour definir son pourcentage de commission et son ordre d affichage.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Provider</TableHead>
+                      <TableHead>Prestataire</TableHead>
                       <TableHead>Code</TableHead>
-                      <TableHead>Fee</TableHead>
-                      <TableHead>Order</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Frais</TableHead>
+                      <TableHead>Ordre</TableHead>
+                      <TableHead>Statut</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -257,7 +265,7 @@ export function PaymentProvidersManagement() {
                             <div>
                               <div className='font-medium'>{provider.name}</div>
                               <div className='text-xs text-muted-foreground'>
-                                Provider ID {provider.id}
+                                ID prestataire {provider.id}
                               </div>
                             </div>
                           </div>
@@ -267,7 +275,7 @@ export function PaymentProvidersManagement() {
                         <TableCell>{provider.displayOrder}</TableCell>
                         <TableCell>
                           <Badge variant={provider.isActive ? 'default' : 'outline'}>
-                            {provider.isActive ? 'Active' : 'Inactive'}
+                            {provider.isActive ? 'Actif' : 'Inactif'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -282,7 +290,7 @@ export function PaymentProvidersManagement() {
                               }}
                             >
                               <Pencil className='h-4 w-4' />
-                              Edit
+                              Modifier
                             </Button>
                             <Button
                               variant='outline'
@@ -295,7 +303,7 @@ export function PaymentProvidersManagement() {
                               }
                             >
                               <Power className='h-4 w-4' />
-                              {provider.isActive ? 'Deactivate' : 'Activate'}
+                              {provider.isActive ? 'Desactiver' : 'Activer'}
                             </Button>
                           </div>
                         </TableCell>
@@ -322,17 +330,19 @@ export function PaymentProvidersManagement() {
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingProvider ? 'Edit payment provider' : 'Add payment provider'}
+              {editingProvider
+                ? 'Modifier le prestataire de paiement'
+                : 'Ajouter un prestataire de paiement'}
             </DialogTitle>
             <DialogDescription>
-              Send the full provider payload expected by the commission admin API.
+              Envoyez le payload complet du prestataire attendu par l API d administration des commissions.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='provider-name'>Name</Label>
+                <Label htmlFor='provider-name'>Nom</Label>
                 <Input
                   id='provider-name'
                   value={providerForm.name}
@@ -361,7 +371,7 @@ export function PaymentProvidersManagement() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='provider-fee'>Fee percentage</Label>
+                <Label htmlFor='provider-fee'>Pourcentage des frais</Label>
                 <Input
                   id='provider-fee'
                   inputMode='decimal'
@@ -375,7 +385,7 @@ export function PaymentProvidersManagement() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='provider-order'>Display order</Label>
+                <Label htmlFor='provider-order'>Ordre d affichage</Label>
                 <Input
                   id='provider-order'
                   inputMode='numeric'
@@ -391,7 +401,7 @@ export function PaymentProvidersManagement() {
             </div>
 
             <div className='grid gap-2'>
-              <Label htmlFor='provider-logo'>Logo URL</Label>
+              <Label htmlFor='provider-logo'>URL du logo</Label>
               <Input
                 id='provider-logo'
                 placeholder='https://...'
@@ -407,10 +417,10 @@ export function PaymentProvidersManagement() {
 
             <div className='flex items-center justify-between gap-4 rounded-xl border p-4'>
               <div>
-                <p className='font-medium'>Provider active</p>
+                <p className='font-medium'>Prestataire actif</p>
                 <p className='text-sm text-muted-foreground'>
-                  Inactive providers are retained but hidden from active
-                  commission rules.
+                  Les prestataires inactifs sont conserves mais masques des
+                  regles de commission actives.
                 </p>
               </div>
               <Switch
@@ -427,14 +437,14 @@ export function PaymentProvidersManagement() {
             {!isValidPercentage(providerForm.feePercentage) &&
             providerForm.feePercentage.length > 0 ? (
               <p className='text-sm font-medium text-destructive'>
-                Fee percentage must be between 0 and 100.
+                Le pourcentage des frais doit etre compris entre 0 et 100.
               </p>
             ) : null}
           </div>
 
           <DialogFooter>
             <Button variant='outline' onClick={() => setIsDialogOpen(false)}>
-              Cancel
+              Annuler
             </Button>
             <Button
               disabled={
@@ -444,7 +454,9 @@ export function PaymentProvidersManagement() {
               onClick={() => saveProviderMutation.mutate()}
             >
               <Save className='h-4 w-4' />
-              {saveProviderMutation.isPending ? 'Saving...' : 'Save provider'}
+              {saveProviderMutation.isPending
+                ? 'Enregistrement...'
+                : 'Enregistrer le prestataire'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -461,18 +473,22 @@ export function PaymentProvidersManagement() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {toggleAction?.isActive ? 'Activate provider?' : 'Deactivate provider?'}
+              {toggleAction?.isActive
+                ? 'Activer ce prestataire ?'
+                : 'Desactiver ce prestataire ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {toggleAction?.isActive
-                ? 'This provider will become available for active commission rules again.'
-                : 'This soft-disables the provider without deleting its commission history.'}
+                ? 'Ce prestataire redeviendra disponible pour les regles de commission actives.'
+                : 'Cela desactive le prestataire sans supprimer son historique de commission.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={() => toggleProviderMutation.mutate()}>
-              {toggleProviderMutation.isPending ? 'Updating...' : 'Confirm'}
+              {toggleProviderMutation.isPending
+                ? 'Mise a jour...'
+                : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -480,3 +496,4 @@ export function PaymentProvidersManagement() {
     </>
   )
 }
+

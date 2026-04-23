@@ -98,9 +98,9 @@ const deliveryModeOptions = [
 ] as const
 
 const personalNotificationsFormSchema = z.object({
-  type: z.string().min(1, 'Please select a notification type.'),
-  title: z.string().min(1, 'Please enter the notification title.'),
-  message: z.string().min(1, 'Please enter the notification message.'),
+  type: z.string().min(1, 'Veuillez selectionner un type de notification.'),
+  title: z.string().min(1, 'Veuillez saisir le titre de la notification.'),
+  message: z.string().min(1, 'Veuillez saisir le message de la notification.'),
 })
 
 const outreachNotificationsFormSchema = z
@@ -111,9 +111,9 @@ const outreachNotificationsFormSchema = z
       'collecting_agents',
       'custom',
     ]),
-    type: z.string().min(1, 'Please select a campaign type.'),
-    title: z.string().min(1, 'Please enter the notification title.'),
-    message: z.string().min(1, 'Please enter the notification message.'),
+    type: z.string().min(1, 'Veuillez selectionner un type de campagne.'),
+    title: z.string().min(1, 'Veuillez saisir le titre de la notification.'),
+    message: z.string().min(1, 'Veuillez saisir le message de la notification.'),
     deliveryMode: z.enum(['scheduled', 'now']),
     scheduledFor: z.string().optional(),
     recipientIds: z.array(z.string()).default([]),
@@ -122,7 +122,7 @@ const outreachNotificationsFormSchema = z
     if (value.audience === 'custom' && value.recipientIds.length === 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Select at least one recipient for a custom list.',
+        message: 'Selectionnez au moins un destinataire pour une liste personnalisee.',
         path: ['recipientIds'],
       })
     }
@@ -131,7 +131,7 @@ const outreachNotificationsFormSchema = z
       if (!value.scheduledFor || value.scheduledFor.trim().length === 0) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Please choose when the notification should be sent.',
+          message: 'Veuillez choisir quand la notification doit etre envoyee.',
           path: ['scheduledFor'],
         })
         return
@@ -141,7 +141,7 @@ const outreachNotificationsFormSchema = z
       if (Number.isNaN(scheduledDate.getTime())) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'The selected date and time are not valid.',
+          message: 'La date et l heure selectionnees ne sont pas valides.',
           path: ['scheduledFor'],
         })
         return
@@ -150,7 +150,7 @@ const outreachNotificationsFormSchema = z
       if (scheduledDate.getTime() <= Date.now()) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Please choose a future date and time.',
+          message: 'Veuillez choisir une date et une heure futures.',
           path: ['scheduledFor'],
         })
       }
@@ -209,7 +209,7 @@ function buildRecipientDetails(input: {
     (value) => value.length > 0
   )
 
-  return details.join(' / ') || 'No contact details'
+  return details.join(' / ') || 'Aucun contact'
 }
 
 function getAudienceLabel(audience: OutreachAudience): string {
@@ -335,7 +335,7 @@ export function NotificationsForm() {
       userId: agent.userId,
       label:
         buildFullName(agent.firstName, agent.lastName) ||
-        `Collecting agent #${agent.id}`,
+        `Agent collecteur #${agent.id}`,
       audience: 'Collecting agent' as const,
       details: buildRecipientDetails({
         email: agent.email,
@@ -505,9 +505,9 @@ export function NotificationsForm() {
     >
       <TabsList>
         {isDirector ? (
-          <TabsTrigger value='director-outreach'>Director outreach</TabsTrigger>
+          <TabsTrigger value='director-outreach'>Diffusion directeur</TabsTrigger>
         ) : null}
-        <TabsTrigger value='personal-inbox'>My inbox</TabsTrigger>
+        <TabsTrigger value='personal-inbox'>Ma boite</TabsTrigger>
       </TabsList>
 
       {isDirector ? (
@@ -523,7 +523,7 @@ export function NotificationsForm() {
                 <Card className='border-border/70'>
                   <CardHeader className='pb-2'>
                     <CardTitle className='text-sm font-medium text-muted-foreground'>
-                      Reachable parents
+                      Parents joignables
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -572,7 +572,7 @@ export function NotificationsForm() {
 
               <Card className='border-border/70'>
                 <CardHeader>
-                  <CardTitle>Schedule school notifications</CardTitle>
+                  <CardTitle>Planifier des notifications ecole</CardTitle>
                   <CardDescription>
                     Queue reminders, marketing campaigns, and operational
                     updates for parents and collecting agents using the EduFrais
@@ -751,7 +751,7 @@ export function NotificationsForm() {
                                   <FormLabel>Title</FormLabel>
                                   <FormControl>
                                     <Input
-                                      placeholder='Exam fee reminder'
+                                      placeholder='Rappel des frais d examen'
                                       {...field}
                                     />
                                   </FormControl>
@@ -769,7 +769,7 @@ export function NotificationsForm() {
                                   <FormControl>
                                     <Textarea
                                       rows={7}
-                                      placeholder='Share the message that should appear in the user inbox and push banner.'
+                                      placeholder='Saisissez le message qui doit apparaitre dans la boite utilisateur.'
                                       {...field}
                                     />
                                   </FormControl>

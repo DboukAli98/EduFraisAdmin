@@ -82,6 +82,21 @@ const paymentCycleTypes: PaymentCycleType[] = [
 
 const intervalUnits: PaymentIntervalUnit[] = ['Day', 'Week', 'Month', 'Year']
 
+const paymentCycleTypeLabels: Record<PaymentCycleType, string> = {
+  Full: 'Complet',
+  Monthly: 'Mensuel',
+  Weekly: 'Hebdomadaire',
+  Quarterly: 'Trimestriel',
+  Custom: 'Personnalise',
+}
+
+const intervalUnitLabels: Record<PaymentIntervalUnit, string> = {
+  Day: 'Jour',
+  Week: 'Semaine',
+  Month: 'Mois',
+  Year: 'Annee',
+}
+
 function createEmptyForm(sectionId: number | null): PaymentCycleFormState {
   return {
     schoolGradeSectionId: sectionId ?? 0,
@@ -186,8 +201,8 @@ export function PaymentCyclesPanel({
     onSuccess: () => {
       toast.success(
         editingCycle
-          ? 'Payment cycle updated successfully.'
-          : 'Payment cycle created successfully.'
+          ? 'Cycle de paiement mis a jour avec succes.'
+          : 'Cycle de paiement cree avec succes.'
       )
       setIsDialogOpen(false)
       setEditingCycle(null)
@@ -205,9 +220,10 @@ export function PaymentCyclesPanel({
       <Card className='border-border/70'>
         <CardHeader className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
           <div>
-            <CardTitle>Payment cycles</CardTitle>
+            <CardTitle>Cycles de paiement</CardTitle>
             <CardDescription>
-              Configure how class fees are collected across installments or full-cycle plans.
+              Configurez la collecte des frais de classe par echeances ou en
+              cycle complet.
             </CardDescription>
           </div>
           <div className='flex flex-wrap gap-2'>
@@ -217,7 +233,7 @@ export function PaymentCyclesPanel({
               disabled={selectableSections.length === 0}
             >
               <SelectTrigger className='w-full min-w-0 sm:w-[260px]'>
-                <SelectValue placeholder='Select a class' />
+                <SelectValue placeholder='Selectionner une classe' />
               </SelectTrigger>
               <SelectContent>
                 {selectableSections.map((section) => (
@@ -237,7 +253,7 @@ export function PaymentCyclesPanel({
                 }}
               >
                 <Plus className='h-4 w-4' />
-                Add cycle
+                Ajouter un cycle
               </Button>
             ) : null}
           </div>
@@ -245,8 +261,8 @@ export function PaymentCyclesPanel({
         <CardContent>
           {!selectedSection ? (
             <EmptyState
-              title='No class selected'
-              description='Create a class section first before configuring payment cycles.'
+              title='Aucune classe selectionnee'
+              description='Creez d abord une classe avant de configurer les cycles de paiement.'
             />
           ) : paymentCyclesQuery.isLoading ? (
             <div className='space-y-3'>
@@ -256,8 +272,8 @@ export function PaymentCyclesPanel({
             </div>
           ) : cycles.length === 0 ? (
             <EmptyState
-              title='No payment cycles found'
-              description={`No payment cycles are configured for ${selectedSection.name} yet.`}
+              title='Aucun cycle de paiement trouve'
+              description={`Aucun cycle de paiement n est encore configure pour ${selectedSection.name}.`}
             />
           ) : (
             <div className='rounded-lg border'>
@@ -266,9 +282,9 @@ export function PaymentCyclesPanel({
                   <TableRow>
                     <TableHead>Cycle</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Plan start</TableHead>
-                    <TableHead>Installments</TableHead>
-                    <TableHead>Updated</TableHead>
+                    <TableHead>Debut du plan</TableHead>
+                    <TableHead>Echeances</TableHead>
+                    <TableHead>Mis a jour</TableHead>
                     <TableHead className='text-right'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -278,7 +294,7 @@ export function PaymentCyclesPanel({
                       <TableCell>
                         <div className='font-medium'>{cycle.paymentCycleName}</div>
                         <div className='text-xs text-muted-foreground'>
-                          {cycle.paymentCycleDescription || 'No description'}
+                          {cycle.paymentCycleDescription || 'Aucune description'}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -287,11 +303,12 @@ export function PaymentCyclesPanel({
                             variant='outline'
                             className={getEntityStatusMeta(1).className}
                           >
-                            {cycle.paymentCycleType}
+                            {paymentCycleTypeLabels[cycle.paymentCycleType]}
                           </Badge>
                           {cycle.intervalCount && cycle.intervalUnit ? (
                             <span className='text-xs text-muted-foreground'>
-                              Every {cycle.intervalCount} {cycle.intervalUnit}
+                              Tous les {cycle.intervalCount}{' '}
+                              {intervalUnitLabels[cycle.intervalUnit]}
                               {cycle.intervalCount > 1 ? 's' : ''}
                             </span>
                           ) : null}
@@ -300,7 +317,7 @@ export function PaymentCyclesPanel({
                       <TableCell>{formatDateOnly(cycle.planStartDate)}</TableCell>
                       <TableCell>
                         <div className='max-w-[240px] text-sm'>
-                          {cycle.installmentAmounts || 'Backend defaults'}
+                          {cycle.installmentAmounts || 'Valeurs par defaut du backend'}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -318,10 +335,10 @@ export function PaymentCyclesPanel({
                             }}
                           >
                             <Pencil className='h-4 w-4' />
-                            Edit
+                            Modifier
                           </Button>
                         ) : (
-                          <Badge variant='outline'>Read only</Badge>
+                          <Badge variant='outline'>Lecture seule</Badge>
                         )}
                       </TableCell>
                     </TableRow>
@@ -346,18 +363,20 @@ export function PaymentCyclesPanel({
         <DialogContent className='sm:max-w-2xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingCycle ? 'Edit payment cycle' : 'Add payment cycle'}
+              {editingCycle
+                ? 'Modifier le cycle de paiement'
+                : 'Ajouter un cycle de paiement'}
             </DialogTitle>
             <DialogDescription>
               {editingCycle
-                ? 'Update the cycle identity and section assignment. Installment structure is only configurable at creation time in the current backend.'
-                : 'Set the payment cadence for the selected class section.'}
+                ? 'Mettez a jour l identite du cycle et l affectation de classe. La structure des echeances n est modifiable qu a la creation dans le backend actuel.'
+                : 'Definissez la cadence de paiement pour la classe selectionnee.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='payment-cycle-section'>Class section</Label>
+              <Label htmlFor='payment-cycle-section'>Classe</Label>
               <Select
                 value={
                   formState.schoolGradeSectionId
@@ -372,7 +391,7 @@ export function PaymentCyclesPanel({
                 }
               >
                 <SelectTrigger id='payment-cycle-section'>
-                  <SelectValue placeholder='Select a class section' />
+                  <SelectValue placeholder='Selectionner une classe' />
                 </SelectTrigger>
                 <SelectContent>
                   {selectableSections.map((section) => (
@@ -386,7 +405,7 @@ export function PaymentCyclesPanel({
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label htmlFor='payment-cycle-name'>Cycle name</Label>
+                <Label htmlFor='payment-cycle-name'>Nom du cycle</Label>
                 <Input
                   id='payment-cycle-name'
                   value={formState.paymentCycleName}
@@ -399,7 +418,7 @@ export function PaymentCyclesPanel({
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='payment-cycle-type'>Cycle type</Label>
+                <Label htmlFor='payment-cycle-type'>Type de cycle</Label>
                 <Select
                   value={formState.paymentCycleType}
                   onValueChange={(value) =>
@@ -415,7 +434,7 @@ export function PaymentCyclesPanel({
                   <SelectContent>
                     {paymentCycleTypes.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {paymentCycleTypeLabels[type]}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -442,7 +461,7 @@ export function PaymentCyclesPanel({
               <>
                 <div className='grid gap-4 sm:grid-cols-3'>
                   <div className='grid gap-2'>
-                    <Label htmlFor='payment-cycle-start'>Plan start date</Label>
+                    <Label htmlFor='payment-cycle-start'>Date de debut du plan</Label>
                     <Input
                       id='payment-cycle-start'
                       type='date'
@@ -456,7 +475,7 @@ export function PaymentCyclesPanel({
                     />
                   </div>
                   <div className='grid gap-2'>
-                    <Label htmlFor='payment-cycle-interval-count'>Interval count</Label>
+                    <Label htmlFor='payment-cycle-interval-count'>Nombre d intervalles</Label>
                     <Input
                       id='payment-cycle-interval-count'
                       inputMode='numeric'
@@ -470,7 +489,7 @@ export function PaymentCyclesPanel({
                     />
                   </div>
                   <div className='grid gap-2'>
-                    <Label htmlFor='payment-cycle-interval-unit'>Interval unit</Label>
+                    <Label htmlFor='payment-cycle-interval-unit'>Unite d intervalle</Label>
                     <Select
                       value={formState.intervalUnit || undefined}
                       onValueChange={(value) =>
@@ -481,12 +500,12 @@ export function PaymentCyclesPanel({
                       }
                     >
                       <SelectTrigger id='payment-cycle-interval-unit'>
-                        <SelectValue placeholder='Optional' />
+                        <SelectValue placeholder='Optionnel' />
                       </SelectTrigger>
                       <SelectContent>
                         {intervalUnits.map((unit) => (
                           <SelectItem key={unit} value={unit}>
-                            {unit}
+                            {intervalUnitLabels[unit]}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -496,12 +515,12 @@ export function PaymentCyclesPanel({
 
                 <div className='grid gap-2'>
                   <Label htmlFor='payment-cycle-installments'>
-                    Installment amounts
+                    Montants des echeances
                   </Label>
                   <Textarea
                     id='payment-cycle-installments'
                     rows={3}
-                    placeholder='Example: 25000,25000,25000,25000'
+                    placeholder='Exemple : 25000,25000,25000,25000'
                     value={formState.installmentAmounts}
                     onChange={(event) =>
                       setFormState((current) => ({
@@ -521,7 +540,7 @@ export function PaymentCyclesPanel({
               onClick={() => setIsDialogOpen(false)}
               disabled={saveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button
               onClick={() => saveMutation.mutate()}
@@ -532,10 +551,10 @@ export function PaymentCyclesPanel({
               }
             >
               {saveMutation.isPending
-                ? 'Saving...'
+                ? 'Enregistrement...'
                 : editingCycle
-                  ? 'Save changes'
-                  : 'Create cycle'}
+                  ? 'Enregistrer'
+                  : 'Creer le cycle'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -163,7 +163,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
         !Number.isFinite(schoolGradeSectionId) ||
         schoolGradeSectionId <= 0
       ) {
-        throw new Error('Select a valid class before saving.')
+        throw new Error('Selectionnez une classe valide avant d enregistrer.')
       }
 
       if (grade?.id) {
@@ -175,7 +175,9 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
     },
     onSuccess: () => {
       toast.success(
-        grade ? 'Class assignment updated.' : 'Class assigned successfully.'
+        grade
+          ? 'Affectation de classe mise a jour.'
+          : 'Classe affectee avec succes.'
       )
       void queryClient.invalidateQueries({
         queryKey: ['users', 'child-details', childId, 'grade'],
@@ -186,20 +188,20 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
   if (!hasValidChildId) {
     return (
       <PageShell
-        title='Child details'
-        description='Inspect school dependencies and manage class assignments.'
+        title='Details de l enfant'
+        description='Consultez les dependances scolaires et gerez l affectation de classe.'
         actions={
           <Button variant='outline' asChild>
             <Link to='/users'>
               <ArrowLeft className='h-4 w-4' />
-              Back to users
+              Retour aux utilisateurs
             </Link>
           </Button>
         }
       >
         <EmptyState
-          title='Invalid child'
-          description='The page was opened without a valid child id.'
+          title='Enfant invalide'
+          description='La page a ete ouverte sans identifiant enfant valide.'
         />
       </PageShell>
     )
@@ -208,14 +210,14 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
   return (
     <PageShell
       title={
-        child ? buildFullName(child.firstName, child.lastName) : 'Child details'
+        child ? buildFullName(child.firstName, child.lastName) : 'Details de l enfant'
       }
-      description='Inspect child dependencies and manage the class assignment for this student.'
+      description='Consultez les dependances de l enfant et gerez l affectation de classe pour cet eleve.'
       actions={
         <Button variant='outline' asChild>
           <Link to='/users'>
             <ArrowLeft className='h-4 w-4' />
-            Back to users
+            Retour aux utilisateurs
           </Link>
         </Button>
       }
@@ -233,40 +235,40 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
         </div>
       ) : childQuery.isError || !child ? (
         <EmptyState
-          title='Unable to load child'
-          description='The backend did not return a usable child record for this page.'
+          title='Impossible de charger l enfant'
+          description='Le backend n a pas retourne de fiche enfant exploitable pour cette page.'
         />
       ) : !hasAccess ? (
         <EmptyState
-          title='Access limited'
-          description='This child belongs to a school outside the current director scope.'
+          title='Acces limite'
+          description='Cet enfant appartient a une ecole hors de la portee actuelle du directeur.'
         />
       ) : (
         <>
           <section className='grid gap-4 md:grid-cols-4'>
             <SummaryCard
-              title='Status'
+              title='Statut'
               value={getEntityStatusMeta(child.statusId).label}
-              description='Current child review and lifecycle state.'
+              description='Etat actuel de revue et de cycle de vie de l enfant.'
             />
             <SummaryCard
-              title='Current class'
-              value={grade?.schoolGradeName || 'Unassigned'}
-              description='The active school grade section for this child.'
+              title='Classe actuelle'
+              value={grade?.schoolGradeName || 'Non assignee'}
+              description='La classe scolaire active pour cet enfant.'
             />
             <SummaryCard
-              title='Class fee'
+              title='Frais de la classe'
               value={
                 grade?.schoolGradeFee
                   ? formatCurrency(grade.schoolGradeFee)
-                  : 'N/A'
+                  : 'N/D'
               }
-              description='Fee configured on the currently assigned class.'
+              description='Frais configures sur la classe actuellement assignee.'
             />
             <SummaryCard
-              title='Available classes'
+              title='Classes disponibles'
               value={String(sections.length)}
-              description='Class sections currently available in the child school.'
+              description='Classes actuellement disponibles dans l ecole de cet enfant.'
             />
           </section>
 
@@ -276,10 +278,10 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                 <div>
                   <CardTitle className='flex items-center gap-2'>
                     <UserRound className='h-5 w-5 text-primary' />
-                    Child profile
+                    Profil de l enfant
                   </CardTitle>
                   <CardDescription>
-                    Child identity and review information returned from the API.
+                    Informations d identite et de revue retournees par l API.
                   </CardDescription>
                 </div>
                 <Badge
@@ -291,33 +293,33 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
               </CardHeader>
               <CardContent className='grid gap-4'>
                 <DetailRow
-                  label='Full name'
+                  label='Nom complet'
                   value={buildFullName(child.firstName, child.lastName)}
                 />
                 <DetailRow
-                  label='Father name'
-                  value={child.fatherName || 'No father name'}
+                  label='Nom du pere'
+                  value={child.fatherName || 'Aucun nom du pere'}
                 />
                 <DetailRow
-                  label='Date of birth'
+                  label='Date de naissance'
                   value={formatDateOnly(child.dateOfBirth)}
                 />
                 <DetailRow
-                  label='Created on'
+                  label='Cree le'
                   value={formatDateTime(child.createdOn)}
                 />
                 <DetailRow
-                  label='Review notes'
-                  value={child.rejectionReason || 'No rejection reason'}
+                  label='Notes de revue'
+                  value={child.rejectionReason || 'Aucun motif de rejet'}
                 />
               </CardContent>
             </Card>
 
             <Card className='border-border/70'>
               <CardHeader>
-                <CardTitle>Dependencies</CardTitle>
+                <CardTitle>Dependances</CardTitle>
                 <CardDescription>
-                  Parent and school records currently connected to this child.
+                  Fiches parent et ecole actuellement liees a cet enfant.
                 </CardDescription>
               </CardHeader>
               <CardContent className='grid gap-4'>
@@ -334,7 +336,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                         {buildFullName(parent.firstName, parent.lastName)}
                       </div>
                       <div className='text-sm text-muted-foreground'>
-                        {parent.email || 'No email'} | +{parent.countryCode}{' '}
+                        {parent.email || 'Aucun email'} | +{parent.countryCode}{' '}
                         {parent.phoneNumber}
                       </div>
                       <Button variant='outline' size='sm' asChild>
@@ -342,13 +344,13 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                           to='/parent-details/$parentId'
                           params={{ parentId: String(parent.id) }}
                         >
-                          View parent
+                          Voir le parent
                         </Link>
                       </Button>
                     </div>
                   ) : (
                     <p className='mt-3 text-sm text-muted-foreground'>
-                      No parent details were returned for this child.
+                      Aucun detail parent n a ete retourne pour cet enfant.
                     </p>
                   )}
                 </div>
@@ -356,7 +358,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                 <div className='rounded-lg border bg-muted/20 p-4'>
                   <div className='flex items-center gap-2 text-sm font-medium'>
                     <Building2 className='h-4 w-4 text-primary' />
-                    School
+                    Ecole
                   </div>
                   {schoolQuery.isLoading ? (
                     <Skeleton className='mt-3 h-16 w-full' />
@@ -364,20 +366,20 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                     <div className='mt-3 space-y-2'>
                       <div className='font-medium'>{school.name}</div>
                       <div className='text-sm text-muted-foreground'>
-                        {school.address || 'No address'}
+                        {school.address || 'Aucune adresse'}
                       </div>
                       <Button variant='outline' size='sm' asChild>
                         <Link
                           to='/school-details/$schoolId'
                           params={{ schoolId: String(school.id) }}
                         >
-                          View school
+                          Voir l ecole
                         </Link>
                       </Button>
                     </div>
                   ) : (
                     <p className='mt-3 text-sm text-muted-foreground'>
-                      No school details were returned for this child.
+                      Aucun detail d ecole n a ete retourne pour cet enfant.
                     </p>
                   )}
                 </div>
@@ -390,41 +392,42 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
               <CardHeader>
                 <CardTitle className='flex items-center gap-2'>
                   <GraduationCap className='h-5 w-5 text-primary' />
-                  Current assignment
+                  Affectation actuelle
                 </CardTitle>
                 <CardDescription>
-                  Review the current class, fee, and term dates for this child.
+                  Consultez la classe actuelle, les frais et les dates de
+                  periode pour cet enfant.
                 </CardDescription>
               </CardHeader>
               <CardContent className='grid gap-4'>
                 <DetailRow
-                  label='Current class'
-                  value={grade?.schoolGradeName || 'No class assigned'}
+                  label='Classe actuelle'
+                  value={grade?.schoolGradeName || 'Aucune classe assignee'}
                 />
                 <DetailRow
                   label='Description'
                   value={
-                    grade?.schoolGradeDescription || 'No class description'
+                    grade?.schoolGradeDescription || 'Aucune description de classe'
                   }
                 />
                 <DetailRow
-                  label='Fee'
+                  label='Frais'
                   value={
                     grade?.schoolGradeFee
                       ? formatCurrency(grade.schoolGradeFee)
-                      : 'N/A'
+                      : 'N/D'
                   }
                 />
                 <DetailRow
-                  label='Term'
+                  label='Periode'
                   value={
                     grade?.termStartDate || grade?.termEndDate
-                      ? `${formatDateOnly(grade?.termStartDate)} to ${formatDateOnly(grade?.termEndDate)}`
-                      : 'No term dates'
+                      ? `${formatDateOnly(grade?.termStartDate)} au ${formatDateOnly(grade?.termEndDate)}`
+                      : 'Aucune date de periode'
                   }
                 />
                 <DetailRow
-                  label='Assignment status'
+                  label='Statut de l affectation'
                   value={
                     grade ? (
                       <Badge
@@ -436,7 +439,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                         {getEntityStatusMeta(grade.statusId).label}
                       </Badge>
                     ) : (
-                      'No assignment yet'
+                      'Aucune affectation pour l instant'
                     )
                   }
                 />
@@ -445,10 +448,10 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
 
             <Card className='border-border/70'>
               <CardHeader>
-                <CardTitle>Assign class</CardTitle>
+                <CardTitle>Affecter une classe</CardTitle>
                 <CardDescription>
-                  Choose one of the configured school classes and save it to the
-                  child record.
+                  Choisissez l une des classes configurees et enregistrez-la
+                  dans la fiche de cet enfant.
                 </CardDescription>
               </CardHeader>
               <CardContent className='space-y-4'>
@@ -459,8 +462,8 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                   </div>
                 ) : sections.length === 0 ? (
                   <EmptyState
-                    title='No classes available'
-                    description='Add classes on the school details page before assigning one to this child.'
+                    title='Aucune classe disponible'
+                    description='Ajoutez des classes dans les details de l ecole avant d en affecter une a cet enfant.'
                   />
                 ) : (
                   <>
@@ -470,7 +473,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                         onValueChange={setSelectedSectionId}
                       >
                         <SelectTrigger className='w-full'>
-                          <SelectValue placeholder='Select a class' />
+                          <SelectValue placeholder='Selectionner une classe' />
                         </SelectTrigger>
                         <SelectContent>
                           {sections.map((section) => (
@@ -495,7 +498,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                         onClick={() => assignmentMutation.mutate()}
                       >
                         <Save className='h-4 w-4' />
-                        {grade ? 'Update assignment' : 'Assign class'}
+                        {grade ? 'Mettre a jour l affectation' : 'Affecter la classe'}
                       </Button>
                       {school ? (
                         <Button variant='outline' asChild>
@@ -503,7 +506,7 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                             to='/school-details/$schoolId'
                             params={{ schoolId: String(school.id) }}
                           >
-                            Manage school classes
+                            Gerer les classes de l ecole
                           </Link>
                         </Button>
                       ) : null}
@@ -513,10 +516,10 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Class</TableHead>
-                            <TableHead>Fee</TableHead>
-                            <TableHead>Term</TableHead>
-                            <TableHead>Status</TableHead>
+                            <TableHead>Classe</TableHead>
+                            <TableHead>Frais</TableHead>
+                            <TableHead>Periode</TableHead>
+                            <TableHead>Statut</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -528,20 +531,20 @@ export function ChildDetails({ childId }: ChildDetailsProps) {
                             return (
                               <TableRow key={section.id}>
                                 <TableCell>
-                                  <div className='font-medium'>
-                                    {section.name}
-                                  </div>
-                                  <div className='text-xs text-muted-foreground'>
-                                    {section.description || 'No description'}
-                                  </div>
-                                </TableCell>
+                                <div className='font-medium'>
+                                  {section.name}
+                                </div>
+                                <div className='text-xs text-muted-foreground'>
+                                    {section.description || 'Aucune description'}
+                                </div>
+                              </TableCell>
                                 <TableCell>
                                   {formatCurrency(section.fee)}
                                 </TableCell>
                                 <TableCell>
                                   {section.termStartDate || section.termEndDate
-                                    ? `${formatDateOnly(section.termStartDate)} to ${formatDateOnly(section.termEndDate)}`
-                                    : 'No term dates'}
+                                    ? `${formatDateOnly(section.termStartDate)} au ${formatDateOnly(section.termEndDate)}`
+                                    : 'Aucune date de periode'}
                                 </TableCell>
                                 <TableCell>
                                   <Badge

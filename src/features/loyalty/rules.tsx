@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Pencil, Plus, Power, Save, Search, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -65,6 +65,8 @@ import {
 } from './api'
 import {
   formatPoints,
+  getLoyaltyMemberTypeLabel,
+  getLoyaltyTriggerTypeLabel,
   loyaltyMemberTypeOptions,
   loyaltyPeriodTypeOptions,
   loyaltyTriggerTypeOptions,
@@ -146,12 +148,14 @@ export function LoyaltyRulesManagementPage() {
       await createLoyaltyRule(program.id, form)
     },
     onSuccess: () => {
-      toast.success(editingRule ? 'Rule updated.' : 'Rule created.')
+      toast.success(editingRule ? 'Regle mise a jour.' : 'Regle creee.')
       setIsDialogOpen(false)
       void queryClient.invalidateQueries({ queryKey: ['loyalty'] })
     },
     onError: (error) => {
-      toast.error(getApiErrorMessage(error, 'Unable to save the loyalty rule.'))
+      toast.error(
+        getApiErrorMessage(error, 'Impossible d enregistrer la regle de fidelite.')
+      )
     },
   })
 
@@ -170,7 +174,10 @@ export function LoyaltyRulesManagementPage() {
     },
     onError: (error) => {
       toast.error(
-        getApiErrorMessage(error, 'Unable to update the loyalty rule status.')
+        getApiErrorMessage(
+          error,
+          'Impossible de mettre a jour le statut de la regle de fidelite.'
+        )
       )
     },
   })
@@ -178,12 +185,12 @@ export function LoyaltyRulesManagementPage() {
   if (!isDirector) {
     return (
       <PageShell
-        title='Loyalty Rules'
-        description='Define which activities earn points and how often members can claim them.'
+        title='Regles fidelite'
+        description='Definissez quelles activites rapportent des points et a quelle frequence les membres peuvent en beneficier.'
       >
         <EmptyState
-          title='Director access required'
-          description='This loyalty workspace is available from the director experience.'
+          title='Acces directeur requis'
+          description='Cet espace fidelite est disponible depuis l experience directeur.'
         />
       </PageShell>
     )
@@ -192,12 +199,12 @@ export function LoyaltyRulesManagementPage() {
   if (!hasAssignedSchool) {
     return (
       <PageShell
-        title='Loyalty Rules'
-        description='Define which activities earn points and how often members can claim them.'
+        title='Regles fidelite'
+        description='Definissez quelles activites rapportent des points et a quelle frequence les membres peuvent en beneficier.'
       >
         <EmptyState
-          title='No school assigned'
-          description='This director account is not linked to a school yet.'
+          title='Aucune ecole affectee'
+          description='Ce compte directeur n est pas encore lie a une ecole.'
         />
       </PageShell>
     )
@@ -206,8 +213,8 @@ export function LoyaltyRulesManagementPage() {
   if (programQuery.isLoading) {
     return (
       <PageShell
-        title='Loyalty Rules'
-        description='Define which activities earn points and how often members can claim them.'
+        title='Regles fidelite'
+        description='Definissez quelles activites rapportent des points et a quelle frequence les membres peuvent en beneficier.'
       >
         <Card className='border-border/70'>
           <CardContent className='space-y-3 p-6'>
@@ -223,19 +230,19 @@ export function LoyaltyRulesManagementPage() {
   if (!program) {
     return (
       <PageShell
-        title='Loyalty Rules'
-        description='Define which activities earn points and how often members can claim them.'
+        title='Regles fidelite'
+        description='Definissez quelles activites rapportent des points et a quelle frequence les membres peuvent en beneficier.'
       >
         <EmptyState
-          title='Create the program first'
-          description='Rules can only be configured after the school loyalty program is created.'
+          title='Creez d abord le programme'
+          description='Les regles ne peuvent etre configurees qu apres la creation du programme de fidelite de l ecole.'
         />
       </PageShell>
     )
   }
 
-  const allRules = rulesQuery.data ?? []
-  const filteredRules = allRules.filter((rule) => {
+  const allRegles = rulesQuery.data ?? []
+  const filteredRegles = allRegles.filter((rule) => {
     const normalizedSearch = search.trim().toLowerCase()
 
     if (!normalizedSearch) {
@@ -249,7 +256,7 @@ export function LoyaltyRulesManagementPage() {
       rule.triggerType.toLowerCase().includes(normalizedSearch)
     )
   })
-  const activeRules = allRules.filter((rule) => rule.statusId === 1).length
+  const activeRegles = allRegles.filter((rule) => rule.statusId === 1).length
   const canSave =
     form.ruleName.trim().length > 0 &&
     Number(form.pointsAwarded) > 0 &&
@@ -258,8 +265,8 @@ export function LoyaltyRulesManagementPage() {
   return (
     <>
       <PageShell
-        title='Loyalty Rules'
-        description='Reward exactly the behaviors the school wants to encourage, from on-time fees to field collections.'
+        title='Regles fidelite'
+        description='Recompensez exactement les comportements que l ecole souhaite encourager, des paiements a temps aux encaissements terrain.'
         actions={
           <Button
             onClick={() => {
@@ -269,7 +276,7 @@ export function LoyaltyRulesManagementPage() {
             }}
           >
             <Plus className='h-4 w-4' />
-            Add rule
+            Ajouter une regle
           </Button>
         }
       >
@@ -277,33 +284,33 @@ export function LoyaltyRulesManagementPage() {
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Program
+                Programme
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-semibold'>{program.programName}</div>
               <p className='text-sm text-muted-foreground'>
-                {program.pointsLabel} earning logic for this school.
+                Logique d attribution des {program.pointsLabel.toLowerCase()} pour cette ecole.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Active rules
+                Regles actives
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-semibold'>{formatPoints(activeRules)}</div>
+              <div className='text-2xl font-semibold'>{formatPoints(activeRegles)}</div>
               <p className='text-sm text-muted-foreground'>
-                Rules currently enabled for earning logic.
+                Regles actuellement actives pour la logique d attribution.
               </p>
             </CardContent>
           </Card>
           <Card className='border-border/70'>
             <CardHeader className='pb-2'>
               <CardTitle className='text-sm font-medium text-muted-foreground'>
-                Search rules
+                Rechercher des regles
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -313,7 +320,7 @@ export function LoyaltyRulesManagementPage() {
                   className='pl-9'
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder='Search by rule name, trigger, or member type'
+                  placeholder='Rechercher par nom de regle, declencheur ou type de membre'
                 />
               </div>
             </CardContent>
@@ -322,9 +329,9 @@ export function LoyaltyRulesManagementPage() {
 
         <Card className='border-border/70'>
           <CardHeader>
-            <CardTitle>Configured earning rules</CardTitle>
+            <CardTitle>Regles d attribution configurees</CardTitle>
             <CardDescription>
-              Rules are evaluated in execution-order sequence and can optionally stack with other rules.
+              Les regles sont evaluees selon l ordre d execution et peuvent, si besoin, se cumuler.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -334,26 +341,26 @@ export function LoyaltyRulesManagementPage() {
                 <Skeleton className='h-12 w-full' />
                 <Skeleton className='h-12 w-full' />
               </div>
-            ) : filteredRules.length === 0 ? (
+            ) : filteredRegles.length === 0 ? (
               <EmptyState
-                title='No loyalty rules found'
-                description='Create the first rule to start awarding points automatically or manually.'
+                title='Aucune regle de fidelite trouvee'
+                description='Creez la premiere regle pour commencer a attribuer des points automatiquement ou manuellement.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Rule</TableHead>
-                      <TableHead>Member</TableHead>
-                      <TableHead>Trigger</TableHead>
+                      <TableHead>Regle</TableHead>
+                      <TableHead>Membre</TableHead>
+                      <TableHead>Declencheur</TableHead>
                       <TableHead>Points</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Statut</TableHead>
                       <TableHead className='text-right'>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredRules
+                    {filteredRegles
                       .slice()
                       .sort((left, right) => left.executionOrder - right.executionOrder)
                       .map((rule) => (
@@ -361,13 +368,17 @@ export function LoyaltyRulesManagementPage() {
                           <TableCell>
                             <div className='font-medium'>{rule.ruleName}</div>
                             <div className='text-xs text-muted-foreground'>
-                              Order {rule.executionOrder}
-                              {rule.requiresOnTimePayment ? ' • On-time only' : ''}
-                              {rule.requiresFullPayment ? ' • Full payment only' : ''}
+                              Ordre {rule.executionOrder}
+                              {rule.requiresOnTimePayment
+                                ? ' ; Paiement a temps uniquement'
+                                : ''}
+                              {rule.requiresFullPayment
+                                ? ' ; Paiement integral uniquement'
+                                : ''}
                             </div>
                           </TableCell>
-                          <TableCell>{rule.memberType}</TableCell>
-                          <TableCell>{rule.triggerType}</TableCell>
+                          <TableCell>{getLoyaltyMemberTypeLabel(rule.memberType)}</TableCell>
+                          <TableCell>{getLoyaltyTriggerTypeLabel(rule.triggerType)}</TableCell>
                           <TableCell>{formatPoints(rule.pointsAwarded)}</TableCell>
                           <TableCell>
                             <Badge
@@ -389,7 +400,7 @@ export function LoyaltyRulesManagementPage() {
                                 }}
                               >
                                 <Pencil className='h-4 w-4' />
-                                Edit
+                                Modifier
                               </Button>
                               {rule.statusId !== 1 ? (
                                 <Button
@@ -400,7 +411,7 @@ export function LoyaltyRulesManagementPage() {
                                   }
                                 >
                                   <Power className='h-4 w-4' />
-                                  Enable
+                                  Activer
                                 </Button>
                               ) : (
                                 <Button
@@ -411,7 +422,7 @@ export function LoyaltyRulesManagementPage() {
                                   }
                                 >
                                   <Power className='h-4 w-4' />
-                                  Disable
+                                  Desactiver
                                 </Button>
                               )}
                               <Button
@@ -422,7 +433,7 @@ export function LoyaltyRulesManagementPage() {
                                 }
                               >
                                 <Trash2 className='h-4 w-4' />
-                                Delete
+                                Supprimer
                               </Button>
                             </div>
                           </TableCell>
@@ -440,16 +451,18 @@ export function LoyaltyRulesManagementPage() {
         <DialogContent className='sm:max-w-3xl'>
           <DialogHeader>
             <DialogTitle>
-              {editingRule ? 'Edit loyalty rule' : 'Add loyalty rule'}
+              {editingRule
+                ? 'Modifier la regle de fidelite'
+                : 'Ajouter une regle de fidelite'}
             </DialogTitle>
             <DialogDescription>
-              Define who earns points, what activity triggers the award, and any redemption constraints.
+              Definissez qui gagne des points, quelle activite declenche l attribution et quelles contraintes s appliquent.
             </DialogDescription>
           </DialogHeader>
 
           <div className='grid gap-4'>
             <div className='grid gap-2'>
-              <Label htmlFor='rule-name'>Rule name</Label>
+              <Label htmlFor='rule-name'>Nom de la regle</Label>
               <Input
                 id='rule-name'
                 value={form.ruleName}
@@ -479,7 +492,7 @@ export function LoyaltyRulesManagementPage() {
 
             <div className='grid gap-4 sm:grid-cols-2'>
               <div className='grid gap-2'>
-                <Label>Member type</Label>
+                <Label>Type de membre</Label>
                 <Select
                   value={form.memberType}
                   onValueChange={(value) =>
@@ -502,7 +515,7 @@ export function LoyaltyRulesManagementPage() {
                 </Select>
               </div>
               <div className='grid gap-2'>
-                <Label>Trigger type</Label>
+                <Label>Type de declencheur</Label>
                 <Select
                   value={form.triggerType}
                   onValueChange={(value) =>
@@ -528,7 +541,7 @@ export function LoyaltyRulesManagementPage() {
 
             <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
               <div className='grid gap-2'>
-                <Label htmlFor='points-awarded'>Points awarded</Label>
+                <Label htmlFor='points-awarded'>Points attribues</Label>
                 <Input
                   id='points-awarded'
                   inputMode='numeric'
@@ -542,7 +555,7 @@ export function LoyaltyRulesManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='minimum-amount'>Minimum amount</Label>
+                <Label htmlFor='minimum-amount'>Montant minimum</Label>
                 <Input
                   id='minimum-amount'
                   inputMode='decimal'
@@ -556,7 +569,7 @@ export function LoyaltyRulesManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='max-awards'>Max awards/member</Label>
+                <Label htmlFor='max-awards'>Maximum d attributions / membre</Label>
                 <Input
                   id='max-awards'
                   inputMode='numeric'
@@ -570,7 +583,7 @@ export function LoyaltyRulesManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='execution-order'>Execution order</Label>
+                <Label htmlFor='execution-order'>Ordre d execution</Label>
                 <Input
                   id='execution-order'
                   inputMode='numeric'
@@ -587,7 +600,7 @@ export function LoyaltyRulesManagementPage() {
 
             <div className='grid gap-4 sm:grid-cols-3'>
               <div className='grid gap-2'>
-                <Label>Period cap</Label>
+                <Label>Limite par periode</Label>
                 <Select
                   value={form.periodType}
                   onValueChange={(value) =>
@@ -610,7 +623,7 @@ export function LoyaltyRulesManagementPage() {
                 </Select>
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='valid-from'>Valid from</Label>
+                <Label htmlFor='valid-from'>Valide a partir de</Label>
                 <Input
                   id='valid-from'
                   type='date'
@@ -624,7 +637,7 @@ export function LoyaltyRulesManagementPage() {
                 />
               </div>
               <div className='grid gap-2'>
-                <Label htmlFor='valid-to'>Valid to</Label>
+                <Label htmlFor='valid-to'>Valide jusqu au</Label>
                 <Input
                   id='valid-to'
                   type='date'
@@ -642,9 +655,9 @@ export function LoyaltyRulesManagementPage() {
             <div className='grid gap-3 sm:grid-cols-3'>
               <div className='flex items-center justify-between rounded-xl border p-4'>
                 <div>
-                  <p className='font-medium'>On-time payment only</p>
+                  <p className='font-medium'>Paiement a temps uniquement</p>
                   <p className='text-sm text-muted-foreground'>
-                    Restrict awards to on-time transactions.
+                    Restreindre l attribution aux transactions payees a temps.
                   </p>
                 </div>
                 <Switch
@@ -659,9 +672,9 @@ export function LoyaltyRulesManagementPage() {
               </div>
               <div className='flex items-center justify-between rounded-xl border p-4'>
                 <div>
-                  <p className='font-medium'>Full payment only</p>
+                  <p className='font-medium'>Paiement integral uniquement</p>
                   <p className='text-sm text-muted-foreground'>
-                    Only award when the full amount is settled.
+                    N attribuer des points que lorsque le montant total est regle.
                   </p>
                 </div>
                 <Switch
@@ -676,9 +689,9 @@ export function LoyaltyRulesManagementPage() {
               </div>
               <div className='flex items-center justify-between rounded-xl border p-4'>
                 <div>
-                  <p className='font-medium'>Stack with other rules</p>
+                  <p className='font-medium'>Cumuler avec les autres regles</p>
                   <p className='text-sm text-muted-foreground'>
-                    Multiple rules can reward the same activity.
+                    Plusieurs regles peuvent recompenser la meme activite.
                   </p>
                 </div>
                 <Switch
@@ -700,11 +713,15 @@ export function LoyaltyRulesManagementPage() {
               onClick={() => setIsDialogOpen(false)}
               disabled={saveMutation.isPending}
             >
-              Cancel
+              Annuler
             </Button>
             <Button disabled={!canSave} onClick={() => saveMutation.mutate()}>
               <Save className='h-4 w-4' />
-              {saveMutation.isPending ? 'Saving...' : editingRule ? 'Update rule' : 'Create rule'}
+              {saveMutation.isPending
+                ? 'Enregistrement...'
+                : editingRule
+                  ? 'Mettre a jour la regle'
+                  : 'Creer la regle'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -722,26 +739,26 @@ export function LoyaltyRulesManagementPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>
               {pendingAction?.action === 'deleted'
-                ? 'Delete this rule?'
+                ? 'Supprimer cette regle ?'
                 : pendingAction?.action === 'disable'
-                  ? 'Disable this rule?'
-                  : 'Enable this rule?'}
+                  ? 'Desactiver cette regle ?'
+                  : 'Activer cette regle ?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {pendingAction?.action === 'deleted'
-                ? 'The rule will be retained for history but removed from active loyalty calculations.'
+                ? 'La regle sera conservee pour l historique mais retiree des calculs actifs de fidelite.'
                 : pendingAction?.action === 'disable'
-                  ? 'The rule will stop awarding points until it is enabled again.'
-                  : 'The rule will become active in the loyalty engine again.'}
+                  ? 'La regle cessera d attribuer des points jusqu a sa reactivation.'
+                  : 'La regle redeviendra active dans le moteur de fidelite.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => actionMutation.mutate()}
               disabled={actionMutation.isPending}
             >
-              {actionMutation.isPending ? 'Updating...' : 'Confirm'}
+              {actionMutation.isPending ? 'Mise a jour...' : 'Confirmer'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -749,3 +766,5 @@ export function LoyaltyRulesManagementPage() {
     </>
   )
 }
+
+

@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+﻿import { Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { CreditCard, Percent, Plus, Settings2 } from 'lucide-react'
 import { EmptyState } from '@/features/admin/components/empty-state'
@@ -78,12 +78,12 @@ export function CommissionOverview() {
   if (!isSuperAdmin) {
     return (
       <PageShell
-        title='Commission Admin'
-        description='Platform commission and payment provider settings.'
+        title='Administration des commissions'
+        description='Parametrez les commissions de la plateforme et des prestataires de paiement.'
       >
         <EmptyState
-          title='SuperAdmin access required'
-          description='Commission administration is restricted to SuperAdmin accounts.'
+          title='Acces SuperAdmin requis'
+          description='L administration des commissions est reservee aux comptes SuperAdmin.'
         />
       </PageShell>
     )
@@ -91,20 +91,20 @@ export function CommissionOverview() {
 
   return (
     <PageShell
-      title='Commission Admin'
-      description='Manage EduFrais platform fees and payment-provider commissions.'
+      title='Administration des commissions'
+      description='Gerez les frais de plateforme EduFrais et les commissions des prestataires de paiement.'
       actions={
         <div className='flex flex-wrap gap-2'>
           <Button asChild variant='outline'>
             <Link to='/commission-admin/platform-fee'>
               <Percent className='h-4 w-4' />
-              Platform fee
+              Frais plateforme
             </Link>
           </Button>
           <Button asChild>
             <Link to='/commission-admin/providers'>
               <Plus className='h-4 w-4' />
-              Provider
+              Prestataires
             </Link>
           </Button>
         </div>
@@ -112,38 +112,38 @@ export function CommissionOverview() {
     >
       <section className='grid gap-4 md:grid-cols-2 xl:grid-cols-4'>
         <MetricCard
-          title='Platform fee'
+          title='Frais plateforme'
           value={
             settingsQuery.isLoading
               ? '...'
               : platformFee
                 ? formatPercentage(platformFee.feePercentage)
-                : 'Not set'
+                : 'Non defini'
           }
-          description='Current active EduFrais platform fee.'
+          description='Taux de frais plateforme EduFrais actuellement actif.'
         />
         <MetricCard
-          title='Payment providers'
+          title='Prestataires de paiement'
           value={settingsQuery.isLoading ? '...' : formatNumber(providers.length)}
-          description='Total providers configured in the commission table.'
+          description='Nombre total de prestataires configures dans la table des commissions.'
         />
         <MetricCard
-          title='Active providers'
+          title='Prestataires actifs'
           value={
             settingsQuery.isLoading
               ? '...'
               : formatNumber(activeProviders.length)
           }
-          description='Providers currently enabled for payment fee rules.'
+          description='Prestataires actuellement actives pour les regles de commission.'
         />
         <MetricCard
-          title='Avg provider fee'
+          title='Moyenne des frais'
           value={
             settingsQuery.isLoading
               ? '...'
               : formatPercentage(activeProviderAverage)
           }
-          description='Average fee percentage across active providers.'
+          description='Pourcentage moyen des frais sur les prestataires actifs.'
         />
       </section>
 
@@ -152,11 +152,11 @@ export function CommissionOverview() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <Settings2 className='h-5 w-5' />
-              Active platform fee
+              Frais plateforme actif
             </CardTitle>
             <CardDescription>
-              Updating the platform fee creates a new active row and keeps old
-              rates for history.
+              La mise a jour cree une nouvelle ligne active et conserve
+              l historique des anciens taux.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -168,8 +168,8 @@ export function CommissionOverview() {
               </div>
             ) : !platformFee ? (
               <EmptyState
-                title='No active platform fee'
-                description='Create a platform fee to start tracking EduFrais commission revenue.'
+                title='Aucun frais plateforme actif'
+                description='Creez un frais plateforme pour commencer a suivre les revenus de commission EduFrais.'
               />
             ) : (
               <div className='space-y-4'>
@@ -178,11 +178,11 @@ export function CommissionOverview() {
                     {formatPercentage(platformFee.feePercentage)}
                   </div>
                   <p className='text-sm text-muted-foreground'>
-                    Created {formatDateTime(platformFee.createdOn)}
+                    Cree le {formatDateTime(platformFee.createdOn)}
                   </p>
                 </div>
                 <div className='rounded-xl border bg-muted/20 p-4 text-sm'>
-                  {platformFee.note || 'No note was recorded for this fee.'}
+                  {platformFee.note || 'Aucune note n a ete enregistree pour ce taux.'}
                 </div>
               </div>
             )}
@@ -193,10 +193,10 @@ export function CommissionOverview() {
           <CardHeader>
             <CardTitle className='flex items-center gap-2'>
               <CreditCard className='h-5 w-5' />
-              Provider commission list
+              Liste des commissions des prestataires
             </CardTitle>
             <CardDescription>
-              Snapshot of every payment provider returned by
+              Vue d ensemble des prestataires retournes par
               <code> GetCommissionSettings</code>.
             </CardDescription>
           </CardHeader>
@@ -209,17 +209,17 @@ export function CommissionOverview() {
               </div>
             ) : providers.length === 0 ? (
               <EmptyState
-                title='No payment providers yet'
-                description='Add providers such as Airtel or MTN to start managing provider commission rates.'
+                title='Aucun prestataire de paiement'
+                description='Ajoutez des prestataires comme Airtel ou MTN pour commencer a gerer leurs taux de commission.'
               />
             ) : (
               <div className='rounded-lg border'>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Provider</TableHead>
+                      <TableHead>Prestataire</TableHead>
                       <TableHead>Code</TableHead>
-                      <TableHead>Fee</TableHead>
+                      <TableHead>Frais</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -240,7 +240,7 @@ export function CommissionOverview() {
                             <Badge
                               variant={provider.isActive ? 'default' : 'outline'}
                             >
-                              {provider.isActive ? 'Active' : 'Inactive'}
+                              {provider.isActive ? 'Actif' : 'Inactif'}
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -255,3 +255,4 @@ export function CommissionOverview() {
     </PageShell>
   )
 }
+

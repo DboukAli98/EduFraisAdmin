@@ -32,7 +32,7 @@ export function ProfileDropdown() {
         <DropdownMenuTrigger asChild>
           <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
             <Avatar className='h-8 w-8'>
-              <AvatarImage src='' alt={auth.user?.name || 'EduFrais user'} />
+              <AvatarImage src='' alt={auth.user?.name || 'Utilisateur EduFrais'} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </Button>
@@ -41,25 +41,25 @@ export function ProfileDropdown() {
           <DropdownMenuLabel className='font-normal'>
             <div className='flex flex-col gap-1.5'>
               <p className='text-sm leading-none font-medium'>
-                {auth.user?.name || 'EduFrais User'}
+                {auth.user?.name || 'Utilisateur EduFrais'}
               </p>
               <p className='text-xs leading-none text-muted-foreground'>
-                {auth.user?.email || 'No email on file'}
+                {auth.user?.email || 'Aucun e-mail renseigne'}
               </p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link to='/settings'>Settings</Link>
+              <Link to='/settings'>Parametres</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link to='/help-center'>Help center</Link>
+              <Link to='/help-center'>Centre aide</Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem variant='destructive' onClick={() => setOpen(true)}>
-            Sign out
+            Deconnexion
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
