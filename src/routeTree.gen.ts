@@ -30,10 +30,12 @@ import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-p
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedCommissionAdminRouteRouteImport } from './routes/_authenticated/commission-admin/route'
 import { Route as AuthenticatedUsersIndexRouteImport } from './routes/_authenticated/users/index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
 import { Route as AuthenticatedHelpCenterIndexRouteImport } from './routes/_authenticated/help-center/index'
+import { Route as AuthenticatedCommissionAdminIndexRouteImport } from './routes/_authenticated/commission-admin/index'
 import { Route as AuthenticatedChatsIndexRouteImport } from './routes/_authenticated/chats/index'
 import { Route as AuthenticatedAppsIndexRouteImport } from './routes/_authenticated/apps/index'
 import { Route as ClerkAuthenticatedUserManagementRouteImport } from './routes/clerk/_authenticated/user-management'
@@ -46,6 +48,8 @@ import { Route as AuthenticatedSettingsAccountRouteImport } from './routes/_auth
 import { Route as AuthenticatedSchoolDetailsSchoolIdRouteImport } from './routes/_authenticated/school-details.$schoolId'
 import { Route as AuthenticatedParentDetailsParentIdRouteImport } from './routes/_authenticated/parent-details.$parentId'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
+import { Route as AuthenticatedCommissionAdminProvidersRouteImport } from './routes/_authenticated/commission-admin/providers'
+import { Route as AuthenticatedCommissionAdminPlatformFeeRouteImport } from './routes/_authenticated/commission-admin/platform-fee'
 import { Route as AuthenticatedChildDetailsChildIdRouteImport } from './routes/_authenticated/child-details.$childId'
 
 const ClerkRouteRoute = ClerkRouteRouteImport.update({
@@ -152,6 +156,12 @@ const AuthenticatedSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCommissionAdminRouteRoute =
+  AuthenticatedCommissionAdminRouteRouteImport.update({
+    id: '/commission-admin',
+    path: '/commission-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedUsersIndexRoute = AuthenticatedUsersIndexRouteImport.update({
   id: '/users/',
   path: '/users/',
@@ -173,6 +183,12 @@ const AuthenticatedHelpCenterIndexRoute =
     id: '/help-center/',
     path: '/help-center/',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCommissionAdminIndexRoute =
+  AuthenticatedCommissionAdminIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedCommissionAdminRouteRoute,
   } as any)
 const AuthenticatedChatsIndexRoute = AuthenticatedChatsIndexRouteImport.update({
   id: '/chats/',
@@ -242,6 +258,18 @@ const AuthenticatedErrorsErrorRoute =
     path: '/errors/$error',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCommissionAdminProvidersRoute =
+  AuthenticatedCommissionAdminProvidersRouteImport.update({
+    id: '/providers',
+    path: '/providers',
+    getParentRoute: () => AuthenticatedCommissionAdminRouteRoute,
+  } as any)
+const AuthenticatedCommissionAdminPlatformFeeRoute =
+  AuthenticatedCommissionAdminPlatformFeeRouteImport.update({
+    id: '/platform-fee',
+    path: '/platform-fee',
+    getParentRoute: () => AuthenticatedCommissionAdminRouteRoute,
+  } as any)
 const AuthenticatedChildDetailsChildIdRoute =
   AuthenticatedChildDetailsChildIdRouteImport.update({
     id: '/child-details/$childId',
@@ -252,6 +280,7 @@ const AuthenticatedChildDetailsChildIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
+  '/commission-admin': typeof AuthenticatedCommissionAdminRouteRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
@@ -269,6 +298,8 @@ export interface FileRoutesByFullPath {
   '/schools': typeof AuthenticatedSchoolsRoute
   '/support': typeof AuthenticatedSupportRoute
   '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
+  '/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
+  '/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
@@ -281,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps/': typeof AuthenticatedAppsIndexRoute
   '/chats/': typeof AuthenticatedChatsIndexRoute
+  '/commission-admin/': typeof AuthenticatedCommissionAdminIndexRoute
   '/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
@@ -305,6 +337,8 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/': typeof AuthenticatedIndexRoute
   '/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
+  '/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
+  '/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
@@ -317,6 +351,7 @@ export interface FileRoutesByTo {
   '/clerk/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/apps': typeof AuthenticatedAppsIndexRoute
   '/chats': typeof AuthenticatedChatsIndexRoute
+  '/commission-admin': typeof AuthenticatedCommissionAdminIndexRoute
   '/help-center': typeof AuthenticatedHelpCenterIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
@@ -326,6 +361,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/clerk': typeof ClerkRouteRouteWithChildren
+  '/_authenticated/commission-admin': typeof AuthenticatedCommissionAdminRouteRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
   '/clerk/_authenticated': typeof ClerkAuthenticatedRouteRouteWithChildren
@@ -346,6 +382,8 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/child-details/$childId': typeof AuthenticatedChildDetailsChildIdRoute
+  '/_authenticated/commission-admin/platform-fee': typeof AuthenticatedCommissionAdminPlatformFeeRoute
+  '/_authenticated/commission-admin/providers': typeof AuthenticatedCommissionAdminProvidersRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/parent-details/$parentId': typeof AuthenticatedParentDetailsParentIdRoute
   '/_authenticated/school-details/$schoolId': typeof AuthenticatedSchoolDetailsSchoolIdRoute
@@ -358,6 +396,7 @@ export interface FileRoutesById {
   '/clerk/_authenticated/user-management': typeof ClerkAuthenticatedUserManagementRoute
   '/_authenticated/apps/': typeof AuthenticatedAppsIndexRoute
   '/_authenticated/chats/': typeof AuthenticatedChatsIndexRoute
+  '/_authenticated/commission-admin/': typeof AuthenticatedCommissionAdminIndexRoute
   '/_authenticated/help-center/': typeof AuthenticatedHelpCenterIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
@@ -368,6 +407,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/clerk'
+    | '/commission-admin'
     | '/settings'
     | '/forgot-password'
     | '/otp'
@@ -385,6 +425,8 @@ export interface FileRouteTypes {
     | '/schools'
     | '/support'
     | '/child-details/$childId'
+    | '/commission-admin/platform-fee'
+    | '/commission-admin/providers'
     | '/errors/$error'
     | '/parent-details/$parentId'
     | '/school-details/$schoolId'
@@ -397,6 +439,7 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/apps/'
     | '/chats/'
+    | '/commission-admin/'
     | '/help-center/'
     | '/settings/'
     | '/tasks/'
@@ -421,6 +464,8 @@ export interface FileRouteTypes {
     | '/support'
     | '/'
     | '/child-details/$childId'
+    | '/commission-admin/platform-fee'
+    | '/commission-admin/providers'
     | '/errors/$error'
     | '/parent-details/$parentId'
     | '/school-details/$schoolId'
@@ -433,6 +478,7 @@ export interface FileRouteTypes {
     | '/clerk/user-management'
     | '/apps'
     | '/chats'
+    | '/commission-admin'
     | '/help-center'
     | '/settings'
     | '/tasks'
@@ -441,6 +487,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/clerk'
+    | '/_authenticated/commission-admin'
     | '/_authenticated/settings'
     | '/clerk/(auth)'
     | '/clerk/_authenticated'
@@ -461,6 +508,8 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/'
     | '/_authenticated/child-details/$childId'
+    | '/_authenticated/commission-admin/platform-fee'
+    | '/_authenticated/commission-admin/providers'
     | '/_authenticated/errors/$error'
     | '/_authenticated/parent-details/$parentId'
     | '/_authenticated/school-details/$schoolId'
@@ -473,6 +522,7 @@ export interface FileRouteTypes {
     | '/clerk/_authenticated/user-management'
     | '/_authenticated/apps/'
     | '/_authenticated/chats/'
+    | '/_authenticated/commission-admin/'
     | '/_authenticated/help-center/'
     | '/_authenticated/settings/'
     | '/_authenticated/tasks/'
@@ -643,6 +693,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/commission-admin': {
+      id: '/_authenticated/commission-admin'
+      path: '/commission-admin'
+      fullPath: '/commission-admin'
+      preLoaderRoute: typeof AuthenticatedCommissionAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/users/': {
       id: '/_authenticated/users/'
       path: '/users'
@@ -670,6 +727,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/help-center/'
       preLoaderRoute: typeof AuthenticatedHelpCenterIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/commission-admin/': {
+      id: '/_authenticated/commission-admin/'
+      path: '/'
+      fullPath: '/commission-admin/'
+      preLoaderRoute: typeof AuthenticatedCommissionAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedCommissionAdminRouteRoute
     }
     '/_authenticated/chats/': {
       id: '/_authenticated/chats/'
@@ -755,6 +819,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedErrorsErrorRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/commission-admin/providers': {
+      id: '/_authenticated/commission-admin/providers'
+      path: '/providers'
+      fullPath: '/commission-admin/providers'
+      preLoaderRoute: typeof AuthenticatedCommissionAdminProvidersRouteImport
+      parentRoute: typeof AuthenticatedCommissionAdminRouteRoute
+    }
+    '/_authenticated/commission-admin/platform-fee': {
+      id: '/_authenticated/commission-admin/platform-fee'
+      path: '/platform-fee'
+      fullPath: '/commission-admin/platform-fee'
+      preLoaderRoute: typeof AuthenticatedCommissionAdminPlatformFeeRouteImport
+      parentRoute: typeof AuthenticatedCommissionAdminRouteRoute
+    }
     '/_authenticated/child-details/$childId': {
       id: '/_authenticated/child-details/$childId'
       path: '/child-details/$childId'
@@ -764,6 +842,27 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedCommissionAdminRouteRouteChildren {
+  AuthenticatedCommissionAdminPlatformFeeRoute: typeof AuthenticatedCommissionAdminPlatformFeeRoute
+  AuthenticatedCommissionAdminProvidersRoute: typeof AuthenticatedCommissionAdminProvidersRoute
+  AuthenticatedCommissionAdminIndexRoute: typeof AuthenticatedCommissionAdminIndexRoute
+}
+
+const AuthenticatedCommissionAdminRouteRouteChildren: AuthenticatedCommissionAdminRouteRouteChildren =
+  {
+    AuthenticatedCommissionAdminPlatformFeeRoute:
+      AuthenticatedCommissionAdminPlatformFeeRoute,
+    AuthenticatedCommissionAdminProvidersRoute:
+      AuthenticatedCommissionAdminProvidersRoute,
+    AuthenticatedCommissionAdminIndexRoute:
+      AuthenticatedCommissionAdminIndexRoute,
+  }
+
+const AuthenticatedCommissionAdminRouteRouteWithChildren =
+  AuthenticatedCommissionAdminRouteRoute._addFileChildren(
+    AuthenticatedCommissionAdminRouteRouteChildren,
+  )
 
 interface AuthenticatedSettingsRouteRouteChildren {
   AuthenticatedSettingsAccountRoute: typeof AuthenticatedSettingsAccountRoute
@@ -789,6 +888,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCommissionAdminRouteRoute: typeof AuthenticatedCommissionAdminRouteRouteWithChildren
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedCollectingAgentsRoute: typeof AuthenticatedCollectingAgentsRoute
   AuthenticatedMySchoolRoute: typeof AuthenticatedMySchoolRoute
@@ -808,6 +908,8 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCommissionAdminRouteRoute:
+    AuthenticatedCommissionAdminRouteRouteWithChildren,
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedCollectingAgentsRoute: AuthenticatedCollectingAgentsRoute,
   AuthenticatedMySchoolRoute: AuthenticatedMySchoolRoute,

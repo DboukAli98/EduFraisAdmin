@@ -1,12 +1,15 @@
 import {
   Building2,
   Command,
+  CreditCard,
   HandCoins,
   HelpCircle,
   LayoutDashboard,
+  Percent,
   School2,
   Settings,
   ShieldCheck,
+  SlidersHorizontal,
   Users,
 } from 'lucide-react'
 import { type AuthUser } from '@/lib/jwt'
@@ -116,6 +119,27 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
             title: 'Payments',
             url: '/payments',
             icon: HandCoins,
+          },
+          {
+            title: 'Commission Admin',
+            icon: Percent,
+            items: [
+              {
+                title: 'Overview',
+                url: '/commission-admin',
+                icon: LayoutDashboard,
+              },
+              {
+                title: 'Platform Fee',
+                url: '/commission-admin/platform-fee',
+                icon: SlidersHorizontal,
+              },
+              {
+                title: 'Payment Providers',
+                url: '/commission-admin/providers',
+                icon: CreditCard,
+              },
+            ],
           },
         ],
       },
