@@ -95,7 +95,7 @@ function mapSupportRequest(
 
   return {
     id: readNumber(record, 'SupportRequestId', 'supportRequestId') ?? 0,
-    title: readString(record, 'Title', 'title') ?? 'Untitled request',
+    title: readString(record, 'Title', 'title') ?? 'Demande sans titre',
     description: readString(record, 'Description', 'description') ?? '',
     resultNotes: readString(record, 'ResultNotes', 'resultNotes') ?? null,
     supportRequestType:
@@ -116,7 +116,7 @@ function mapSupportRequest(
     directorId:
       readNumber(record, 'FK_DirectorId', 'fK_DirectorId', 'fk_DirectorId') ??
       null,
-    priority: readString(record, 'Priority', 'priority') ?? 'Medium',
+    priority: readString(record, 'Priority', 'priority') ?? 'Moyenne',
     source,
     parentName: buildFullName(
       readString(parent, 'FirstName', 'firstName'),
@@ -156,7 +156,7 @@ function mapStatusLog(record: ApiRecord): SupportRequestStatusLogRecord {
       ) ?? 0,
     statusId:
       readNumber(record, 'FK_StatusId', 'fK_StatusId', 'fk_StatusId') ?? 0,
-    message: readString(record, 'Message', 'message') ?? 'No message',
+    message: readString(record, 'Message', 'message') ?? 'Aucun message',
     createdAt:
       readString(record, 'CreatedAt', 'createdAt') ??
       readString(record, 'CreatedOn', 'createdOn') ??
@@ -167,7 +167,7 @@ function mapStatusLog(record: ApiRecord): SupportRequestStatusLogRecord {
 function mapSupportRequestDetails(record: ApiRecord): SupportRequestDetailsRecord {
   return {
     id: readNumber(record, 'SupportRequestId', 'supportRequestId') ?? 0,
-    title: readString(record, 'Title', 'title') ?? 'Untitled request',
+    title: readString(record, 'Title', 'title') ?? 'Demande sans titre',
     description: readString(record, 'Description', 'description') ?? '',
     resultNotes: readString(record, 'ResultNotes', 'resultNotes') ?? null,
     supportRequestType:
@@ -188,7 +188,7 @@ function mapSupportRequestDetails(record: ApiRecord): SupportRequestDetailsRecor
     directorId:
       readNumber(record, 'FK_DirectorId', 'fK_DirectorId', 'fk_DirectorId') ??
       null,
-    priority: readString(record, 'Priority', 'priority') ?? 'Medium',
+    priority: readString(record, 'Priority', 'priority') ?? 'Moyenne',
     createdOn:
       readString(record, 'CreatedAt', 'createdAt') ??
       readString(record, 'CreatedOn', 'createdOn') ??
@@ -234,7 +234,7 @@ export async function fetchSupportRequestDetails(
   const record = readRecord(getEnvelopeData(data))
 
   if (!record) {
-    throw new Error('Support request details were not returned by the API.')
+    throw new Error('Les details de la demande de support n ont pas ete retournes par l API.')
   }
 
   return mapSupportRequestDetails(record)

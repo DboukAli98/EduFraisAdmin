@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react'
 import { useQueries, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { LifeBuoy, MessageSquareWarning, ShieldAlert, Users } from 'lucide-react'
+import { Eye, LifeBuoy, MessageSquareWarning, ShieldAlert, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { EmptyState } from '@/features/admin/components/empty-state'
 import { PageShell } from '@/features/admin/components/page-shell'
@@ -68,11 +68,11 @@ const supportSources: SupportSource[] = [
 ]
 
 const supportedStatusActions = [
-  { id: 6, label: 'Pending' },
-  { id: 11, label: 'InProgress' },
-  { id: 15, label: 'Stall' },
-  { id: 14, label: 'Resolved' },
-  { id: 9, label: 'Cancelled' },
+  { id: 6, label: 'En attente' },
+  { id: 11, label: 'En cours' },
+  { id: 15, label: 'Bloque' },
+  { id: 14, label: 'Resolu' },
+  { id: 9, label: 'Annule' },
 ]
 
 function SummaryCard({ title, value, description }: SummaryCardProps) {
@@ -129,6 +129,7 @@ export function SupportWorkspace() {
 
   const [source, setSource] = useState<SupportSource>('PARENT_TO_DIRECTOR')
   const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null)
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
   const [statusForm, setStatusForm] = useState<StatusFormState>(createEmptyStatusForm())
 
@@ -171,6 +172,20 @@ export function SupportWorkspace() {
     queryFn: () => fetchSupportRequestDetails(selectedRequestId ?? 0),
     enabled: isDirector && Boolean(selectedRequestId),
   })
+
+  function openSupportRequest(requestId: number) {
+    setSelectedRequestId(requestId)
+    setIsDetailsDialogOpen(true)
+  }
+
+  function openStatusDialog() {
+    setStatusForm({
+      newStatusId: selectedRequest?.statusId ?? 11,
+      message: '',
+      resultNotes: detailsQuery.data?.resultNotes ?? '',
+    })
+    setIsStatusDialogOpen(true)
+  }
 
   const updateStatusMutation = useMutation({
     mutationFn: async () => {
@@ -245,14 +260,7 @@ export function SupportWorkspace() {
           <Button
             variant='outline'
             disabled={!selectedRequest}
-            onClick={() => {
-              setStatusForm({
-                newStatusId: selectedRequest?.statusId ?? 11,
-                message: '',
-                resultNotes: detailsQuery.data?.resultNotes ?? '',
-              })
-              setIsStatusDialogOpen(true)
-            }}
+            onClick={openStatusDialog}
           >
             Mettre a jour le statut
           </Button>
@@ -369,8 +377,9 @@ export function SupportWorkspace() {
                             <Button
                               variant='outline'
                               size='sm'
-                              onClick={() => setSelectedRequestId(request.id)}
+                              onClick={() => openSupportRequest(request.id)}
                             >
+                              <Eye className='h-4 w-4' />
                               Ouvrir
                             </Button>
                           </TableCell>
@@ -517,6 +526,150 @@ export function SupportWorkspace() {
           </Card>
         </section>
       </PageShell>
+
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className='sm:max-w-4xl'>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedRequest?.title || 'Details de la demande'}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedRequest
+                ? `${formatSourceLabel(selectedRequest.source)} | ${selectedRequest.parentName || selectedRequest.agentName || selectedRequest.supportRequestType}`
+                : 'Consultez les informations de la demande de support selectionnee.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {!selectedRequest ? (
+            <EmptyState
+              title='Aucune demande selectionnee'
+              description='Selectionnez une demande dans la liste pour ouvrir sa fiche.'
+            />
+          ) : detailsQuery.isLoading ? (
+            <div className='space-y-3'>
+              <Skeleton className='h-10 w-full' />
+              <Skeleton className='h-24 w-full' />
+              <Skeleton className='h-32 w-full' />
+            </div>
+          ) : detailsQuery.isError || !detailsQuery.data ? (
+            <EmptyState
+              title='Impossible de charger les details'
+              description='La demande de support selectionnee n a pas renvoye de fiche detaillee depuis le backend.'
+            />
+          ) : (
+            <div className='grid max-h-[70vh] gap-6 overflow-y-auto pr-1 xl:grid-cols-[1fr_0.9fr]'>
+              <div className='space-y-4'>
+                <DetailRow label='Titre' value={detailsQuery.data.title} />
+                <DetailRow
+                  label='Statut'
+                  value={
+                    <Badge
+                      variant='outline'
+                      className={getEntityStatusMeta(detailsQuery.data.statusId).className}
+                    >
+                      {getEntityStatusMeta(detailsQuery.data.statusId).label}
+                    </Badge>
+                  }
+                />
+                <DetailRow
+                  label='Participants'
+                  value={
+                    <div className='space-y-1'>
+                      <div className='flex items-center gap-2'>
+                        <Users className='h-3.5 w-3.5 text-muted-foreground' />
+                        <span>{selectedRequest.parentName || 'Aucun parent lie'}</span>
+                      </div>
+                      <div className='flex items-center gap-2'>
+                        <ShieldAlert className='h-3.5 w-3.5 text-muted-foreground' />
+                        <span>{selectedRequest.agentName || 'Aucun agent lie'}</span>
+                      </div>
+                    </div>
+                  }
+                />
+                <DetailRow
+                  label='Description'
+                  value={detailsQuery.data.description || 'Aucune description'}
+                />
+                <DetailRow
+                  label='Notes de resolution'
+                  value={detailsQuery.data.resultNotes || 'Aucune note de resolution pour le moment'}
+                />
+                <DetailRow
+                  label='Metadonnees'
+                  value={
+                    <div className='space-y-1'>
+                      <div>Type : {detailsQuery.data.supportRequestType}</div>
+                      <div>Priorite : {detailsQuery.data.priority}</div>
+                      <div>Cree le : {formatDateTime(detailsQuery.data.createdOn)}</div>
+                      <div>
+                        Resolution attendue :{' '}
+                        {formatDateTime(detailsQuery.data.expectedResolutionDate)}
+                      </div>
+                      <div>Resolue le : {formatDateTime(detailsQuery.data.resolvedDate)}</div>
+                    </div>
+                  }
+                />
+              </div>
+
+              <div className='space-y-3'>
+                <div>
+                  <h4 className='font-medium'>Historique des statuts</h4>
+                  <p className='text-sm text-muted-foreground'>
+                    Changements de statut enregistres dans l historique backend.
+                  </p>
+                </div>
+
+                {detailsQuery.data.statusLogs.length === 0 ? (
+                  <EmptyState
+                    title='Aucun historique de statut'
+                    description='Cette demande ne contient encore aucune entree d historique de statut.'
+                  />
+                ) : (
+                  <div className='space-y-3'>
+                    {detailsQuery.data.statusLogs.map((log) => (
+                      <div
+                        key={log.id}
+                        className='rounded-xl border bg-muted/20 p-4 text-sm'
+                      >
+                        <div className='flex items-start justify-between gap-3'>
+                          <Badge
+                            variant='outline'
+                            className={getEntityStatusMeta(log.statusId).className}
+                          >
+                            {getEntityStatusMeta(log.statusId).label}
+                          </Badge>
+                          <span className='text-xs text-muted-foreground'>
+                            {formatDateTime(log.createdAt)}
+                          </span>
+                        </div>
+                        <p className='mt-3'>{log.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => setIsDetailsDialogOpen(false)}
+            >
+              Fermer
+            </Button>
+            <Button
+              disabled={!selectedRequest || detailsQuery.isLoading}
+              onClick={() => {
+                setIsDetailsDialogOpen(false)
+                openStatusDialog()
+              }}
+            >
+              Mettre a jour le statut
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={isStatusDialogOpen}

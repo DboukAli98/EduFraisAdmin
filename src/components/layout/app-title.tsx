@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Menu, X } from 'lucide-react'
+import { Logo } from '@/assets/logo'
 import { cn } from '@/lib/utils'
 import {
   SidebarMenu,
@@ -25,8 +26,13 @@ export function AppTitle() {
               onClick={() => setOpenMobile(false)}
               className='grid flex-1 text-start text-sm leading-tight'
             >
-              <span className='truncate font-bold'>Shadcn-Admin</span>
-              <span className='truncate text-xs'>Vite + ShadcnUI</span>
+              <div className='flex items-center gap-2'>
+                <Logo className='size-8 text-sidebar-primary' />
+                <div className='grid leading-tight'>
+                  <span className='truncate font-bold'>EduFrais Portal</span>
+                  <span className='truncate text-xs'>Administration</span>
+                </div>
+              </div>
             </Link>
             <ToggleSidebar />
           </div>

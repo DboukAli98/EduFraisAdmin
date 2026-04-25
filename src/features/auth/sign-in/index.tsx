@@ -18,7 +18,7 @@ export function SignIn() {
       <Card className='max-w-sm gap-4'>
         <CardHeader>
           <CardTitle className='text-lg tracking-tight'>
-            EduFrais Admin
+            EduFrais Portal
           </CardTitle>
           <CardDescription>
             Connectez-vous avec le meme indicatif, numero mobile et mot de passe

@@ -6,6 +6,7 @@ import {
   Pencil,
   Plus,
   Power,
+  Settings,
   ShieldCheck,
   UserPlus,
   Users,
@@ -280,6 +281,7 @@ export function CollectingAgents() {
   const directorId = isDirector ? currentUser?.entityUserId ?? null : null
 
   const [selectedAgentId, setSelectedAgentId] = useState<number | null>(null)
+  const [isManageDialogOpen, setIsManageDialogOpen] = useState(false)
   const [isAgentDialogOpen, setIsAgentDialogOpen] = useState(false)
   const [editingAgent, setEditingAgent] = useState<AgentRecord | null>(null)
   const [agentForm, setAgentForm] = useState<AgentFormState>(createEmptyAgentForm())
@@ -381,15 +383,19 @@ export function CollectingAgents() {
     )
   }, [assignedParents, schoolParents])
 
-  function focusSelectedAgent(agentId: number) {
-    setSelectedAgentId(agentId)
-
+  function scrollToSelectedAgentPanel() {
     requestAnimationFrame(() => {
       selectedAgentPanelRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       })
     })
+  }
+
+  function openAgentManagement(agentId: number) {
+    setSelectedAgentId(agentId)
+    setIsManageDialogOpen(true)
+    scrollToSelectedAgentPanel()
   }
 
   const saveAgentMutation = useMutation({
@@ -748,11 +754,10 @@ export function CollectingAgents() {
                                     selectedAgentId === agent.id ? 'secondary' : 'outline'
                                   }
                                   size='sm'
-                                  onClick={() => focusSelectedAgent(agent.id)}
+                                  onClick={() => openAgentManagement(agent.id)}
                                 >
-                                  {selectedAgentId === agent.id
-                                    ? 'Selectionne'
-                                    : 'Gerer'}
+                                  <Settings className='h-4 w-4' />
+                                  Gerer
                                 </Button>
                                 <Button
                                   variant='outline'
@@ -786,65 +791,67 @@ export function CollectingAgents() {
             </CardContent>
           </Card>
 
-          <Card className='border-border/70' ref={selectedAgentPanelRef}>
-            <CardHeader>
-              <CardTitle>
-                {selectedAgent
-                  ? `Agent selectionne : ${buildFullName(selectedAgent.firstName, selectedAgent.lastName)}`
-                  : 'Agent selectionne'}
-              </CardTitle>
-              <CardDescription>
-                Travaillez avec un agent a la fois pour gerer les affectations, activites et commissions.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {!selectedAgent ? (
-                <EmptyState
-                  title='Aucun agent selectionne'
-                  description='Choisissez un agent dans la liste pour gerer son activite.'
-                />
-              ) : (
-                <div className='space-y-4'>
-                  <div className='flex items-start justify-between gap-3'>
-                    <div>
-                      <h3 className='text-lg font-semibold'>
-                        {buildFullName(selectedAgent.firstName, selectedAgent.lastName)}
-                      </h3>
-                      <p className='text-sm text-muted-foreground'>
-                        {selectedAgent.email || 'Aucun e-mail'} | +{selectedAgent.countryCode}{' '}
-                        {selectedAgent.phoneNumber}
-                      </p>
+          <div ref={selectedAgentPanelRef}>
+            <Card className='border-border/70'>
+              <CardHeader>
+                <CardTitle>
+                  {selectedAgent
+                    ? `Agent selectionne : ${buildFullName(selectedAgent.firstName, selectedAgent.lastName)}`
+                    : 'Agent selectionne'}
+                </CardTitle>
+                <CardDescription>
+                  Travaillez avec un agent a la fois pour gerer les affectations, activites et commissions.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {!selectedAgent ? (
+                  <EmptyState
+                    title='Aucun agent selectionne'
+                    description='Choisissez un agent dans la liste pour gerer son activite.'
+                  />
+                ) : (
+                  <div className='space-y-4'>
+                    <div className='flex items-start justify-between gap-3'>
+                      <div>
+                        <h3 className='text-lg font-semibold'>
+                          {buildFullName(selectedAgent.firstName, selectedAgent.lastName)}
+                        </h3>
+                        <p className='text-sm text-muted-foreground'>
+                          {selectedAgent.email || 'Aucun e-mail'} | +{selectedAgent.countryCode}{' '}
+                          {selectedAgent.phoneNumber}
+                        </p>
+                      </div>
+                      <Badge
+                        variant='outline'
+                        className={getEntityStatusMeta(selectedAgent.statusId).className}
+                      >
+                        {getEntityStatusMeta(selectedAgent.statusId).label}
+                      </Badge>
                     </div>
-                    <Badge
-                      variant='outline'
-                      className={getEntityStatusMeta(selectedAgent.statusId).className}
-                    >
-                      {getEntityStatusMeta(selectedAgent.statusId).label}
-                    </Badge>
-                  </div>
 
-                  <div className='grid gap-4'>
-                    <DetailRow
-                      label='Zone attribuee'
-                      value={selectedAgent.assignedArea || 'Aucune zone configuree'}
-                    />
-                    <DetailRow
-                      label='Pourcentage de commission'
-                      value={
-                        selectedAgent.commissionPercentage != null
-                          ? `${selectedAgent.commissionPercentage.toFixed(2)}%`
-                          : 'Non configure'
-                      }
-                    />
-                    <DetailRow
-                      label='Portee operationnelle'
-                      value='Ce directeur peut affecter des parents, journaliser des activites et enregistrer des commissions pour l agent selectionne.'
-                    />
+                    <div className='grid gap-4'>
+                      <DetailRow
+                        label='Zone attribuee'
+                        value={selectedAgent.assignedArea || 'Aucune zone configuree'}
+                      />
+                      <DetailRow
+                        label='Pourcentage de commission'
+                        value={
+                          selectedAgent.commissionPercentage != null
+                            ? `${selectedAgent.commissionPercentage.toFixed(2)}%`
+                            : 'Non configure'
+                        }
+                      />
+                      <DetailRow
+                        label='Portee operationnelle'
+                        value='Ce directeur peut affecter des parents, journaliser des activites et enregistrer des commissions pour l agent selectionne.'
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </section>
 
         <section className='grid gap-4 xl:grid-cols-2'>
@@ -1197,6 +1204,133 @@ export function CollectingAgents() {
           </Card>
         </section>
       </PageShell>
+
+      <Dialog open={isManageDialogOpen} onOpenChange={setIsManageDialogOpen}>
+        <DialogContent className='sm:max-w-2xl'>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedAgent
+                ? `Gerer ${buildFullName(selectedAgent.firstName, selectedAgent.lastName)}`
+                : 'Gerer l agent'}
+            </DialogTitle>
+            <DialogDescription>
+              Accedez rapidement aux actions principales pour l agent collecteur selectionne.
+            </DialogDescription>
+          </DialogHeader>
+
+          {!selectedAgent ? (
+            <EmptyState
+              title='Aucun agent selectionne'
+              description='Selectionnez un agent dans la liste pour ouvrir sa gestion.'
+            />
+          ) : (
+            <div className='grid gap-4'>
+              <div className='rounded-lg border bg-muted/20 p-4'>
+                <div className='flex flex-wrap items-start justify-between gap-3'>
+                  <div>
+                    <div className='font-semibold'>
+                      {buildFullName(selectedAgent.firstName, selectedAgent.lastName)}
+                    </div>
+                    <div className='text-sm text-muted-foreground'>
+                      {selectedAgent.email || 'Aucun e-mail'} | +{selectedAgent.countryCode}{' '}
+                      {selectedAgent.phoneNumber}
+                    </div>
+                  </div>
+                  <Badge
+                    variant='outline'
+                    className={getEntityStatusMeta(selectedAgent.statusId).className}
+                  >
+                    {getEntityStatusMeta(selectedAgent.statusId).label}
+                  </Badge>
+                </div>
+                <div className='mt-4 grid gap-3 text-sm sm:grid-cols-2'>
+                  <div>
+                    <p className='text-muted-foreground'>Zone attribuee</p>
+                    <p className='font-medium'>
+                      {selectedAgent.assignedArea || 'Aucune zone configuree'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className='text-muted-foreground'>Commission</p>
+                    <p className='font-medium'>
+                      {selectedAgent.commissionPercentage != null
+                        ? `${selectedAgent.commissionPercentage.toFixed(2)}%`
+                        : 'Non configuree'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className='grid gap-2 sm:grid-cols-2'>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setEditingAgent(selectedAgent)
+                    setAgentForm(createEmptyAgentForm(selectedAgent))
+                    setIsManageDialogOpen(false)
+                    setIsAgentDialogOpen(true)
+                  }}
+                >
+                  <Pencil className='h-4 w-4' />
+                  Modifier l agent
+                </Button>
+                <Button
+                  variant='outline'
+                  disabled={availableParents.length === 0}
+                  onClick={() => {
+                    setAssignmentForm(createEmptyAssignmentForm())
+                    setIsManageDialogOpen(false)
+                    setIsAssignmentDialogOpen(true)
+                  }}
+                >
+                  <UserPlus className='h-4 w-4' />
+                  Affecter un parent
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setActivityForm(createEmptyActivityForm())
+                    setIsManageDialogOpen(false)
+                    setIsActivityDialogOpen(true)
+                  }}
+                >
+                  <MapPinned className='h-4 w-4' />
+                  Journaliser une activite
+                </Button>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setCommissionForm(
+                      createEmptyCommissionForm(
+                        selectedAgent.commissionPercentage != null
+                          ? String(selectedAgent.commissionPercentage)
+                          : ''
+                      )
+                    )
+                    setIsManageDialogOpen(false)
+                    setIsCommissionDialogOpen(true)
+                  }}
+                >
+                  <Coins className='h-4 w-4' />
+                  Ajouter une commission
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant='outline'
+              onClick={() => {
+                setIsManageDialogOpen(false)
+                scrollToSelectedAgentPanel()
+              }}
+            >
+              Voir le panneau complet
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={isAgentDialogOpen}

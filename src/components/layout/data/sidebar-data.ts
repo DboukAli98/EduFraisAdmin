@@ -1,7 +1,6 @@
 import {
   Award,
   Building2,
-  Command,
   CreditCard,
   HandCoins,
   HelpCircle,
@@ -15,6 +14,7 @@ import {
   SlidersHorizontal,
   Users,
 } from 'lucide-react'
+import { Logo } from '@/assets/logo'
 import { type AuthUser } from '@/lib/jwt'
 import { type SidebarData } from '../types'
 
@@ -31,9 +31,9 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
       },
       teams: [
         {
-          name: 'Directeur EduFrais',
-          logo: Command,
-          plan: 'Operations scolaires',
+          name: 'EduFrais Portal',
+          logo: Logo,
+          plan: 'Direction',
         },
       ],
       navGroups: [
@@ -135,9 +135,9 @@ export function getSidebarData(user: AuthUser | null): SidebarData {
     },
     teams: [
       {
-        name: 'Admin EduFrais',
-        logo: Command,
-        plan: 'Console de suivi',
+        name: 'EduFrais Portal',
+        logo: Logo,
+        plan: 'Super administration',
       },
     ],
     navGroups: [
